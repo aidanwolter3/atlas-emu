@@ -1,8 +1,10 @@
 cc_library(
     name = "atlas",
+    hdrs = [
+        "atlas.h",
+    ],
     srcs = [
         "atlas.cc",
-        "atlas.h",
     ]
 )
 
