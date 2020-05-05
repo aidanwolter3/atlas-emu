@@ -1,13 +1,24 @@
 cc_library(
-    name = "atlas_core",
+    name = "atlas",
     srcs = [
         "atlas.cc",
         "atlas.h",
     ]
 )
 
+cc_test(
+    name = "atlas_test",
+    srcs = [
+        "atlas_test.cc",
+    ],
+    deps = [
+        ":atlas",
+        "@gtest//:gtest_main",
+    ],
+)
+
 cc_binary(
-    name = "atlas",
+    name = "atlas_emu",
     visibility = [
         "//visibility:public",
     ],
@@ -15,6 +26,6 @@ cc_binary(
         "main.cc",
     ],
     deps = [
-        ":atlas_core",
+        ":atlas",
     ]
 )

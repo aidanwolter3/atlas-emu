@@ -1,4 +1,4 @@
 alias(
-    name = "atlas",
-    actual = "//src:atlas",
+    name = "atlas_emu",
+    actual = "//src:atlas_emu",
 )
