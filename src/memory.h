@@ -9,8 +9,8 @@ class Memory {
   Memory(std::vector<uint8_t> data);
   ~Memory();
 
-  uint8_t Read(uint16_t offset);
-  uint8_t Write(uint16_t offset);
+  uint8_t Read(uint16_t address);
+  uint8_t Write(uint16_t address);
 
  private:
   std::vector<uint8_t> data_;

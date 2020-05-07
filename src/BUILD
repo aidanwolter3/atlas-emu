@@ -5,6 +5,8 @@ cc_library(
     ],
     srcs = [
         "atlas.cc",
+        "memory.cc",
+        "memory.h",
     ]
 )
 
