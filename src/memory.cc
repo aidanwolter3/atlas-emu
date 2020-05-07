@@ -5,10 +5,11 @@ Memory::Memory(std::vector<uint8_t> data)
 
 Memory::~Memory() = default;
 
-uint8_t Memory::Read(uint16_t address) {
-  return data_[address];
+Memory::Status Memory::Read(uint16_t address, uint8_t* byte) {
+  *byte = data_[address];
+  return Status::OK;
 }
 
-uint8_t Memory::Write(uint16_t address) {
-  return 0;
+Memory::Status Memory::Write(uint16_t address, uint8_t byte) {
+  return Status::OK;
 }

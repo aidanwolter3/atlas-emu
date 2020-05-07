@@ -9,8 +9,14 @@ class Memory {
   Memory(std::vector<uint8_t> data);
   ~Memory();
 
-  uint8_t Read(uint16_t address);
-  uint8_t Write(uint16_t address);
+  enum Status : uint8_t {
+    OK,
+    OUT_OF_BOUNDS,
+    READ_ONLY,
+  };
+
+  Memory::Status Read(uint16_t address, uint8_t* byte);
+  Memory::Status Write(uint16_t address, uint8_t byte);
 
  private:
   std::vector<uint8_t> data_;
