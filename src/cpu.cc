@@ -1,7 +1,7 @@
 #include "cpu.h"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -15,9 +15,7 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::Cpu(Memory& mem) : mem_(mem) {
-  stack_.pc = 0;
-}
+Cpu::Cpu(Memory& mem) : mem_(mem) { stack_.pc = 0; }
 
 Cpu::~Cpu() = default;
 
@@ -33,8 +31,8 @@ Cpu::Status Cpu::Run() {
   }
 
   // Print the address and instruction.
-  std::cout << "(" << IntToHexString(stack_.pc) << "): "
-            << IntToHexString(instruction) << std::endl;
+  std::cout << "(" << IntToHexString(stack_.pc)
+            << "): " << IntToHexString(instruction) << std::endl;
 
   stack_.pc++;
   return Status::OK;

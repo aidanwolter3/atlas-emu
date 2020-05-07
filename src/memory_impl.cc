@@ -1,10 +1,9 @@
 #include "memory_impl.h"
 
-MemoryImpl::MemoryImpl(std::vector<uint8_t> data)
-    : data_(std::move(data)) {}
+MemoryImpl::MemoryImpl(std::vector<uint8_t> data) : data_(std::move(data)) {}
 
 Memory::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
-  if (!byte || address > (data_.size()-1)) {
+  if (!byte || address > (data_.size() - 1)) {
     return Memory::Status::OUT_OF_BOUNDS;
   }
 

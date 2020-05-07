@@ -5,7 +5,7 @@
 
 class Memory {
  public:
-  virtual ~Memory() { };
+  virtual ~Memory(){};
 
   enum class Status : uint8_t {
     OK,

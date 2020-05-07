@@ -1,14 +1,16 @@
-#include "memory_impl.h"
-
 #include <cstdint>
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "memory_impl.h"
 
 namespace {
 
 const std::vector<uint8_t> kTestData = {
-  0x01, 0x02, 0x03, 0x04,
+    0x01,
+    0x02,
+    0x03,
+    0x04,
 };
 
 TEST(MemoryTest, ReadOk) {

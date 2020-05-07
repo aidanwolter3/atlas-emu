@@ -1,10 +1,10 @@
 #ifndef MEMORY_IMPL_H_
 #define MEMORY_IMPL_H_
 
-#include "memory.h"
-
 #include <cstdint>
 #include <vector>
+
+#include "memory.h"
 
 class MemoryImpl : public Memory {
  public:

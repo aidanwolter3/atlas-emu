@@ -1,6 +1,5 @@
 #include "atlas.h"
+
 #include "gtest/gtest.h"
 
-TEST(AtlasTest, Instantiate) {
-  Atlas atlas;
-}
+TEST(AtlasTest, Instantiate) { Atlas atlas; }
