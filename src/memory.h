@@ -9,7 +9,7 @@ class Memory {
   Memory(std::vector<uint8_t> data);
   ~Memory();
 
-  enum Status : uint8_t {
+  enum class Status : uint8_t {
     OK,
     OUT_OF_BOUNDS,
     READ_ONLY,
