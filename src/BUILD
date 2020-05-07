@@ -5,6 +5,8 @@ cc_library(
     ],
     srcs = [
         "atlas.cc",
+        "memory.cc",
+        "memory.h",
     ]
 )
 
@@ -12,6 +14,7 @@ cc_test(
     name = "atlas_test",
     srcs = [
         "atlas_test.cc",
+        "memory_test.cc",
     ],
     deps = [
         ":atlas",
