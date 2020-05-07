@@ -1,4 +1,4 @@
-#include "memory.h"
+#include "memory_impl.h"
 
 #include <cstdint>
 #include <vector>
@@ -13,7 +13,7 @@ const std::vector<uint8_t> kTestData = {
 
 TEST(MemoryTest, ReadOk) {
   uint8_t byte_read;
-  Memory mem(kTestData);
+  MemoryImpl mem = MemoryImpl(kTestData);
   auto status = mem.Read(0, &byte_read);
   EXPECT_EQ(status, Memory::Status::OK);
   EXPECT_EQ(byte_read, 0x01);
@@ -21,19 +21,19 @@ TEST(MemoryTest, ReadOk) {
 
 TEST(MemoryTest, ReadOutOfBounds) {
   uint8_t byte_read;
-  Memory mem(kTestData);
+  MemoryImpl mem(kTestData);
   auto status = mem.Read(4, &byte_read);
   EXPECT_EQ(status, Memory::Status::OUT_OF_BOUNDS);
 }
 
 TEST(MemoryTest, ReadInvalidPointer) {
-  Memory mem(kTestData);
+  MemoryImpl mem(kTestData);
   auto status = mem.Read(0, nullptr);
   EXPECT_EQ(status, Memory::Status::OUT_OF_BOUNDS);
 }
 
 TEST(MemoryTest, WriteOk) {
-  Memory mem(kTestData);
+  MemoryImpl mem(kTestData);
   auto status = mem.Write(0, 0x01);
   EXPECT_EQ(status, Memory::Status::OK);
 }

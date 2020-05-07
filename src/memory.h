@@ -2,12 +2,10 @@
 #define MEMORY_H_
 
 #include <cstdint>
-#include <vector>
 
 class Memory {
  public:
-  Memory(std::vector<uint8_t> data);
-  ~Memory();
+  virtual ~Memory() { };
 
   enum class Status : uint8_t {
     OK,
@@ -15,11 +13,8 @@ class Memory {
     READ_ONLY,
   };
 
-  Memory::Status Read(uint16_t address, uint8_t* byte);
-  Memory::Status Write(uint16_t address, uint8_t byte);
-
- private:
-  std::vector<uint8_t> data_;
+  virtual Memory::Status Read(uint16_t address, uint8_t* byte) = 0;
+  virtual Memory::Status Write(uint16_t address, uint8_t byte) = 0;
 };
 
 #endif  // MEMORY_H_

@@ -2,11 +2,12 @@ cc_library(
     name = "atlas",
     hdrs = [
         "atlas.h",
+        "memory.h",
     ],
     srcs = [
         "atlas.cc",
-        "memory.cc",
-        "memory.h",
+        "memory_impl.cc",
+        "memory_impl.h",
     ]
 )
 
