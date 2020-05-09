@@ -1,11 +1,11 @@
 # Linter rules.
 #
 # Run manually with:
-#    clang-format -i --style=file src/*.(h|cc)
+#    git-clang-format-mp-9.0
 #
 # Install clang-format on MacPorts with:
-#    sudo port install clang-10
-#    sudo port select --set clang mp-clang-10
+#    sudo port install clang-9.0
+#    sudo port select --set clang mp-clang-9.0
 #
 ---
 Language:        Cpp

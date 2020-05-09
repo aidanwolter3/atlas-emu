@@ -8,10 +8,10 @@ This project is built using [Bazel.](https://docs.bazel.build/versions/3.1.0/ins
 
 **Install with Macports**
 ```bash
-$ sudo port install clang-10
-$ sudo port select --set clang mp-clang-10
+$ sudo port install clang-9.0
+$ sudo port select --set clang mp-clang-9.0
 ```
 **Lint the source files**
 ```bash
-$ clang-format -i --style=file src/*.(h|cc)
+$ git-clang-format-mp-9.0
 ```
