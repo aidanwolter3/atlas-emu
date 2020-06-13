@@ -4,12 +4,12 @@ cc_library(
         "atlas.h",
         "cpu.h",
         "memory.h",
+        "memory_impl.h",
     ],
     srcs = [
         "atlas.cc",
         "cpu.cc",
         "memory_impl.cc",
-        "memory_impl.h",
     ]
 )
 
@@ -23,6 +23,9 @@ cc_test(
     deps = [
         ":atlas",
         "@gtest//:gtest_main",
+    ],
+    data = [
+        "//src/roms:nop_test",
     ],
 )
 

@@ -4,6 +4,15 @@
 
 int main(int argc, char** argv) {
   std::cout << "Welcome to AtlasEmu!" << std::endl;
-  Atlas atlas;
+
+  std::string rom_path;
+  if (argc < 2) {
+    std::cout << "Missing ROM argument" << std::endl;
+    return 1;
+  }
+  rom_path = argv[1];
+  std::cout << "Loading ROM: " << rom_path << std::endl;
+
+  Atlas atlas(rom_path);
   return 0;
 }

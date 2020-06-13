@@ -31,6 +31,7 @@ Cpu::Status Cpu::Run() {
   }
 
   // Print the address and instruction.
+  // TODO: Provide a --verbose flag to disable this at runtime.
   std::cout << "(" << IntToHexString(stack_.pc)
             << "): " << IntToHexString(instruction) << std::endl;
 
