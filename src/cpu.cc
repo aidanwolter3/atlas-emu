@@ -18,8 +18,8 @@ std::string IntToHexString(int num) {
 Cpu::Cpu(Memory& mem) : mem_(mem) {
   uint8_t start_address_low, start_address_high;
   Memory::Status status_low, status_high;
-  status_low = mem_.Read(0xFFFA, &start_address_low);
-  status_high = mem_.Read(0xFFFB, &start_address_high);
+  status_low = mem_.Read(0xFFFC, &start_address_low);
+  status_high = mem_.Read(0xFFFD, &start_address_high);
   if (status_low != Memory::Status::OK || status_high != Memory::Status::OK) {
     std::cout << "Failed to read the start location" << std::endl;
     return;

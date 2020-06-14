@@ -21,9 +21,9 @@ TEST(CpuTest, RunUntilSegfault) {
   MockMemory mem;
 
   // The starting address will be read first.
-  EXPECT_CALL(mem, Read(0xFFFA, _))
+  EXPECT_CALL(mem, Read(0xFFFC, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xAA), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem, Read(0xFFFB, _))
+  EXPECT_CALL(mem, Read(0xFFFD, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xBB), Return(Memory::Status::OK)));
   Cpu cpu(mem);
 
