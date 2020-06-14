@@ -7,7 +7,9 @@
 namespace {
 
 using testing::_;
+using testing::DoAll;
 using testing::Return;
+using testing::SetArgPointee;
 
 class MockMemory : public Memory {
  public:
@@ -17,19 +19,26 @@ class MockMemory : public Memory {
 
 TEST(CpuTest, RunUntilSegfault) {
   MockMemory mem;
+
+  // The starting address will be read first.
+  EXPECT_CALL(mem, Read(0xFFFA, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0xAA), Return(Memory::Status::OK)));
+  EXPECT_CALL(mem, Read(0xFFFB, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0xBB), Return(Memory::Status::OK)));
   Cpu cpu(mem);
 
-  EXPECT_CALL(mem, Read(0, _)).WillOnce(Return(Memory::Status::OK));
+  EXPECT_CALL(mem, Read(0xBBAA, _)).WillOnce(Return(Memory::Status::OK));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(1, cpu.GetPc());
+  EXPECT_EQ(0xBBAB, cpu.GetPc());
 
-  EXPECT_CALL(mem, Read(1, _)).WillOnce(Return(Memory::Status::OK));
+  EXPECT_CALL(mem, Read(0xBBAB, _)).WillOnce(Return(Memory::Status::OK));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(2, cpu.GetPc());
+  EXPECT_EQ(0xBBAC, cpu.GetPc());
 
-  EXPECT_CALL(mem, Read(2, _)).WillOnce(Return(Memory::Status::OUT_OF_BOUNDS));
+  EXPECT_CALL(mem, Read(0xBBAC, _))
+      .WillOnce(Return(Memory::Status::OUT_OF_BOUNDS));
   EXPECT_EQ(Cpu::Status::SEGFAULT, cpu.Run());
-  EXPECT_EQ(2, cpu.GetPc());
+  EXPECT_EQ(0xBBAC, cpu.GetPc());
 }
 
 }  // namespace
