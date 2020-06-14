@@ -14,5 +14,6 @@ int main(int argc, char** argv) {
   std::cout << "Loading ROM: " << rom_path << std::endl;
 
   Atlas atlas(rom_path);
+  atlas.Run();
   return 0;
 }

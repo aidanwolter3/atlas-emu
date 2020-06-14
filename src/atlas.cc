@@ -24,9 +24,25 @@ Atlas::Atlas(const std::string rom_file) {
   mem_ = std::make_unique<MemoryImpl>(std::move(data));
   cpu_ = std::make_unique<Cpu>(*mem_);
 
-  // Run until we encounter an error.
-  while (cpu_->Run() == Cpu::Status::OK)
-    ;
 }
 
 Atlas::~Atlas() = default;
+
+Cpu::Status Atlas::Run() {
+  Cpu::Status status = Cpu::Status::OK;
+  do {
+    status = cpu_->Run();
+  } while (status == Cpu::Status::OK);
+  return status;
+}
+
+Cpu::Status Atlas::RunTimes(int times) {
+  Cpu::Status status = Cpu::Status::OK;
+  for (int i = 0; i < times; ++i) {
+    status = cpu_->Run();
+    if (status != Cpu::Status::OK) {
+      return status;
+    }
+  }
+  return status;
+}
