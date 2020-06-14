@@ -27,11 +27,13 @@ TEST(CpuTest, RunUntilSegfault) {
       .WillOnce(DoAll(SetArgPointee<1>(0xBB), Return(Memory::Status::OK)));
   Cpu cpu(mem);
 
-  EXPECT_CALL(mem, Read(0xBBAA, _)).WillOnce(Return(Memory::Status::OK));
+  EXPECT_CALL(mem, Read(0xBBAA, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0xEA), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAB, cpu.GetPc());
 
-  EXPECT_CALL(mem, Read(0xBBAB, _)).WillOnce(Return(Memory::Status::OK));
+  EXPECT_CALL(mem, Read(0xBBAB, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0xEA), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAC, cpu.GetPc());
 

@@ -64,5 +64,11 @@ Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* hex_instruction) {
 }
 
 Cpu::Status Cpu::Decode(uint8_t hex_instruction, Instruction* instruction) {
-  return Status::OK;
+  switch (hex_instruction) {
+    case 0xEA:
+      *instruction = NOP();
+      return Status::OK;
+  }
+  std::cout << "Failed to decode: unknown instruction" << std::endl;
+  return Status::UNKNOWN_INSTRUCTION;
 }

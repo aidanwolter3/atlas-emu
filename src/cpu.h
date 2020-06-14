@@ -6,15 +6,19 @@
 #include "memory.h"
 
 class Instruction {};
+class NOP : public Instruction {};
 
 class Cpu {
  public:
   Cpu(Memory& mem);
   ~Cpu();
 
+  // TODO: Consider prefixing each instruction with the stage (FETCH, DECODE).
+  // TODO: Override the operator<< to print the status name.
   enum class Status : uint8_t {
     OK,
     SEGFAULT,
+    UNKNOWN_INSTRUCTION,
   };
 
   struct Stack {
