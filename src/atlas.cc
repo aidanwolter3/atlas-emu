@@ -10,6 +10,7 @@
 Atlas::Atlas(const std::string rom_file) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
+  rom_stream.unsetf(std::ios_base::skipws);
   rom_stream.open(rom_file, std::ios_base::binary);
   if (!rom_stream) {
     std::cout << "Failed to open file: " << rom_file << std::endl;
@@ -23,7 +24,6 @@ Atlas::Atlas(const std::string rom_file) {
 
   mem_ = std::make_unique<MemoryImpl>(std::move(data));
   cpu_ = std::make_unique<Cpu>(*mem_);
-
 }
 
 Atlas::~Atlas() = default;
