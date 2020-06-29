@@ -21,10 +21,11 @@ Cpu::Cpu(Memory& mem) : mem_(mem) {
   status_low = mem_.Read(0xFFFC, &start_address_low);
   status_high = mem_.Read(0xFFFD, &start_address_high);
   if (status_low != Memory::Status::OK || status_high != Memory::Status::OK) {
-    std::cout << "Failed to read the start location" << std::endl;
+    std::cout << "Failed to read the start address" << std::endl;
     return;
   }
   stack_.pc = (start_address_high << 8) | start_address_low;
+  std::cout << "Start address: " << IntToHexString(stack_.pc) << std::endl;
 }
 
 Cpu::~Cpu() = default;

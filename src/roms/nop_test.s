@@ -1,3 +1,8 @@
+.segment "HEADER"
+  .byte 'N', 'E', 'S', $1a
+  .byte 2 ; number of 16k PRG ROM segments
+  .byte 0 ; number of 8k CHR ROM segments
+
 .segment "CODE"
   main:
     nop
@@ -9,7 +14,6 @@
   .word main ; $fffa = nmi
   .word main ; $fffc = reset
 
-.segment "HEADER"
 .segment "STARTUP"
 .segment "CHARS"
 .segment "BSS"
