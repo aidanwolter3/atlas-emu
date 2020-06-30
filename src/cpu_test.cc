@@ -61,4 +61,16 @@ TEST(CpuTest, InitialStateOfStatusRegister) {
   EXPECT_FALSE(cpu.GetStatusRegister().sign);
 }
 
+TEST(CpuTest, NOP) {
+  MockMemory mem;
+
+  ExpectReadStartAddress(mem, 0xBBAA);
+  Cpu cpu(mem);
+
+  EXPECT_CALL(mem, Read(0xBBAA, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0xEA), Return(Memory::Status::OK)));
+  EXPECT_EQ(Cpu::Status::OK, cpu.Run());
+  EXPECT_EQ(0xBBAB, cpu.GetPc());
+}
+
 }  // namespace

@@ -15,6 +15,18 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
+class Cpu::Instruction {
+ public:
+  virtual ~Instruction() {}
+  virtual void Execute() = 0;
+};
+
+class NOP : public Cpu::Instruction {
+ public:
+  NOP() = default;
+  void Execute() override {}
+};
+
 Cpu::Cpu(Memory& mem) : mem_(mem) {
   uint8_t start_address_low, start_address_high;
   Memory::Status status_low, status_high;
@@ -39,9 +51,12 @@ Cpu::Status Cpu::Run() {
   if (status != Status::OK) return status;
 
   // Decode
-  Instruction instruction;
-  status = Decode(hex_instruction, &instruction);
+  std::unique_ptr<Instruction> instruction;
+  status = Decode(hex_instruction, instruction);
   if (status != Status::OK) return status;
+
+  // Execute
+  instruction->Execute();
 
   pc_++;
   return status;
@@ -64,10 +79,11 @@ Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* hex_instruction) {
   return Status::OK;
 }
 
-Cpu::Status Cpu::Decode(uint8_t hex_instruction, Instruction* instruction) {
+Cpu::Status Cpu::Decode(uint8_t hex_instruction,
+                        std::unique_ptr<Instruction>& instruction) {
   switch (hex_instruction) {
     case 0xEA:
-      *instruction = NOP();
+      instruction = std::make_unique<NOP>();
       return Status::OK;
   }
   std::cout << "Failed to decode: unknown instruction" << std::endl;

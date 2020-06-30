@@ -2,11 +2,10 @@
 #define CPU_H_
 
 #include <cstdint>
+#include <memory>
 
 #include "memory.h"
 
-class Instruction {};
-class NOP : public Instruction {};
 struct StatusRegister {
   bool carry = false;
   bool zero = false;
@@ -19,6 +18,8 @@ struct StatusRegister {
 
 class Cpu {
  public:
+  class Instruction;
+
   Cpu(Memory& mem);
   ~Cpu();
 
@@ -38,7 +39,9 @@ class Cpu {
 
  private:
   Cpu::Status Fetch(uint16_t location, uint8_t* hex_instruction);
-  Cpu::Status Decode(uint8_t hex_instruction, Instruction* instruction);
+  Cpu::Status Decode(uint8_t hex_instruction,
+                     std::unique_ptr<Instruction>& instruction);
+
   // Registers
   uint16_t pc_;
   StatusRegister status_;
