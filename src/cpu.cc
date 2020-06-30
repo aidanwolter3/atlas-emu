@@ -27,6 +27,15 @@ class NOP : public Cpu::Instruction {
   void Execute() override {}
 };
 
+class SEI : public Cpu::Instruction {
+ public:
+  SEI(Cpu* cpu) : cpu_(cpu) {}
+  void Execute() override { cpu_->GetStatusRegister().int_disable = true; }
+
+ private:
+  Cpu* const cpu_;
+};
+
 Cpu::Cpu(Memory& mem) : mem_(mem) {
   uint8_t start_address_low, start_address_high;
   Memory::Status status_low, status_high;
@@ -84,6 +93,9 @@ Cpu::Status Cpu::Decode(uint8_t hex_instruction,
   switch (hex_instruction) {
     case 0xEA:
       instruction = std::make_unique<NOP>();
+      return Status::OK;
+    case 0x78:
+      instruction = std::make_unique<SEI>(this);
       return Status::OK;
   }
   std::cout << "Failed to decode: unknown instruction" << std::endl;
