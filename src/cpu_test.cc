@@ -17,14 +17,17 @@ class MockMemory : public Memory {
   MOCK_METHOD2(Write, Memory::Status(uint16_t address, uint8_t data));
 };
 
+void ExpectReadStartAddress(MockMemory& mem, uint16_t address) {
+  EXPECT_CALL(mem, Read(0xFFFC, _)).WillOnce(DoAll(
+        SetArgPointee<1>(address & 0xFF), Return(Memory::Status::OK)));
+  EXPECT_CALL(mem, Read(0xFFFD, _)).WillOnce(DoAll(
+        SetArgPointee<1>((address >> 8) & 0xFF), Return(Memory::Status::OK)));
+}
+
 TEST(CpuTest, RunUntilSegfault) {
   MockMemory mem;
 
-  // The starting address will be read first.
-  EXPECT_CALL(mem, Read(0xFFFC, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAA), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem, Read(0xFFFD, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xBB), Return(Memory::Status::OK)));
+  ExpectReadStartAddress(mem, 0xBBAA);
   Cpu cpu(mem);
 
   EXPECT_CALL(mem, Read(0xBBAA, _))
@@ -41,6 +44,21 @@ TEST(CpuTest, RunUntilSegfault) {
       .WillOnce(Return(Memory::Status::OUT_OF_BOUNDS));
   EXPECT_EQ(Cpu::Status::SEGFAULT, cpu.Run());
   EXPECT_EQ(0xBBAC, cpu.GetPc());
+}
+
+TEST(CpuTest, InitialStateOfStatusRegister) {
+  MockMemory mem;
+
+  ExpectReadStartAddress(mem, 0xBBAA);
+  Cpu cpu(mem);
+
+  EXPECT_FALSE(cpu.GetStatusRegister().carry);
+  EXPECT_FALSE(cpu.GetStatusRegister().zero);
+  EXPECT_FALSE(cpu.GetStatusRegister().int_disable);
+  EXPECT_FALSE(cpu.GetStatusRegister().bcd_mode);
+  EXPECT_FALSE(cpu.GetStatusRegister().brk);
+  EXPECT_FALSE(cpu.GetStatusRegister().overflow);
+  EXPECT_FALSE(cpu.GetStatusRegister().sign);
 }
 
 }  // namespace

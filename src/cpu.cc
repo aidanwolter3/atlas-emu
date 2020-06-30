@@ -24,8 +24,8 @@ Cpu::Cpu(Memory& mem) : mem_(mem) {
     std::cout << "Failed to read the start address" << std::endl;
     return;
   }
-  stack_.pc = (start_address_high << 8) | start_address_low;
-  std::cout << "Start address: " << IntToHexString(stack_.pc) << std::endl;
+  pc_ = (start_address_high << 8) | start_address_low;
+  std::cout << "Start address: " << IntToHexString(pc_) << std::endl;
 }
 
 Cpu::~Cpu() = default;
@@ -35,7 +35,7 @@ Cpu::Status Cpu::Run() {
 
   // Fetch
   uint8_t hex_instruction;
-  status = Fetch(stack_.pc, &hex_instruction);
+  status = Fetch(pc_, &hex_instruction);
   if (status != Status::OK) return status;
 
   // Decode
@@ -43,7 +43,7 @@ Cpu::Status Cpu::Run() {
   status = Decode(hex_instruction, &instruction);
   if (status != Status::OK) return status;
 
-  stack_.pc++;
+  pc_++;
   return status;
 }
 

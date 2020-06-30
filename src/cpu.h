@@ -7,6 +7,15 @@
 
 class Instruction {};
 class NOP : public Instruction {};
+struct StatusRegister {
+  bool carry = false;
+  bool zero = false;
+  bool int_disable = false;
+  bool bcd_mode = false;
+  bool brk = false;
+  bool overflow = false;
+  bool sign = false;
+};
 
 class Cpu {
  public:
@@ -21,20 +30,19 @@ class Cpu {
     UNKNOWN_INSTRUCTION,
   };
 
-  struct Stack {
-    uint16_t pc;
-  };
-
   // Run a single clock cycle.
   Cpu::Status Run();
 
-  uint16_t GetPc() { return stack_.pc; }
+  uint16_t GetPc() { return pc_; }
+  StatusRegister& GetStatusRegister() { return status_; }
 
  private:
   Cpu::Status Fetch(uint16_t location, uint8_t* hex_instruction);
   Cpu::Status Decode(uint8_t hex_instruction, Instruction* instruction);
+  // Registers
+  uint16_t pc_;
+  StatusRegister status_;
 
-  Stack stack_;
   Memory& mem_;
 };
 
