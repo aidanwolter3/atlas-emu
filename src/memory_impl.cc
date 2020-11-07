@@ -24,7 +24,7 @@ class MemoryImpl::Header {
 
   bool IsValid() {
     // TODO: support CHR memory banks.
-    return ((prg_count_ == 1 || prg_count_ == 2) && chr_count_ == 0);
+    return (prg_count_ <= 64 && chr_count_ == 0);
   }
 
   int GetPrgCount() { return prg_count_; }
