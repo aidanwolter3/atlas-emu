@@ -21,16 +21,28 @@ class Cpu::Instruction {
   virtual void Execute() = 0;
 };
 
+// No Operation
 class NOP : public Cpu::Instruction {
  public:
   NOP() = default;
   void Execute() override {}
 };
 
+// Set Interrupt Disable Status
 class SEI : public Cpu::Instruction {
  public:
   SEI(Cpu* cpu) : cpu_(cpu) {}
   void Execute() override { cpu_->GetStatusRegister().int_disable = true; }
+
+ private:
+  Cpu* const cpu_;
+};
+
+// Clear Decimal Mode
+class CLD : public Cpu::Instruction {
+ public:
+  CLD(Cpu* cpu) : cpu_(cpu) {}
+  void Execute() override { cpu_->GetStatusRegister().bcd_mode = false; }
 
  private:
   Cpu* const cpu_;
@@ -96,6 +108,9 @@ Cpu::Status Cpu::Decode(uint8_t hex_instruction,
       return Status::OK;
     case 0x78:
       instruction = std::make_unique<SEI>(this);
+      return Status::OK;
+    case 0xD8:
+      instruction = std::make_unique<CLD>(this);
       return Status::OK;
   }
   std::cout << "Failed to decode: unknown instruction" << std::endl;
