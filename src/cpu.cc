@@ -17,38 +17,119 @@ std::string IntToHexString(int num) {
 
 class Cpu::Instruction {
  public:
+  Instruction(Cpu* cpu) : cpu_(cpu) {}
+  Instruction(Instruction&& other) : cpu_(other.cpu_) {}
   virtual ~Instruction() {}
-  virtual void Execute() = 0;
+  virtual void Execute(uint8_t opcode) = 0;
+
+ protected:
+  std::vector<uint8_t> FetchOperands(int num) {
+    std::vector<uint8_t> operands(num);
+    for (int i = 0; i < num; ++i) {
+      auto status = cpu_->Fetch(cpu_->pc_, &operands[i]);
+      if (status != Status::OK) {
+        std::cout << "Failed to fetch operands" << std::endl;
+        return {};
+      }
+    }
+    cpu_->pc_ += num;
+    return operands;
+  }
+
+  StatusRegister GetStatusRegister() { return cpu_->status_; }
+
+  void SetStatusRegister(StatusRegister status) { cpu_->status_ = status; }
+
+  void SetAcc(uint16_t val) { cpu_->acc_ = val; }
+
+ private:
+  // We do not want the instructions to be able to directly access the CPU,
+  // because then the implementation of each instruction is strongly coupled to
+  // the implementation of the CPU.
+  Cpu* cpu_;
 };
 
 // No Operation
 class NOP : public Cpu::Instruction {
  public:
-  NOP() = default;
-  void Execute() override {}
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override {}
 };
 
 // Set Interrupt Disable Status
 class SEI : public Cpu::Instruction {
  public:
-  SEI(Cpu* cpu) : cpu_(cpu) {}
-  void Execute() override { cpu_->GetStatusRegister().int_disable = true; }
-
- private:
-  Cpu* const cpu_;
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override {
+    auto s = GetStatusRegister();
+    s.int_disable = true;
+    SetStatusRegister(s);
+  }
 };
 
 // Clear Decimal Mode
 class CLD : public Cpu::Instruction {
  public:
-  CLD(Cpu* cpu) : cpu_(cpu) {}
-  void Execute() override { cpu_->GetStatusRegister().bcd_mode = false; }
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override {
+    auto s = GetStatusRegister();
+    s.bcd_mode = false;
+    SetStatusRegister(s);
+  }
+};
 
- private:
-  Cpu* const cpu_;
+// Load Accumulator
+class LDA : public Cpu::Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override {
+    // Fetch the number of operands.
+    std::vector<uint8_t> operands;
+    switch (opcode) {
+      case 0xA9:
+      case 0xA5:
+      case 0xB5:
+      case 0xA1:
+      case 0xB1:
+        operands = FetchOperands(1);
+        break;
+      case 0xAD:
+      case 0xBD:
+      case 0xB9:
+        operands = FetchOperands(2);
+        break;
+      default:
+        std::cout << "Unsupported LDA variant: " << opcode << std::endl;
+        return;
+    }
+
+    // Execute.
+    switch (opcode) {
+      case 0xA9:
+        SetAcc(operands[0]);
+        break;
+      case 0xA5:
+      case 0xB5:
+      case 0xA1:
+      case 0xB1:
+      case 0xAD:
+      case 0xBD:
+      case 0xB9:
+      default:
+        std::cout << "Unsupported LDA variant: " << opcode << std::endl;
+        break;
+    }
+  }
 };
 
 Cpu::Cpu(Memory& mem) : mem_(mem) {
+  // Register all the instructions
+  RegisterInstruction<NOP>(0xEA);
+  RegisterInstruction<SEI>(0x78);
+  RegisterInstruction<CLD>(0xD8);
+  RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
+
+  // Read the start address
   uint8_t start_address_low, start_address_high;
   Memory::Status status_low, status_high;
   status_low = mem_.Read(0xFFFC, &start_address_low);
@@ -67,24 +148,39 @@ Cpu::Status Cpu::Run() {
   Cpu::Status status = Status::OK;
 
   // Fetch
-  uint8_t hex_instruction;
-  status = Fetch(pc_, &hex_instruction);
+  uint8_t opcode;
+  status = Fetch(pc_, &opcode);
   if (status != Status::OK) return status;
+  pc_++;
 
   // Decode
-  std::unique_ptr<Instruction> instruction;
-  status = Decode(hex_instruction, instruction);
-  if (status != Status::OK) return status;
+  auto instruction_it = instructions_.find(opcode);
+  if (instruction_it == instructions_.end()) {
+    std::cout << "Failed to decode: unknown instruction" << std::endl;
+    return Status::UNKNOWN_INSTRUCTION;
+  }
 
   // Execute
-  instruction->Execute();
+  instruction_it->second->Execute(opcode);
 
-  pc_++;
   return status;
 }
 
-Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* hex_instruction) {
-  auto status = mem_.Read(location, hex_instruction);
+template <class INS>
+void Cpu::RegisterInstruction(std::vector<uint8_t> opcodes) {
+  auto instruction = std::make_shared<INS>(this);
+  for (auto opcode : opcodes) {
+    instructions_[opcode] = instruction;
+  }
+}
+
+template <class INS>
+void Cpu::RegisterInstruction(uint8_t opcode) {
+  instructions_[opcode] = std::make_shared<INS>(this);
+}
+
+Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {
+  auto status = mem_.Read(location, opcode);
   if (status != Memory::Status::OK) {
     std::cout << "Encountered error "
               << "(" << std::to_string(static_cast<uint8_t>(status)) << ") "
@@ -96,23 +192,6 @@ Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* hex_instruction) {
   // Print the address and instruction.
   // TODO: Provide a --verbose flag to disable this at runtime.
   std::cout << "(" << IntToHexString(location)
-            << "): " << IntToHexString(*hex_instruction) << std::endl;
+            << "): " << IntToHexString(*opcode) << std::endl;
   return Status::OK;
-}
-
-Cpu::Status Cpu::Decode(uint8_t hex_instruction,
-                        std::unique_ptr<Instruction>& instruction) {
-  switch (hex_instruction) {
-    case 0xEA:
-      instruction = std::make_unique<NOP>();
-      return Status::OK;
-    case 0x78:
-      instruction = std::make_unique<SEI>(this);
-      return Status::OK;
-    case 0xD8:
-      instruction = std::make_unique<CLD>(this);
-      return Status::OK;
-  }
-  std::cout << "Failed to decode: unknown instruction" << std::endl;
-  return Status::UNKNOWN_INSTRUCTION;
 }

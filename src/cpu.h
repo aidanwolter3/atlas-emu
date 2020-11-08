@@ -2,7 +2,9 @@
 #define CPU_H_
 
 #include <cstdint>
+#include <map>
 #include <memory>
+#include <vector>
 
 #include "memory.h"
 
@@ -34,18 +36,27 @@ class Cpu {
   // Run a single clock cycle.
   Cpu::Status Run();
 
+  // Only for testing.
   uint16_t GetPc() { return pc_; }
-  StatusRegister& GetStatusRegister() { return status_; }
+  StatusRegister GetStatusRegister() { return status_; }
 
  private:
-  Cpu::Status Fetch(uint16_t location, uint8_t* hex_instruction);
-  Cpu::Status Decode(uint8_t hex_instruction,
-                     std::unique_ptr<Instruction>& instruction);
+  // Construct and register an instruction with the classname INS that will get
+  // executed when the |opcode| is fetched.
+  template <class INS>
+  void RegisterInstruction(std::vector<uint8_t> opcodes);
+  template <class INS>
+  void RegisterInstruction(uint8_t opcode);
+
+  // Fetch the |opcode| at |location| in |mem_|.
+  Cpu::Status Fetch(uint16_t location, uint8_t* opcode);
 
   // Registers
   uint16_t pc_;
   StatusRegister status_;
+  uint16_t acc_;
 
+  std::map<uint8_t, std::shared_ptr<Instruction>> instructions_;
   Memory& mem_;
 };
 
