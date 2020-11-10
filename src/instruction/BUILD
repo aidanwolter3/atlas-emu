@@ -5,10 +5,12 @@ cc_library(
         "instruction.h",
         "load.h",
         "status.h",
+        "store.h",
     ],
     srcs = [
         "load.cc",
         "status.cc",
+        "store.cc",
     ],
     deps = [
         "//src:public",

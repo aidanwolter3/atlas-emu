@@ -8,6 +8,7 @@
 #include "src/instruction/instruction.h"
 #include "src/instruction/load.h"
 #include "src/instruction/status.h"
+#include "src/instruction/store.h"
 
 namespace {
 
@@ -32,6 +33,13 @@ std::vector<uint8_t> Cpu::CpuProxyImpl::FetchOperands(int num) {
   return operands;
 }
 
+void Cpu::CpuProxyImpl::WriteMemoryAtOffset(uint16_t offset, uint8_t data) {
+  auto status = cpu_.mem_.Write(offset, data);
+  if (status != Memory::Status::OK) {
+    std::cout << "Failed to write memory at offset: " << offset << std::endl;
+  }
+}
+
 uint8_t Cpu::CpuProxyImpl::ReadMemoryAtOffset(uint16_t offset) {
   uint8_t value;
   auto status = cpu_.mem_.Read(offset, &value);
@@ -48,6 +56,7 @@ void Cpu::CpuProxyImpl::SetStatusRegister(StatusRegister status) {
   cpu_.status_ = status;
 }
 
+uint16_t Cpu::CpuProxyImpl::GetAcc() { return cpu_.acc_; }
 void Cpu::CpuProxyImpl::SetAcc(uint16_t val) { cpu_.acc_ = val; }
 
 Cpu::Cpu(Memory& mem) : cpu_proxy_(*this), mem_(mem) {
@@ -56,6 +65,7 @@ Cpu::Cpu(Memory& mem) : cpu_proxy_(*this), mem_(mem) {
   RegisterInstruction<SEI>(0x78);
   RegisterInstruction<CLD>(0xD8);
   RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
+  RegisterInstruction<STA>({0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91});
 
   // Read the start address
   uint8_t start_address_low, start_address_high;

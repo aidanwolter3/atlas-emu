@@ -10,8 +10,11 @@ class CpuProxy {
  public:
   virtual std::vector<uint8_t> FetchOperands(int num) = 0;
   virtual uint8_t ReadMemoryAtOffset(uint16_t offset) = 0;
+  virtual void WriteMemoryAtOffset(uint16_t offset, uint8_t data) = 0;
   virtual StatusRegister GetStatusRegister() = 0;
   virtual void SetStatusRegister(StatusRegister status) = 0;
+  // TODO: The accumulator is only 8-bit.
+  virtual uint16_t GetAcc() = 0;
   virtual void SetAcc(uint16_t val) = 0;
 };
 
