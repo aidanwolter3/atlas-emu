@@ -36,6 +36,16 @@ class Cpu::Instruction {
     return operands;
   }
 
+  uint8_t ReadMemoryAtOffset(uint16_t offset) {
+    uint8_t value;
+    auto status = cpu_->mem_.Read(offset, &value);
+    if (status != Memory::Status::OK) {
+      std::cout << "Failed to read memory at offset: " << offset << std::endl;
+      return 0;
+    }
+    return value;
+  }
+
   StatusRegister GetStatusRegister() { return cpu_->status_; }
 
   void SetStatusRegister(StatusRegister status) { cpu_->status_ = status; }
@@ -103,12 +113,15 @@ class LDA : public Cpu::Instruction {
         return;
     }
 
-    // Execute.
+    // Grab the data.
+    uint16_t data = 0;
     switch (opcode) {
       case 0xA9:
-        SetAcc(operands[0]);
+        data = operands[0];
         break;
       case 0xA5:
+        data = ReadMemoryAtOffset(operands[0]);
+        break;
       case 0xB5:
       case 0xA1:
       case 0xB1:
@@ -117,8 +130,15 @@ class LDA : public Cpu::Instruction {
       case 0xB9:
       default:
         std::cout << "Unsupported LDA variant: " << opcode << std::endl;
-        break;
+        return;
     }
+
+    // Set the registers.
+    SetAcc(data);
+    auto s = GetStatusRegister();
+    s.zero = (data == 0);
+    s.sign = (static_cast<int8_t>(data) < 0);
+    SetStatusRegister(s);
   }
 };
 

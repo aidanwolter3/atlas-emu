@@ -39,6 +39,7 @@ class Cpu {
   // Only for testing.
   uint16_t GetPc() { return pc_; }
   StatusRegister GetStatusRegister() { return status_; }
+  uint16_t GetAcc() { return acc_; }
 
  private:
   // Construct and register an instruction with the classname INS that will get
