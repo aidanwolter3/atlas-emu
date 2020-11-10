@@ -1,11 +1,7 @@
-# TODO: This exists, because Instruction needs to reach into Cpu and Memory.
-# Find a better way to do this.
 cc_library(
     name = "public",
     visibility = ["//visibility:public"],
     hdrs = [
-        "cpu.h",
-        "memory.h",
         "status.h",
     ]
 )
@@ -14,6 +10,8 @@ cc_library(
     name = "atlas",
     hdrs = [
         "atlas.h",
+        "cpu.h",
+        "memory.h",
         "memory_impl.h",
     ],
     srcs = [

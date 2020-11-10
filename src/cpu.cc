@@ -19,7 +19,38 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::Cpu(Memory& mem) : mem_(mem) {
+std::vector<uint8_t> Cpu::CpuProxyImpl::FetchOperands(int num) {
+  std::vector<uint8_t> operands(num);
+  for (int i = 0; i < num; ++i) {
+    auto status = cpu_.Fetch(cpu_.pc_, &operands[i]);
+    if (status != Cpu::Status::OK) {
+      std::cout << "Failed to fetch operands" << std::endl;
+      return {};
+    }
+  }
+  cpu_.pc_ += num;
+  return operands;
+}
+
+uint8_t Cpu::CpuProxyImpl::ReadMemoryAtOffset(uint16_t offset) {
+  uint8_t value;
+  auto status = cpu_.mem_.Read(offset, &value);
+  if (status != Memory::Status::OK) {
+    std::cout << "Failed to read memory at offset: " << offset << std::endl;
+    return 0;
+  }
+  return value;
+}
+
+StatusRegister Cpu::CpuProxyImpl::GetStatusRegister() { return cpu_.status_; }
+
+void Cpu::CpuProxyImpl::SetStatusRegister(StatusRegister status) {
+  cpu_.status_ = status;
+}
+
+void Cpu::CpuProxyImpl::SetAcc(uint16_t val) { cpu_.acc_ = val; }
+
+Cpu::Cpu(Memory& mem) : cpu_proxy_(*this), mem_(mem) {
   // Register all the instructions
   RegisterInstruction<NOP>(0xEA);
   RegisterInstruction<SEI>(0x78);
@@ -65,7 +96,7 @@ Cpu::Status Cpu::Run() {
 
 template <class INS>
 void Cpu::RegisterInstruction(std::vector<uint8_t> opcodes) {
-  auto instruction = std::make_shared<INS>(this);
+  auto instruction = std::make_shared<INS>(cpu_proxy_);
   for (auto opcode : opcodes) {
     instructions_[opcode] = instruction;
   }
@@ -73,7 +104,7 @@ void Cpu::RegisterInstruction(std::vector<uint8_t> opcodes) {
 
 template <class INS>
 void Cpu::RegisterInstruction(uint8_t opcode) {
-  instructions_[opcode] = std::make_shared<INS>(this);
+  instructions_[opcode] = std::make_shared<INS>(cpu_proxy_);
 }
 
 Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {

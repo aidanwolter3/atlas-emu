@@ -7,7 +7,6 @@ cc_library(
         "status.h",
     ],
     srcs = [
-        "instruction.cc",
         "load.cc",
         "status.cc",
     ],

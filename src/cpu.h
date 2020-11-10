@@ -32,9 +32,20 @@ class Cpu {
   uint16_t GetAcc() { return acc_; }
 
  private:
-  // This friendship is required, so that instructions can access the memory and
-  // registers.
-  friend Instruction;
+  class CpuProxyImpl : public CpuProxy {
+   public:
+    CpuProxyImpl(Cpu& cpu) : cpu_(cpu) {}
+
+    // CpuProxy implementation:
+    std::vector<uint8_t> FetchOperands(int num) final;
+    uint8_t ReadMemoryAtOffset(uint16_t offset) final;
+    StatusRegister GetStatusRegister() final;
+    void SetStatusRegister(StatusRegister status) final;
+    void SetAcc(uint16_t val) final;
+
+   private:
+    Cpu& cpu_;
+  };
 
   // Construct and register an instruction with the classname INS that will get
   // executed when the |opcode| is fetched.
@@ -51,6 +62,7 @@ class Cpu {
   StatusRegister status_;
   uint16_t acc_;
 
+  CpuProxyImpl cpu_proxy_;
   std::map<uint8_t, std::shared_ptr<Instruction>> instructions_;
   Memory& mem_;
 };
