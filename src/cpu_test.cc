@@ -1,8 +1,8 @@
-#include "cpu.h"
+#include "src/cpu.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "memory.h"
+#include "src/memory.h"
 
 namespace {
 

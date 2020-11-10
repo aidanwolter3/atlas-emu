@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "memory_impl.h"
+#include "src/memory_impl.h"
 
 namespace {
 

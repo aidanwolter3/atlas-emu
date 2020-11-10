@@ -6,9 +6,9 @@
 #include <memory>
 #include <vector>
 
-#include "instruction/instruction.h"
-#include "memory.h"
-#include "status.h"
+#include "src/instruction/instruction.h"
+#include "src/memory.h"
+#include "src/status.h"
 
 class Cpu {
  public:

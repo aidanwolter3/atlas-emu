@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
-#include "cpu.h"
-#include "memory_impl.h"
+#include "src/cpu.h"
+#include "src/memory_impl.h"
 
 Atlas::Atlas(const std::string rom_file) {
   // Open the ROM file as an input stream.

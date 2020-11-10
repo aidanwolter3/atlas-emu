@@ -1,7 +1,7 @@
-#include "atlas.h"
+#include "src/atlas.h"
 
-#include "cpu.h"
 #include "gtest/gtest.h"
+#include "src/cpu.h"
 
 TEST(AtlasTest, NOP) {
   Atlas atlas("src/roms/nop_test.nes");

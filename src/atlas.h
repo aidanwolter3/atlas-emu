@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "cpu.h"
+#include "src/cpu.h"
 
 class MemoryImpl;
 

@@ -1,13 +1,13 @@
-#include "cpu.h"
+#include "src/cpu.h"
 
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-#include "instruction/instruction.h"
-#include "instruction/load.h"
-#include "instruction/status.h"
+#include "src/instruction/instruction.h"
+#include "src/instruction/load.h"
+#include "src/instruction/status.h"
 
 namespace {
 

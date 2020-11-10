@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "memory.h"
+#include "src/memory.h"
 
 class MemoryImpl : public Memory {
  public:
