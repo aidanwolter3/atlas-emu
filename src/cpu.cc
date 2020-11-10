@@ -5,6 +5,10 @@
 #include <sstream>
 #include <string>
 
+#include "instruction/instruction.h"
+#include "instruction/load.h"
+#include "instruction/status.h"
+
 namespace {
 
 std::string IntToHexString(int num) {
@@ -14,133 +18,6 @@ std::string IntToHexString(int num) {
 }
 
 }  // namespace
-
-class Cpu::Instruction {
- public:
-  Instruction(Cpu* cpu) : cpu_(cpu) {}
-  Instruction(Instruction&& other) : cpu_(other.cpu_) {}
-  virtual ~Instruction() {}
-  virtual void Execute(uint8_t opcode) = 0;
-
- protected:
-  std::vector<uint8_t> FetchOperands(int num) {
-    std::vector<uint8_t> operands(num);
-    for (int i = 0; i < num; ++i) {
-      auto status = cpu_->Fetch(cpu_->pc_, &operands[i]);
-      if (status != Status::OK) {
-        std::cout << "Failed to fetch operands" << std::endl;
-        return {};
-      }
-    }
-    cpu_->pc_ += num;
-    return operands;
-  }
-
-  uint8_t ReadMemoryAtOffset(uint16_t offset) {
-    uint8_t value;
-    auto status = cpu_->mem_.Read(offset, &value);
-    if (status != Memory::Status::OK) {
-      std::cout << "Failed to read memory at offset: " << offset << std::endl;
-      return 0;
-    }
-    return value;
-  }
-
-  StatusRegister GetStatusRegister() { return cpu_->status_; }
-
-  void SetStatusRegister(StatusRegister status) { cpu_->status_ = status; }
-
-  void SetAcc(uint16_t val) { cpu_->acc_ = val; }
-
- private:
-  // We do not want the instructions to be able to directly access the CPU,
-  // because then the implementation of each instruction is strongly coupled to
-  // the implementation of the CPU.
-  Cpu* cpu_;
-};
-
-// No Operation
-class NOP : public Cpu::Instruction {
- public:
-  using Instruction::Instruction;
-  void Execute(uint8_t opcode) override {}
-};
-
-// Set Interrupt Disable Status
-class SEI : public Cpu::Instruction {
- public:
-  using Instruction::Instruction;
-  void Execute(uint8_t opcode) override {
-    auto s = GetStatusRegister();
-    s.int_disable = true;
-    SetStatusRegister(s);
-  }
-};
-
-// Clear Decimal Mode
-class CLD : public Cpu::Instruction {
- public:
-  using Instruction::Instruction;
-  void Execute(uint8_t opcode) override {
-    auto s = GetStatusRegister();
-    s.bcd_mode = false;
-    SetStatusRegister(s);
-  }
-};
-
-// Load Accumulator
-class LDA : public Cpu::Instruction {
- public:
-  using Instruction::Instruction;
-  void Execute(uint8_t opcode) override {
-    // Fetch the number of operands.
-    std::vector<uint8_t> operands;
-    switch (opcode) {
-      case 0xA9:
-      case 0xA5:
-      case 0xB5:
-      case 0xA1:
-      case 0xB1:
-        operands = FetchOperands(1);
-        break;
-      case 0xAD:
-      case 0xBD:
-      case 0xB9:
-        operands = FetchOperands(2);
-        break;
-      default:
-        std::cout << "Unsupported LDA variant: " << opcode << std::endl;
-        return;
-    }
-
-    // Grab the data.
-    uint16_t data = 0;
-    switch (opcode) {
-      case 0xA9:
-        data = operands[0];
-        break;
-      case 0xA5:
-        data = ReadMemoryAtOffset(operands[0]);
-        break;
-      case 0xB5:
-      case 0xA1:
-      case 0xB1:
-      case 0xAD:
-      case 0xBD:
-      case 0xB9:
-      default:
-        std::cout << "Unsupported LDA variant: " << opcode << std::endl;
-        return;
-    }
-
-    // Set the registers.
-    SetAcc(data);
-    auto s = GetStatusRegister();
-    s.zero = (data == 0);
-    s.sign = (static_cast<int8_t>(data) < 0);
-    SetStatusRegister(s);
-  }
-};
 
 Cpu::Cpu(Memory& mem) : mem_(mem) {
   // Register all the instructions

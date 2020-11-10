@@ -6,22 +6,12 @@
 #include <memory>
 #include <vector>
 
+#include "instruction/instruction.h"
 #include "memory.h"
-
-struct StatusRegister {
-  bool carry = false;
-  bool zero = false;
-  bool int_disable = false;
-  bool bcd_mode = false;
-  bool brk = false;
-  bool overflow = false;
-  bool sign = false;
-};
+#include "status.h"
 
 class Cpu {
  public:
-  class Instruction;
-
   Cpu(Memory& mem);
   ~Cpu();
 
@@ -42,6 +32,10 @@ class Cpu {
   uint16_t GetAcc() { return acc_; }
 
  private:
+  // This friendship is required, so that instructions can access the memory and
+  // registers.
+  friend Instruction;
+
   // Construct and register an instruction with the classname INS that will get
   // executed when the |opcode| is fetched.
   template <class INS>
