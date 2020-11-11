@@ -4,12 +4,14 @@ cc_library(
     hdrs = [
         "instruction.h",
         "load.h",
+        "misc.h",
         "status.h",
         "store.h",
     ],
     srcs = [
         "instruction.cc",
         "load.cc",
+        "misc.cc",
         "status.cc",
         "store.cc",
     ],
@@ -22,6 +24,7 @@ cc_test(
     name = "instruction_test",
     srcs = [
         "load_test.cc",
+        "misc_test.cc",
         "status_test.cc",
     ],
     deps = [

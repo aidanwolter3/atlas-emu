@@ -20,11 +20,4 @@ class Instruction {
   Registers& reg_;
 };
 
-// No Operation
-class NOP : public Instruction {
- public:
-  using Instruction::Instruction;
-  void Execute(uint8_t opcode) override {}
-};
-
 #endif  // INSTRUCTION_INSTRUCTION_H_

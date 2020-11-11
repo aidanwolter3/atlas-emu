@@ -6,6 +6,7 @@
 
 #include "src/cpu.h"
 #include "src/instruction/load.h"
+#include "src/instruction/misc.h"
 #include "src/instruction/status.h"
 #include "src/instruction/store.h"
 #include "src/memory_impl.h"
