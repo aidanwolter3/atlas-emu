@@ -56,8 +56,8 @@ void Cpu::CpuProxyImpl::SetStatusRegister(StatusRegister status) {
   cpu_.status_ = status;
 }
 
-uint16_t Cpu::CpuProxyImpl::GetAcc() { return cpu_.acc_; }
-void Cpu::CpuProxyImpl::SetAcc(uint16_t val) { cpu_.acc_ = val; }
+uint8_t Cpu::CpuProxyImpl::GetAcc() { return cpu_.acc_; }
+void Cpu::CpuProxyImpl::SetAcc(uint8_t val) { cpu_.acc_ = val; }
 
 Cpu::Cpu(Memory& mem) : cpu_proxy_(*this), mem_(mem) {
   // Register all the instructions

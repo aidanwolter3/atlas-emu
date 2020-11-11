@@ -29,7 +29,7 @@ class Cpu {
   // Only for testing.
   uint16_t GetPc() { return pc_; }
   StatusRegister GetStatusRegister() { return status_; }
-  uint16_t GetAcc() { return acc_; }
+  uint8_t GetAcc() { return acc_; }
 
  private:
   class CpuProxyImpl : public CpuProxy {
@@ -42,8 +42,8 @@ class Cpu {
     void WriteMemoryAtOffset(uint16_t offset, uint8_t data) final;
     StatusRegister GetStatusRegister() final;
     void SetStatusRegister(StatusRegister status) final;
-    uint16_t GetAcc() final;
-    void SetAcc(uint16_t val) final;
+    uint8_t GetAcc() final;
+    void SetAcc(uint8_t val) final;
 
    private:
     Cpu& cpu_;
@@ -62,7 +62,7 @@ class Cpu {
   // Registers
   uint16_t pc_;
   StatusRegister status_;
-  uint16_t acc_;
+  uint8_t acc_;
 
   CpuProxyImpl cpu_proxy_;
   std::map<uint8_t, std::shared_ptr<Instruction>> instructions_;

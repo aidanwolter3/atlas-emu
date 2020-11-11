@@ -13,9 +13,8 @@ class CpuProxy {
   virtual void WriteMemoryAtOffset(uint16_t offset, uint8_t data) = 0;
   virtual StatusRegister GetStatusRegister() = 0;
   virtual void SetStatusRegister(StatusRegister status) = 0;
-  // TODO: The accumulator is only 8-bit.
-  virtual uint16_t GetAcc() = 0;
-  virtual void SetAcc(uint16_t val) = 0;
+  virtual uint8_t GetAcc() = 0;
+  virtual void SetAcc(uint8_t val) = 0;
 };
 
 class Instruction {
