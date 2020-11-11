@@ -1,5 +1,5 @@
-#ifndef REGISTERS_H_
-#define REGISTERS_H_
+#ifndef PUBLIC_REGISTERS_H_
+#define PUBLIC_REGISTERS_H_
 
 #include <bitset>
 #include <cstdint>
@@ -20,4 +20,4 @@ struct Registers {
   uint8_t acc = 0;
 };
 
-#endif  // REGISTERS_H_
+#endif  // PUBLIC_REGISTERS_H_

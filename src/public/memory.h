@@ -1,5 +1,5 @@
-#ifndef MEMORY_H_
-#define MEMORY_H_
+#ifndef PUBLIC_MEMORY_H_
+#define PUBLIC_MEMORY_H_
 
 #include <cstdint>
 
@@ -17,4 +17,4 @@ class Memory {
   virtual Memory::Status Write(uint16_t address, uint8_t byte) = 0;
 };
 
-#endif  // MEMORY_H_
+#endif  // PUBLIC_MEMORY_H_

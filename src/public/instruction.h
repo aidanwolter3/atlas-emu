@@ -1,5 +1,5 @@
-#ifndef INSTRUCTION_INSTRUCTION_H_
-#define INSTRUCTION_INSTRUCTION_H_
+#ifndef PUBLIC_INSTRUCTION_H_
+#define PUBLIC_INSTRUCTION_H_
 
 #include <cstdint>
 #include <vector>
@@ -20,4 +20,4 @@ class Instruction {
   Registers& reg_;
 };
 
-#endif  // INSTRUCTION_INSTRUCTION_H_
+#endif  // PUBLIC_INSTRUCTION_H_
