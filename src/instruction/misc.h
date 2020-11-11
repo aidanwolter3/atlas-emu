@@ -1,7 +1,7 @@
 #ifndef INSTRUCTION_MISC_H_
 #define INSTRUCTION_MISC_H_
 
-#include "src/instruction/instruction.h"
+#include "src/public/instruction.h"
 
 // No Operation
 class NOP : public Instruction {

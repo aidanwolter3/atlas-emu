@@ -1,13 +1,4 @@
 cc_library(
-    name = "public",
-    visibility = ["//visibility:public"],
-    hdrs = [
-        "memory.h",
-        "registers.h",
-    ]
-)
-
-cc_library(
     name = "atlas",
     hdrs = [
         "atlas.h",
@@ -20,8 +11,8 @@ cc_library(
         "memory_impl.cc",
     ],
     deps = [
-        ":public",
         "//src/instruction",
+        "//src/public",
     ]
 )
 

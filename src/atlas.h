@@ -5,7 +5,7 @@
 #include <string>
 
 #include "src/cpu.h"
-#include "src/registers.h"
+#include "src/public/registers.h"
 
 class MemoryImpl;
 

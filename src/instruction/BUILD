@@ -2,7 +2,6 @@ cc_library(
     name = "instruction",
     visibility = ["//visibility:public"],
     hdrs = [
-        "instruction.h",
         "load.h",
         "misc.h",
         "status.h",
@@ -16,7 +15,7 @@ cc_library(
         "store.cc",
     ],
     deps = [
-        "//src:public",
+        "//src/public",
     ]
 )
 

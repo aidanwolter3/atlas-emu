@@ -1,4 +1,4 @@
-#include "src/instruction/instruction.h"
+#include "src/public/instruction.h"
 
 #include <iostream>
 

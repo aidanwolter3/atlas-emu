@@ -1,7 +1,7 @@
 #ifndef INSTRUCTION_STATUS_H_
 #define INSTRUCTION_STATUS_H_
 
-#include "src/instruction/instruction.h"
+#include "src/public/instruction.h"
 
 // Set Interrupt Disable Status
 class SEI : public Instruction {

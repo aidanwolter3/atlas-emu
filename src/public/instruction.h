@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "src/memory.h"
-#include "src/registers.h"
+#include "src/public/memory.h"
+#include "src/public/registers.h"
 
 class Instruction {
  public:

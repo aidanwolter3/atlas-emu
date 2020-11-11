@@ -2,9 +2,9 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "src/instruction/instruction.h"
-#include "src/memory.h"
-#include "src/registers.h"
+#include "src/public/instruction.h"
+#include "src/public/memory.h"
+#include "src/public/registers.h"
 
 namespace {
 
