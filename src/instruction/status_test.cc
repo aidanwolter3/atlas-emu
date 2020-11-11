@@ -23,4 +23,14 @@ TEST(StatusTest, SetInterruptDisable) {
   EXPECT_FALSE(reg.status.test(Status::kZero));
 }
 
+TEST(StatusTest, ClearDecimalMode) {
+  MockMemory mem;
+  Registers reg;
+  CLD cld(mem, reg);
+
+  reg.status.set(Status::kBCDMode);
+  cld.Execute(0xD8);
+  EXPECT_FALSE(reg.status.test(Status::kBCDMode));
+}
+
 }  // namespace
