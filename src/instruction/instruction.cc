@@ -4,7 +4,7 @@
 
 std::vector<uint8_t> Instruction::FetchOperands(int num) {
   std::vector<uint8_t> operands(num);
-  uint16_t pc = cpu_.GetPc();
+  uint16_t pc = reg_.pc;
   for (int i = 0; i < num; ++i) {
     auto status = mem_.Read(pc++, &operands[i]);
     if (status != Memory::Status::OK) {
@@ -12,6 +12,6 @@ std::vector<uint8_t> Instruction::FetchOperands(int num) {
       return {};
     }
   }
-  cpu_.SetPc(pc);
+  reg_.pc = pc;
   return operands;
 }

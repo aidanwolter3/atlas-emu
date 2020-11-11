@@ -42,7 +42,7 @@ void STA::Execute(uint8_t opcode) {
   }
 
   // Store the data.
-  auto status = mem_.Write(address, cpu_.GetAcc());
+  auto status = mem_.Write(address, reg_.acc);
   if (status != Memory::Status::OK) {
     std::cout << "Failed to write memory at address: " << address << std::endl;
   }

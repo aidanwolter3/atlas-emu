@@ -46,9 +46,7 @@ void LDA::Execute(uint8_t opcode) {
   }
 
   // Set the registers.
-  cpu_.SetAcc(data);
-  auto s = cpu_.GetStatusRegister();
-  s.zero = (data == 0);
-  s.sign = (static_cast<int8_t>(data) < 0);
-  cpu_.SetStatusRegister(s);
+  reg_.acc = data;
+  reg_.status.set(Status::kZero, data == 0);
+  reg_.status.set(Status::kSign, static_cast<int8_t>(data) < 0);
 }

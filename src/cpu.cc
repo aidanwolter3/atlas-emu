@@ -20,19 +20,7 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-StatusRegister Cpu::CpuProxyImpl::GetStatusRegister() { return cpu_.status_; }
-
-void Cpu::CpuProxyImpl::SetStatusRegister(StatusRegister status) {
-  cpu_.status_ = status;
-}
-
-uint16_t Cpu::CpuProxyImpl::GetPc() { return cpu_.pc_; }
-void Cpu::CpuProxyImpl::SetPc(uint16_t val) { cpu_.pc_ = val; }
-
-uint8_t Cpu::CpuProxyImpl::GetAcc() { return cpu_.acc_; }
-void Cpu::CpuProxyImpl::SetAcc(uint8_t val) { cpu_.acc_ = val; }
-
-Cpu::Cpu(Memory& mem) : cpu_proxy_(*this), mem_(mem) {
+Cpu::Cpu(Memory& mem, Registers& reg) : mem_(mem), reg_(reg) {
   // Register all the instructions
   RegisterInstruction<NOP>(0xEA);
   RegisterInstruction<SEI>(0x78);
@@ -49,8 +37,8 @@ Cpu::Cpu(Memory& mem) : cpu_proxy_(*this), mem_(mem) {
     std::cout << "Failed to read the start address" << std::endl;
     return;
   }
-  pc_ = (start_address_high << 8) | start_address_low;
-  std::cout << "Start address: " << IntToHexString(pc_) << std::endl;
+  reg_.pc = (start_address_high << 8) | start_address_low;
+  std::cout << "Start address: " << IntToHexString(reg_.pc) << std::endl;
 }
 
 Cpu::~Cpu() = default;
@@ -60,9 +48,9 @@ Cpu::Status Cpu::Run() {
 
   // Fetch
   uint8_t opcode;
-  status = Fetch(pc_, &opcode);
+  status = Fetch(reg_.pc, &opcode);
   if (status != Status::OK) return status;
-  pc_++;
+  reg_.pc++;
 
   // Decode
   auto instruction_it = instructions_.find(opcode);
@@ -79,7 +67,7 @@ Cpu::Status Cpu::Run() {
 
 template <class INS>
 void Cpu::RegisterInstruction(std::vector<uint8_t> opcodes) {
-  auto instruction = std::make_shared<INS>(mem_, cpu_proxy_);
+  auto instruction = std::make_shared<INS>(mem_, reg_);
   for (auto opcode : opcodes) {
     instructions_[opcode] = instruction;
   }
@@ -87,7 +75,7 @@ void Cpu::RegisterInstruction(std::vector<uint8_t> opcodes) {
 
 template <class INS>
 void Cpu::RegisterInstruction(uint8_t opcode) {
-  instructions_[opcode] = std::make_shared<INS>(mem_, cpu_proxy_);
+  instructions_[opcode] = std::make_shared<INS>(mem_, reg_);
 }
 
 Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {

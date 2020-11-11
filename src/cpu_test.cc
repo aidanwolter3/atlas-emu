@@ -3,6 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "src/memory.h"
+#include "src/registers.h"
 
 namespace {
 
@@ -26,72 +27,77 @@ void ExpectReadStartAddress(MockMemory& mem, uint16_t address) {
 
 TEST(CpuTest, RunUntilSegfault) {
   MockMemory mem;
+  Registers reg;
 
   ExpectReadStartAddress(mem, 0xBBAA);
-  Cpu cpu(mem);
+  Cpu cpu(mem, reg);
 
   EXPECT_CALL(mem, Read(0xBBAA, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xEA), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(0xBBAB, cpu.GetPc());
+  EXPECT_EQ(0xBBAB, reg.pc);
 
   EXPECT_CALL(mem, Read(0xBBAB, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xEA), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(0xBBAC, cpu.GetPc());
+  EXPECT_EQ(0xBBAC, reg.pc);
 
   EXPECT_CALL(mem, Read(0xBBAC, _))
       .WillOnce(Return(Memory::Status::OUT_OF_BOUNDS));
   EXPECT_EQ(Cpu::Status::SEGFAULT, cpu.Run());
-  EXPECT_EQ(0xBBAC, cpu.GetPc());
+  EXPECT_EQ(0xBBAC, reg.pc);
 }
 
 TEST(CpuTest, InitialStateOfStatusRegister) {
   MockMemory mem;
+  Registers reg;
 
   ExpectReadStartAddress(mem, 0xBBAA);
-  Cpu cpu(mem);
+  Cpu cpu(mem, reg);
 
-  EXPECT_FALSE(cpu.GetStatusRegister().carry);
-  EXPECT_FALSE(cpu.GetStatusRegister().zero);
-  EXPECT_FALSE(cpu.GetStatusRegister().int_disable);
-  EXPECT_FALSE(cpu.GetStatusRegister().bcd_mode);
-  EXPECT_FALSE(cpu.GetStatusRegister().brk);
-  EXPECT_FALSE(cpu.GetStatusRegister().overflow);
-  EXPECT_FALSE(cpu.GetStatusRegister().sign);
+  EXPECT_FALSE(reg.status.test(Status::kCarry));
+  EXPECT_FALSE(reg.status.test(Status::kZero));
+  EXPECT_FALSE(reg.status.test(Status::kIntDisable));
+  EXPECT_FALSE(reg.status.test(Status::kBCDMode));
+  EXPECT_FALSE(reg.status.test(Status::kBrk));
+  EXPECT_FALSE(reg.status.test(Status::kOverflow));
+  EXPECT_FALSE(reg.status.test(Status::kSign));
 }
 
 TEST(CpuTest, NOP) {
   MockMemory mem;
+  Registers reg;
 
   ExpectReadStartAddress(mem, 0xBBAA);
-  Cpu cpu(mem);
+  Cpu cpu(mem, reg);
 
   EXPECT_CALL(mem, Read(0xBBAA, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xEA), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(0xBBAB, cpu.GetPc());
+  EXPECT_EQ(0xBBAB, reg.pc);
 }
 
 TEST(CpuTest, SEI) {
   MockMemory mem;
+  Registers reg;
 
   ExpectReadStartAddress(mem, 0xBBAA);
-  Cpu cpu(mem);
+  Cpu cpu(mem, reg);
 
   EXPECT_CALL(mem, Read(0xBBAA, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x78), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(0xBBAB, cpu.GetPc());
-  EXPECT_TRUE(cpu.GetStatusRegister().int_disable);
+  EXPECT_EQ(0xBBAB, reg.pc);
+  EXPECT_TRUE(reg.status.test(Status::kIntDisable));
 }
 
 TEST(CpuTest, LDA) {
   MockMemory mem;
+  Registers reg;
 
   uint16_t pc = 0xBBAA;
   ExpectReadStartAddress(mem, pc);
-  Cpu cpu(mem);
+  Cpu cpu(mem, reg);
 
   // Immediate addressing
   EXPECT_CALL(mem, Read(pc++, _))
@@ -99,10 +105,10 @@ TEST(CpuTest, LDA) {
   EXPECT_CALL(mem, Read(pc++, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(pc, cpu.GetPc());
-  EXPECT_EQ(0x12, cpu.GetAcc());
-  EXPECT_FALSE(cpu.GetStatusRegister().zero);
-  EXPECT_FALSE(cpu.GetStatusRegister().sign);
+  EXPECT_EQ(pc, reg.pc);
+  EXPECT_EQ(0x12, reg.acc);
+  EXPECT_FALSE(reg.status.test(Status::kZero));
+  EXPECT_FALSE(reg.status.test(Status::kSign));
 
   // Zero-page addressing
   EXPECT_CALL(mem, Read(pc++, _))
@@ -112,8 +118,8 @@ TEST(CpuTest, LDA) {
   EXPECT_CALL(mem, Read(0x12, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(pc, cpu.GetPc());
-  EXPECT_EQ(0x34, cpu.GetAcc());
+  EXPECT_EQ(pc, reg.pc);
+  EXPECT_EQ(0x34, reg.acc);
 
   // Status register (zero positive)
   EXPECT_CALL(mem, Read(pc++, _))
@@ -121,10 +127,10 @@ TEST(CpuTest, LDA) {
   EXPECT_CALL(mem, Read(pc++, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x00), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(pc, cpu.GetPc());
-  EXPECT_EQ(0x00, cpu.GetAcc());
-  EXPECT_TRUE(cpu.GetStatusRegister().zero);
-  EXPECT_FALSE(cpu.GetStatusRegister().sign);
+  EXPECT_EQ(pc, reg.pc);
+  EXPECT_EQ(0x00, reg.acc);
+  EXPECT_TRUE(reg.status.test(Status::kZero));
+  EXPECT_FALSE(reg.status.test(Status::kSign));
 
   // Status register (non-zero negative)
   EXPECT_CALL(mem, Read(pc++, _))
@@ -132,10 +138,10 @@ TEST(CpuTest, LDA) {
   EXPECT_CALL(mem, Read(pc++, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xFF), Return(Memory::Status::OK)));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
-  EXPECT_EQ(pc, cpu.GetPc());
-  EXPECT_EQ(0xFF, cpu.GetAcc());
-  EXPECT_FALSE(cpu.GetStatusRegister().zero);
-  EXPECT_TRUE(cpu.GetStatusRegister().sign);
+  EXPECT_EQ(pc, reg.pc);
+  EXPECT_EQ(0xFF, reg.acc);
+  EXPECT_FALSE(reg.status.test(Status::kZero));
+  EXPECT_TRUE(reg.status.test(Status::kSign));
 }
 
 }  // namespace

@@ -8,11 +8,11 @@
 
 #include "src/instruction/instruction.h"
 #include "src/memory.h"
-#include "src/status.h"
+#include "src/registers.h"
 
 class Cpu {
  public:
-  Cpu(Memory& mem);
+  Cpu(Memory& mem, Registers& reg);
   ~Cpu();
 
   // TODO: Consider prefixing each instruction with the stage (FETCH, DECODE).
@@ -26,28 +26,7 @@ class Cpu {
   // Run a single clock cycle.
   Cpu::Status Run();
 
-  // Only for testing.
-  uint16_t GetPc() { return pc_; }
-  StatusRegister GetStatusRegister() { return status_; }
-  uint8_t GetAcc() { return acc_; }
-
  private:
-  class CpuProxyImpl : public CpuProxy {
-   public:
-    CpuProxyImpl(Cpu& cpu) : cpu_(cpu) {}
-
-    // CpuProxy implementation:
-    StatusRegister GetStatusRegister() final;
-    void SetStatusRegister(StatusRegister status) final;
-    uint16_t GetPc() final;
-    void SetPc(uint16_t val) final;
-    uint8_t GetAcc() final;
-    void SetAcc(uint8_t val) final;
-
-   private:
-    Cpu& cpu_;
-  };
-
   // Construct and register an instruction with the classname INS that will get
   // executed when the |opcode| is fetched.
   template <class INS>
@@ -58,14 +37,9 @@ class Cpu {
   // Fetch the |opcode| at |location| in |mem_|.
   Cpu::Status Fetch(uint16_t location, uint8_t* opcode);
 
-  // Registers
-  uint16_t pc_;
-  StatusRegister status_;
-  uint8_t acc_;
-
-  CpuProxyImpl cpu_proxy_;
-  std::map<uint8_t, std::shared_ptr<Instruction>> instructions_;
   Memory& mem_;
+  Registers& reg_;
+  std::map<uint8_t, std::shared_ptr<Instruction>> instructions_;
 };
 
 #endif  // CPU_H_

@@ -3,7 +3,7 @@ cc_library(
     visibility = ["//visibility:public"],
     hdrs = [
         "memory.h",
-        "status.h",
+        "registers.h",
     ]
 )
 

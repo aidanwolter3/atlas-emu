@@ -5,6 +5,7 @@
 #include <string>
 
 #include "src/cpu.h"
+#include "src/registers.h"
 
 class MemoryImpl;
 
@@ -21,6 +22,7 @@ class Atlas {
 
  private:
   std::unique_ptr<MemoryImpl> mem_;
+  Registers reg_;
   std::unique_ptr<Cpu> cpu_;
 };
 

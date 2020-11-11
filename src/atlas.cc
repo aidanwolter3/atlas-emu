@@ -23,7 +23,7 @@ Atlas::Atlas(const std::string rom_file) {
             std::istream_iterator<uint8_t>(), std::back_inserter(data));
 
   mem_ = std::make_unique<MemoryImpl>(std::move(data));
-  cpu_ = std::make_unique<Cpu>(*mem_);
+  cpu_ = std::make_unique<Cpu>(*mem_, reg_);
 }
 
 Atlas::~Atlas() = default;
