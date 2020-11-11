@@ -17,3 +17,15 @@ cc_library(
         "//src:public",
     ]
 )
+
+cc_test(
+    name = "instruction_test",
+    srcs = [
+        "load_test.cc",
+        "status_test.cc",
+    ],
+    deps = [
+        ":instruction",
+        "@gtest//:gtest_main",
+    ]
+)

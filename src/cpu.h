@@ -23,23 +23,23 @@ class Cpu {
     UNKNOWN_INSTRUCTION,
   };
 
+  // Register an Instruction which will be executed for the set of |opcodes|.
+  void RegisterInstruction(std::unique_ptr<Instruction> instruction,
+                           std::vector<uint8_t> opcodes);
+
   // Run a single clock cycle.
   Cpu::Status Run();
 
  private:
-  // Construct and register an instruction with the classname INS that will get
-  // executed when the |opcode| is fetched.
-  template <class INS>
-  void RegisterInstruction(std::vector<uint8_t> opcodes);
-  template <class INS>
-  void RegisterInstruction(uint8_t opcode);
-
   // Fetch the |opcode| at |location| in |mem_|.
   Cpu::Status Fetch(uint16_t location, uint8_t* opcode);
 
   Memory& mem_;
   Registers& reg_;
-  std::map<uint8_t, std::shared_ptr<Instruction>> instructions_;
+  std::vector<std::unique_ptr<Instruction>> instructions_;
+  // Map of opcode to Instruction pointer, which points to the Instruction in
+  // |instructions_|..
+  std::map<uint8_t, Instruction*> instruction_map_;
 };
 
 #endif  // CPU_H_

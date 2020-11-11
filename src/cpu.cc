@@ -5,11 +5,6 @@
 #include <sstream>
 #include <string>
 
-#include "src/instruction/instruction.h"
-#include "src/instruction/load.h"
-#include "src/instruction/status.h"
-#include "src/instruction/store.h"
-
 namespace {
 
 std::string IntToHexString(int num) {
@@ -21,13 +16,6 @@ std::string IntToHexString(int num) {
 }  // namespace
 
 Cpu::Cpu(Memory& mem, Registers& reg) : mem_(mem), reg_(reg) {
-  // Register all the instructions
-  RegisterInstruction<NOP>(0xEA);
-  RegisterInstruction<SEI>(0x78);
-  RegisterInstruction<CLD>(0xD8);
-  RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
-  RegisterInstruction<STA>({0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91});
-
   // Read the start address
   uint8_t start_address_low, start_address_high;
   Memory::Status status_low, status_high;
@@ -43,6 +31,15 @@ Cpu::Cpu(Memory& mem, Registers& reg) : mem_(mem), reg_(reg) {
 
 Cpu::~Cpu() = default;
 
+void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
+                              std::vector<uint8_t> opcodes) {
+  instructions_.push_back(std::move(instruction));
+  Instruction* instruction_ptr = instructions_.back().get();
+  for (auto opcode : opcodes) {
+    instruction_map_[opcode] = instruction_ptr;
+  }
+}
+
 Cpu::Status Cpu::Run() {
   Cpu::Status status = Status::OK;
 
@@ -53,29 +50,17 @@ Cpu::Status Cpu::Run() {
   reg_.pc++;
 
   // Decode
-  auto instruction_it = instructions_.find(opcode);
-  if (instruction_it == instructions_.end()) {
+  auto instruction_it = instruction_map_.find(opcode);
+  if (instruction_it == instruction_map_.end()) {
     std::cout << "Failed to decode: unknown instruction" << std::endl;
     return Status::UNKNOWN_INSTRUCTION;
   }
 
   // Execute
-  instruction_it->second->Execute(opcode);
+  Instruction* instruction_ptr = instruction_it->second;
+  instruction_ptr->Execute(opcode);
 
   return status;
-}
-
-template <class INS>
-void Cpu::RegisterInstruction(std::vector<uint8_t> opcodes) {
-  auto instruction = std::make_shared<INS>(mem_, reg_);
-  for (auto opcode : opcodes) {
-    instructions_[opcode] = instruction;
-  }
-}
-
-template <class INS>
-void Cpu::RegisterInstruction(uint8_t opcode) {
-  instructions_[opcode] = std::make_shared<INS>(mem_, reg_);
 }
 
 Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {

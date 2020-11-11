@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "src/cpu.h"
+#include "src/instruction/load.h"
+#include "src/instruction/status.h"
+#include "src/instruction/store.h"
 #include "src/memory_impl.h"
 
 Atlas::Atlas(const std::string rom_file) {
@@ -24,6 +27,11 @@ Atlas::Atlas(const std::string rom_file) {
 
   mem_ = std::make_unique<MemoryImpl>(std::move(data));
   cpu_ = std::make_unique<Cpu>(*mem_, reg_);
+  RegisterInstruction<NOP>(0xEA);
+  RegisterInstruction<SEI>(0x78);
+  RegisterInstruction<CLD>(0xD8);
+  RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
+  RegisterInstruction<STA>({0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91});
 }
 
 Atlas::~Atlas() = default;
@@ -45,4 +53,15 @@ Cpu::Status Atlas::RunTimes(int times) {
     }
   }
   return status;
+}
+
+template <class INS>
+void Atlas::RegisterInstruction(uint8_t opcode) {
+  RegisterInstruction<INS>(std::vector<uint8_t>({opcode}));
+}
+
+template <class INS>
+void Atlas::RegisterInstruction(std::vector<uint8_t> opcodes) {
+  cpu_->RegisterInstruction(std::make_unique<INS>(*mem_, reg_),
+                            std::move(opcodes));
 }
