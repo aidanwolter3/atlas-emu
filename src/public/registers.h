@@ -18,6 +18,8 @@ struct Registers {
   uint16_t pc = 0;
   std::bitset<8> status = 0;
   uint8_t acc = 0;
+  uint8_t x = 0;
+  uint8_t y = 0;
 };
 
 #endif  // PUBLIC_REGISTERS_H_
