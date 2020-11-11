@@ -10,14 +10,14 @@ void STA::Execute(uint8_t opcode) {
   switch (opcode) {
     case 0x85:
     case 0x95:
-      operands = cpu_.FetchOperands(1);
+      operands = FetchOperands(1);
       break;
     case 0x8D:
     case 0x9D:
     case 0x99:
     case 0x81:
     case 0x91:
-      operands = cpu_.FetchOperands(2);
+      operands = FetchOperands(2);
       break;
     default:
       std::cout << "Unsupported STA variant: " << opcode << std::endl;
@@ -42,5 +42,8 @@ void STA::Execute(uint8_t opcode) {
   }
 
   // Store the data.
-  cpu_.WriteMemoryAtOffset(address, cpu_.GetAcc());
+  auto status = mem_.Write(address, cpu_.GetAcc());
+  if (status != Memory::Status::OK) {
+    std::cout << "Failed to write memory at address: " << address << std::endl;
+  }
 }

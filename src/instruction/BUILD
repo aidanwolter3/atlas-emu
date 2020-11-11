@@ -8,6 +8,7 @@ cc_library(
         "store.h",
     ],
     srcs = [
+        "instruction.cc",
         "load.cc",
         "status.cc",
         "store.cc",

@@ -37,11 +37,10 @@ class Cpu {
     CpuProxyImpl(Cpu& cpu) : cpu_(cpu) {}
 
     // CpuProxy implementation:
-    std::vector<uint8_t> FetchOperands(int num) final;
-    uint8_t ReadMemoryAtOffset(uint16_t offset) final;
-    void WriteMemoryAtOffset(uint16_t offset, uint8_t data) final;
     StatusRegister GetStatusRegister() final;
     void SetStatusRegister(StatusRegister status) final;
+    uint16_t GetPc() final;
+    void SetPc(uint16_t val) final;
     uint8_t GetAcc() final;
     void SetAcc(uint8_t val) final;
 

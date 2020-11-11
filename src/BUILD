@@ -2,6 +2,7 @@ cc_library(
     name = "public",
     visibility = ["//visibility:public"],
     hdrs = [
+        "memory.h",
         "status.h",
     ]
 )
@@ -11,7 +12,6 @@ cc_library(
     hdrs = [
         "atlas.h",
         "cpu.h",
-        "memory.h",
         "memory_impl.h",
     ],
     srcs = [

@@ -4,26 +4,29 @@
 #include <cstdint>
 #include <vector>
 
+#include "src/memory.h"
 #include "src/status.h"
 
 class CpuProxy {
  public:
-  virtual std::vector<uint8_t> FetchOperands(int num) = 0;
-  virtual uint8_t ReadMemoryAtOffset(uint16_t offset) = 0;
-  virtual void WriteMemoryAtOffset(uint16_t offset, uint8_t data) = 0;
   virtual StatusRegister GetStatusRegister() = 0;
   virtual void SetStatusRegister(StatusRegister status) = 0;
+  virtual uint16_t GetPc() = 0;
+  virtual void SetPc(uint16_t val) = 0;
   virtual uint8_t GetAcc() = 0;
   virtual void SetAcc(uint8_t val) = 0;
 };
 
 class Instruction {
  public:
-  Instruction(CpuProxy& cpu) : cpu_(cpu) {}
+  Instruction(Memory& mem, CpuProxy& cpu) : mem_(mem), cpu_(cpu) {}
   virtual ~Instruction() {}
   virtual void Execute(uint8_t opcode) = 0;
 
  protected:
+  std::vector<uint8_t> FetchOperands(int num);
+
+  Memory& mem_;
   CpuProxy& cpu_;
 };
 

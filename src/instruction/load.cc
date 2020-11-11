@@ -13,12 +13,12 @@ void LDA::Execute(uint8_t opcode) {
     case 0xB5:
     case 0xA1:
     case 0xB1:
-      operands = cpu_.FetchOperands(1);
+      operands = FetchOperands(1);
       break;
     case 0xAD:
     case 0xBD:
     case 0xB9:
-      operands = cpu_.FetchOperands(2);
+      operands = FetchOperands(2);
       break;
     default:
       std::cout << "Unsupported LDA variant: " << opcode << std::endl;
@@ -26,13 +26,13 @@ void LDA::Execute(uint8_t opcode) {
   }
 
   // Grab the data.
-  uint16_t data = 0;
+  uint8_t data = 0;
   switch (opcode) {
     case 0xA9:
       data = operands[0];
       break;
     case 0xA5:
-      data = cpu_.ReadMemoryAtOffset(operands[0]);
+      mem_.Read(operands[0], &data);
       break;
     case 0xB5:
     case 0xA1:
