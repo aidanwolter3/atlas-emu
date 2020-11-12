@@ -29,8 +29,13 @@ Atlas::Atlas(const std::string rom_file) {
   mem_ = std::make_unique<MemoryImpl>(std::move(data));
   cpu_ = std::make_unique<Cpu>(*mem_, reg_);
   RegisterInstruction<NOP>(0xEA);
+  RegisterInstruction<CLC>(0x18);
+  RegisterInstruction<SEC>(0x38);
+  RegisterInstruction<CLI>(0x58);
   RegisterInstruction<SEI>(0x78);
+  RegisterInstruction<CLV>(0xB8);
   RegisterInstruction<CLD>(0xD8);
+  RegisterInstruction<SED>(0xF8);
   RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
   RegisterInstruction<LDX>({0xA2, 0xA6, 0xB6, 0xAE, 0xBE});
   RegisterInstruction<LDY>({0xA0, 0xA4, 0xB4, 0xAC, 0xBC});

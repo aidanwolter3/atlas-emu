@@ -3,15 +3,50 @@
 
 #include "src/public/instruction.h"
 
-// Set Interrupt Disable Status
+// Clear Carry
+class CLC : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
+// Set Carry
+class SEC : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
+// Clear Interrupt
+class CLI : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
+// Set Interrupt
 class SEI : public Instruction {
  public:
   using Instruction::Instruction;
   void Execute(uint8_t opcode) override;
 };
 
-// Clear Decimal Mode
+// Clear Overflow
+class CLV : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
+// Clear Decimal
 class CLD : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
+// Set Decimal
+class SED : public Instruction {
  public:
   using Instruction::Instruction;
   void Execute(uint8_t opcode) override;
