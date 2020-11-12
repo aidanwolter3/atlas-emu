@@ -1,9 +1,6 @@
 #include "src/instruction/load.h"
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-#include "src/public/memory.h"
-#include "src/public/registers.h"
+#include "src/instruction/instruction_test_base.h"
 
 namespace {
 
@@ -12,145 +9,103 @@ using testing::DoAll;
 using testing::Return;
 using testing::SetArgPointee;
 
-class MockMemory : public Memory {
- public:
-  MOCK_METHOD2(Read, Memory::Status(uint16_t address, uint8_t* data));
-  MOCK_METHOD2(Write, Memory::Status(uint16_t address, uint8_t data));
-};
-
-class LoadTest : public testing::Test {
+class LoadTest : public InstructionTestBase {
  protected:
-  void TestImmediate(Load& load, uint8_t& dest, uint8_t opcode);
-  void TestZeroPage(Load& load, uint8_t& dest, uint8_t opcode);
-  void TestIndexedZeroPage(Load& load, uint8_t& dest, uint8_t& index,
-                           uint8_t opcode);
-  void TestAbsolute(Load& load, uint8_t& dest, uint8_t opcode);
-  void TestIndexedAbsolute(Load& load, uint8_t& dest, uint8_t& index,
-                           uint8_t opcode);
-  void TestIndexedIndirect(Load& load, uint8_t& dest, uint8_t& index,
-                           uint8_t opcode);
-  void TestIndirectIndexed(Load& load, uint8_t& dest, uint8_t& index,
-                           uint8_t opcode);
-  void TestStatusZero(Load& load, uint8_t immediate_opcode);
-  void TestStatusNegative(Load& load, uint8_t immediate_opcode);
-
-  MockMemory mem_;
-  Registers reg_;
+  uint8_t ExpectRead(uint16_t address);
+  void TestImmediate(Instruction& instruction, uint8_t& dest, uint8_t opcode);
+  void TestZeroPage(Instruction& instruction, uint8_t& dest, uint8_t opcode);
+  void TestIndexedZeroPage(Instruction& instruction, uint8_t& dest,
+                           uint8_t& index, uint8_t opcode);
+  void TestAbsolute(Instruction& instruction, uint8_t& dest, uint8_t opcode);
+  void TestIndexedAbsolute(Instruction& instruction, uint8_t& dest,
+                           uint8_t& index, uint8_t opcode);
+  void TestIndexedIndirect(Instruction& instruction, uint8_t& dest,
+                           uint8_t& index, uint8_t opcode);
+  void TestIndirectIndexed(Instruction& instruction, uint8_t& dest,
+                           uint8_t& index, uint8_t opcode);
+  void TestStatusZero(Instruction& instruction, uint8_t immediate_opcode);
+  void TestStatusNegative(Instruction& instruction, uint8_t immediate_opcode);
 };
 
-void LoadTest::TestImmediate(Load& load, uint8_t& dest, uint8_t opcode) {
-  reg_.pc = 0x00;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x01);
-  EXPECT_EQ(dest, 0x12);
+uint8_t LoadTest::ExpectRead(uint16_t address) {
+  EXPECT_CALL(mem_, Read(address, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Memory::Status::OK)));
+  return 0xAB;
 }
 
-void LoadTest::TestZeroPage(Load& load, uint8_t& dest, uint8_t opcode) {
-  reg_.pc = 0x00;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x12, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x01);
-  EXPECT_EQ(dest, 0x34);
+void LoadTest::TestImmediate(Instruction& instruction, uint8_t& dest,
+                             uint8_t opcode) {
+  auto data = ExpectImmediate();
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostImmediate();
 }
 
-void LoadTest::TestIndexedZeroPage(Load& load, uint8_t& dest, uint8_t& index,
-                                   uint8_t opcode) {
-  reg_.pc = 0x00;
-  index = 7;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x19, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x01);
-  EXPECT_EQ(dest, 0x34);
+void LoadTest::TestZeroPage(Instruction& instruction, uint8_t& dest,
+                            uint8_t opcode) {
+  auto data = ExpectRead(ExpectZeroPage());
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostZeroPage();
 }
 
-void LoadTest::TestAbsolute(Load& load, uint8_t& dest, uint8_t opcode) {
-  reg_.pc = 0;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x01, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x1234, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x56), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x02);
-  EXPECT_EQ(dest, 0x56);
+void LoadTest::TestIndexedZeroPage(Instruction& instruction, uint8_t& dest,
+                                   uint8_t& index, uint8_t opcode) {
+  auto data = ExpectRead(ExpectIndexedZeroPage(index));
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostIndexedZeroPage();
 }
 
-void LoadTest::TestIndexedAbsolute(Load& load, uint8_t& dest, uint8_t& index,
-                                   uint8_t opcode) {
-  reg_.pc = 0;
-  index = 7;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x01, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x123B, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x56), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x02);
-  EXPECT_EQ(dest, 0x56);
+void LoadTest::TestAbsolute(Instruction& instruction, uint8_t& dest,
+                            uint8_t opcode) {
+  auto data = ExpectRead(ExpectAbsolute());
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostAbsolute();
 }
 
-void LoadTest::TestIndexedIndirect(Load& load, uint8_t& dest, uint8_t& index,
-                                   uint8_t opcode) {
-  reg_.pc = 0;
-  index = 7;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x19, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x34, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x56), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x01);
-  EXPECT_EQ(dest, 0x56);
+void LoadTest::TestIndexedAbsolute(Instruction& instruction, uint8_t& dest,
+                                   uint8_t& index, uint8_t opcode) {
+  auto data = ExpectRead(ExpectIndexedAbsolute(index));
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostIndexedAbsolute();
 }
 
-void LoadTest::TestIndirectIndexed(Load& load, uint8_t& dest, uint8_t& index,
-                                   uint8_t opcode) {
-  reg_.pc = 0;
-  index = 7;
-  EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x12, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem_, Read(0x3B, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x56), Return(Memory::Status::OK)));
-  load.Execute(opcode);
-
-  EXPECT_EQ(reg_.pc, 0x01);
-  EXPECT_EQ(dest, 0x56);
+void LoadTest::TestIndexedIndirect(Instruction& instruction, uint8_t& dest,
+                                   uint8_t& index, uint8_t opcode) {
+  auto data = ExpectRead(ExpectIndexedIndirect(index));
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostIndexedIndirect();
 }
 
-void LoadTest::TestStatusZero(Load& load, uint8_t immediate_opcode) {
+void LoadTest::TestIndirectIndexed(Instruction& instruction, uint8_t& dest,
+                                   uint8_t& index, uint8_t opcode) {
+  auto data = ExpectRead(ExpectIndirectIndexed(index));
+  instruction.Execute(opcode);
+  EXPECT_EQ(dest, data);
+  ExpectPostIndirectIndexed();
+}
+
+void LoadTest::TestStatusZero(Instruction& instruction,
+                              uint8_t immediate_opcode) {
   reg_.pc = 0x00;
   EXPECT_CALL(mem_, Read(0x00, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x00), Return(Memory::Status::OK)));
-  load.Execute(immediate_opcode);
+  instruction.Execute(immediate_opcode);
 
   EXPECT_TRUE(reg_.status.test(Status::kZero));
   EXPECT_FALSE(reg_.status.test(Status::kSign));
 }
 
-void LoadTest::TestStatusNegative(Load& load, uint8_t immediate_opcode) {
+void LoadTest::TestStatusNegative(Instruction& instruction,
+                                  uint8_t immediate_opcode) {
   reg_.pc = 0x00;
   EXPECT_CALL(mem_, Read(0x00, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xFF), Return(Memory::Status::OK)));
-  load.Execute(immediate_opcode);
+  instruction.Execute(immediate_opcode);
 
   EXPECT_FALSE(reg_.status.test(Status::kZero));
   EXPECT_TRUE(reg_.status.test(Status::kSign));

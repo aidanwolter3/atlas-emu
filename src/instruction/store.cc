@@ -1,49 +1,66 @@
 #include "src/instruction/store.h"
 
-#include <cstdint>
 #include <iostream>
-#include <vector>
 
 void STA::Execute(uint8_t opcode) {
-  // Fetch the number of operands.
-  std::vector<uint8_t> operands;
   switch (opcode) {
     case 0x85:
+      mem_.Write(ZeroPage(), reg_.acc);
+      break;
     case 0x95:
-      operands = FetchOperands(1);
+      mem_.Write(IndexedZeroPage(reg_.x), reg_.acc);
       break;
     case 0x8D:
+      mem_.Write(Absolute(), reg_.acc);
+      break;
     case 0x9D:
+      mem_.Write(IndexedAbsolute(reg_.x), reg_.acc);
+      break;
     case 0x99:
+      mem_.Write(IndexedAbsolute(reg_.y), reg_.acc);
+      break;
     case 0x81:
+      mem_.Write(IndexedIndirect(reg_.x), reg_.acc);
+      break;
     case 0x91:
-      operands = FetchOperands(2);
+      mem_.Write(IndirectIndexed(reg_.y), reg_.acc);
       break;
     default:
       std::cout << "Unsupported STA variant: " << opcode << std::endl;
       return;
   }
+}
 
-  // Grab the address.
-  uint16_t address = 0;
+void STX::Execute(uint8_t opcode) {
   switch (opcode) {
-    case 0x8D:
-      address = (operands[0] << 8) | operands[1];
+    case 0x86:
+      mem_.Write(ZeroPage(), reg_.x);
       break;
-    case 0x85:
-    case 0x95:
-    case 0x9D:
-    case 0x99:
-    case 0x81:
-    case 0x91:
+    case 0x96:
+      mem_.Write(IndexedZeroPage(reg_.y), reg_.x);
+      break;
+    case 0x8E:
+      mem_.Write(Absolute(), reg_.acc);
+      break;
     default:
-      std::cout << "Unsupported LDA variant: " << opcode << std::endl;
+      std::cout << "Unsupported STX variant: " << opcode << std::endl;
       return;
   }
+}
 
-  // Store the data.
-  auto status = mem_.Write(address, reg_.acc);
-  if (status != Memory::Status::OK) {
-    std::cout << "Failed to write memory at address: " << address << std::endl;
+void STY::Execute(uint8_t opcode) {
+  switch (opcode) {
+    case 0x84:
+      mem_.Write(ZeroPage(), reg_.y);
+      break;
+    case 0x94:
+      mem_.Write(IndexedZeroPage(reg_.x), reg_.y);
+      break;
+    case 0x8C:
+      mem_.Write(Absolute(), reg_.y);
+      break;
+    default:
+      std::cout << "Unsupported STY variant: " << opcode << std::endl;
+      return;
   }
 }

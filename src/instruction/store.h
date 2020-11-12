@@ -10,4 +10,18 @@ class STA : public Instruction {
   void Execute(uint8_t opcode) override;
 };
 
+// Store Index X
+class STX : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
+// Store Index Y
+class STY : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void Execute(uint8_t opcode) override;
+};
+
 #endif  // INSTRUCTION_STORE_H_

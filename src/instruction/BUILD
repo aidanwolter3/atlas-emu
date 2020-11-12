@@ -22,9 +22,12 @@ cc_library(
 cc_test(
     name = "instruction_test",
     srcs = [
+        "instruction_test_base.cc",
+        "instruction_test_base.h",
         "load_test.cc",
         "misc_test.cc",
         "status_test.cc",
+        "store_test.cc",
     ],
     deps = [
         ":instruction",
