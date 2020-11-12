@@ -41,7 +41,7 @@ uint16_t InstructionTestBase::ExpectAbsolute() {
       .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
   EXPECT_CALL(mem_, Read(0x01, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  return 0x1234;
+  return 0x3412;
 }
 
 void InstructionTestBase::ExpectPostAbsolute() { EXPECT_EQ(reg_.pc, 0x02); }
@@ -53,7 +53,7 @@ uint16_t InstructionTestBase::ExpectIndexedAbsolute(uint8_t& index) {
       .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Memory::Status::OK)));
   EXPECT_CALL(mem_, Read(0x01, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Memory::Status::OK)));
-  return 0x1234 + 7;
+  return 0x3412 + 7;
 }
 
 void InstructionTestBase::ExpectPostIndexedAbsolute() {

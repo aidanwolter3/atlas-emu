@@ -32,7 +32,7 @@ uint16_t Instruction::Absolute() { return IndexedAbsolute(0); }
 
 uint16_t Instruction::IndexedAbsolute(uint8_t index) {
   std::vector<uint8_t> operands = FetchOperands(2);
-  return ((operands[0] << 8) | operands[1]) + index;
+  return ((operands[1] << 8) | operands[0]) + index;
 }
 
 uint16_t Instruction::IndexedIndirect(uint8_t index) {
