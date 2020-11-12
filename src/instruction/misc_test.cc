@@ -1,28 +1,18 @@
 #include "src/instruction/misc.h"
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-#include "src/public/memory.h"
-#include "src/public/registers.h"
+#include "src/instruction/instruction_test_base.h"
 
 namespace {
 
-class MockMemory : public Memory {
- public:
-  MOCK_METHOD2(Read, Memory::Status(uint16_t address, uint8_t* data));
-  MOCK_METHOD2(Write, Memory::Status(uint16_t address, uint8_t data));
-};
+class MiscTest : public InstructionTestBase {};
 
-TEST(MiscTest, NoOperation) {
-  MockMemory mem;
-  Registers reg;
-  NOP nop(mem, reg);
-
-  reg.pc = 0;
-  reg.status = 0;
+TEST_F(MiscTest, NOP) {
+  reg_.pc = 0;
+  reg_.status = 0;
+  NOP nop(mem_, reg_);
   nop.Execute(0x78);
-  EXPECT_EQ(reg.pc, 0);
-  EXPECT_EQ(reg.status, 0);
+  EXPECT_EQ(reg_.pc, 0);
+  EXPECT_EQ(reg_.status, 0);
 }
 
 }  // namespace
