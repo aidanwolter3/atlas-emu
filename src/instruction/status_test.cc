@@ -12,12 +12,14 @@ TEST_F(StatusTest, CLC) {
   clc.Execute(0x18);
   EXPECT_FALSE(reg_.status.test(Status::kCarry));
 }
+
 TEST_F(StatusTest, SEC) {
   reg_.status.reset(Status::kCarry);
   SEC sec(mem_, reg_);
   sec.Execute(0x38);
   EXPECT_TRUE(reg_.status.test(Status::kCarry));
 }
+
 TEST_F(StatusTest, CLI) {
   reg_.status.set(Status::kIntDisable);
   CLI cli(mem_, reg_);

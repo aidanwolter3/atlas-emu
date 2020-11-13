@@ -16,6 +16,7 @@ enum Status {
 
 struct Registers {
   uint16_t pc = 0;
+  uint8_t sp = 0;
   std::bitset<8> status = 0;
   uint8_t acc = 0;
   uint8_t x = 0;

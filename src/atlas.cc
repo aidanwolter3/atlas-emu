@@ -7,6 +7,7 @@
 #include "src/cpu.h"
 #include "src/instruction/load.h"
 #include "src/instruction/misc.h"
+#include "src/instruction/stack.h"
 #include "src/instruction/status.h"
 #include "src/instruction/store.h"
 #include "src/memory_impl.h"
@@ -28,7 +29,10 @@ Atlas::Atlas(const std::string rom_file) {
 
   mem_ = std::make_unique<MemoryImpl>(std::move(data));
   cpu_ = std::make_unique<Cpu>(*mem_, reg_);
+
   RegisterInstruction<NOP>(0xEA);
+
+  // status
   RegisterInstruction<CLC>(0x18);
   RegisterInstruction<SEC>(0x38);
   RegisterInstruction<CLI>(0x58);
@@ -36,6 +40,16 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<CLV>(0xB8);
   RegisterInstruction<CLD>(0xD8);
   RegisterInstruction<SED>(0xF8);
+
+  // stack
+  RegisterInstruction<TXS>(0x9A);
+  RegisterInstruction<TSX>(0xBA);
+  RegisterInstruction<PHA>(0x48);
+  RegisterInstruction<PLA>(0x68);
+  RegisterInstruction<PHP>(0x08);
+  RegisterInstruction<PLP>(0x28);
+
+  // load / store
   RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
   RegisterInstruction<LDX>({0xA2, 0xA6, 0xB6, 0xAE, 0xBE});
   RegisterInstruction<LDY>({0xA0, 0xA4, 0xB4, 0xAC, 0xBC});

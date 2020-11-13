@@ -4,6 +4,7 @@ cc_library(
     hdrs = [
         "load.h",
         "misc.h",
+        "stack.h",
         "status.h",
         "store.h",
     ],
@@ -11,6 +12,7 @@ cc_library(
         "instruction.cc",
         "load.cc",
         "misc.cc",
+        "stack.cc",
         "status.cc",
         "store.cc",
     ],
@@ -26,6 +28,7 @@ cc_test(
         "instruction_test_base.h",
         "load_test.cc",
         "misc_test.cc",
+        "stack_test.cc",
         "status_test.cc",
         "store_test.cc",
     ],
