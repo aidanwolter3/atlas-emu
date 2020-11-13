@@ -6,6 +6,8 @@
 namespace {
 
 const uint16_t kHeaderSize = 0x0010;
+const uint16_t kRAMSize = 0x0800;
+const uint16_t kRAMEndAddress = 0x2000;
 const uint16_t kPRGSize = 0x4000;
 const uint16_t kPRGStartAddress = 0x8000;
 
@@ -55,6 +57,12 @@ Memory::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
     return Memory::Status::OUT_OF_BOUNDS;
   }
 
+  // Address falls within RAM.
+  if (address < kRAMEndAddress) {
+    *byte = prg_[address % kRAMSize];
+    return Memory::Status::OK;
+  }
+
   // Address falls within the PRG address range.
   if (address >= kPRGStartAddress) {
     uint16_t prg_offset = address - kPRGStartAddress;
@@ -74,5 +82,15 @@ Memory::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
 }
 
 Memory::Status MemoryImpl::Write(uint16_t address, uint8_t byte) {
-  return Memory::Status::OK;
+  if (!header_->IsValid()) {
+    return Memory::Status::OUT_OF_BOUNDS;
+  }
+
+  // Address falls within RAM.
+  if (address < kRAMEndAddress) {
+    prg_[address % kRAMSize] = byte;
+    return Memory::Status::OK;
+  }
+
+  return Memory::Status::OUT_OF_BOUNDS;
 }
