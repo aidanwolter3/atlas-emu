@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "src/cpu.h"
+#include "src/instruction/branch.h"
 #include "src/instruction/load.h"
 #include "src/instruction/logic.h"
 #include "src/instruction/misc.h"
@@ -63,6 +64,16 @@ Atlas::Atlas(const std::string rom_file) {
   // logic
   RegisterInstruction<AND>({0x29, 0x25, 0x35, 0x2D, 0x3D, 0x39, 0x21, 0x31});
   RegisterInstruction<ORA>({0x09, 0x05, 0x15, 0x0D, 0x1D, 0x19, 0x01, 0x11});
+
+  // branch
+  RegisterInstruction<BPL>(0x10);
+  RegisterInstruction<BMI>(0x30);
+  RegisterInstruction<BVC>(0x50);
+  RegisterInstruction<BVS>(0x70);
+  RegisterInstruction<BCC>(0x90);
+  RegisterInstruction<BCS>(0xB0);
+  RegisterInstruction<BNE>(0xD0);
+  RegisterInstruction<BEQ>(0xF0);
 }
 
 Atlas::~Atlas() = default;
