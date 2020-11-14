@@ -7,42 +7,48 @@
 class TXS : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("TXS");
 };
 
 // Transfer stack pointer to X
 class TSX : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("TSX");
 };
 
 // Push Accumulator
 class PHA : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("PHA");
 };
 
 // Pull Accumulator
 class PLA : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("PLA");
 };
 
 // Push Status
 class PHP : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("PHP");
 };
 
 // Pull Status
 class PLP : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("PLP");
 };
 
 #endif  // INSTRUCTION_STACK_H_

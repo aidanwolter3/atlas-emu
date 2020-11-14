@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void STA::Execute(uint8_t opcode) {
+void STA::ExecuteInternal(uint8_t opcode) {
   switch (opcode) {
     case 0x85:
       mem_.Write(ZeroPage(), reg_.acc);
@@ -31,7 +31,7 @@ void STA::Execute(uint8_t opcode) {
   }
 }
 
-void STX::Execute(uint8_t opcode) {
+void STX::ExecuteInternal(uint8_t opcode) {
   switch (opcode) {
     case 0x86:
       mem_.Write(ZeroPage(), reg_.x);
@@ -48,7 +48,7 @@ void STX::Execute(uint8_t opcode) {
   }
 }
 
-void STY::Execute(uint8_t opcode) {
+void STY::ExecuteInternal(uint8_t opcode) {
   switch (opcode) {
     case 0x84:
       mem_.Write(ZeroPage(), reg_.y);

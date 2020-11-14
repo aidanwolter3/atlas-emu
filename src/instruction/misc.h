@@ -7,7 +7,8 @@
 class NOP : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("NOP");
 };
 
 #endif  // INSTRUCTION_MISC_H_

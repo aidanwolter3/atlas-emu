@@ -52,7 +52,8 @@ Cpu::Status Cpu::Run() {
   // Decode
   auto instruction_it = instruction_map_.find(opcode);
   if (instruction_it == instruction_map_.end()) {
-    std::cout << "Failed to decode: unknown instruction" << std::endl;
+    std::cout << "Failed to decode: unknown instruction: "
+              << IntToHexString(opcode) << std::endl;
     return Status::UNKNOWN_INSTRUCTION;
   }
 
@@ -72,10 +73,5 @@ Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {
               << std::endl;
     return Status::SEGFAULT;
   }
-
-  // Print the address and instruction.
-  // TODO: Provide a --verbose flag to disable this at runtime.
-  std::cout << "(" << IntToHexString(location)
-            << "): " << IntToHexString(*opcode) << std::endl;
   return Status::OK;
 }

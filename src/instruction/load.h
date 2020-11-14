@@ -7,21 +7,24 @@
 class LDA : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("LDA");
 };
 
 // Load Index X
 class LDX : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("LDX");
 };
 
 // Load Index Y
 class LDY : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("LDY");
 };
 
 #endif  // INSTRUCTION_LOAD_H_

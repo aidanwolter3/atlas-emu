@@ -13,7 +13,7 @@ void SetStatusFromData(Registers& reg, uint8_t data) {
 
 }  // namespace
 
-void LDA::Execute(uint8_t opcode) {
+void LDA::ExecuteInternal(uint8_t opcode) {
   switch (opcode) {
     case 0xA9:
       reg_.acc = Immediate();
@@ -46,7 +46,7 @@ void LDA::Execute(uint8_t opcode) {
   SetStatusFromData(reg_, reg_.acc);
 }
 
-void LDX::Execute(uint8_t opcode) {
+void LDX::ExecuteInternal(uint8_t opcode) {
   switch (opcode) {
     case 0xA2:
       reg_.x = Immediate();
@@ -70,7 +70,7 @@ void LDX::Execute(uint8_t opcode) {
   SetStatusFromData(reg_, reg_.x);
 }
 
-void LDY::Execute(uint8_t opcode) {
+void LDY::ExecuteInternal(uint8_t opcode) {
   switch (opcode) {
     case 0xA0:
       reg_.y = Immediate();

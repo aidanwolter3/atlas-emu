@@ -7,21 +7,24 @@
 class STA : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("STA");
 };
 
 // Store Index X
 class STX : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("STX");
 };
 
 // Store Index Y
 class STY : public Instruction {
  public:
   using Instruction::Instruction;
-  void Execute(uint8_t opcode) override;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("STY");
 };
 
 #endif  // INSTRUCTION_STORE_H_

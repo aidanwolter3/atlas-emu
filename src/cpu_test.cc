@@ -24,7 +24,8 @@ class MockMemory : public Memory {
 class MockInstruction : public Instruction {
  public:
   using Instruction::Instruction;
-  MOCK_METHOD1(Execute, void(uint8_t opcode));
+  MOCK_METHOD1(ExecuteInternal, void(uint8_t opcode));
+  SET_LOG_NAME("mock");
 };
 
 void ExpectReadStartAddress(MockMemory& mem, uint16_t address) {
@@ -47,14 +48,14 @@ TEST(CpuTest, RunUntilSegfault) {
   EXPECT_CALL(mem, Read(0xBBAA, _))
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Memory::Status::OK)));
-  EXPECT_CALL(*instruction_ptr, Execute(kFakeOpcode));
+  EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAB, reg.pc);
 
   EXPECT_CALL(mem, Read(0xBBAB, _))
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Memory::Status::OK)));
-  EXPECT_CALL(*instruction_ptr, Execute(kFakeOpcode));
+  EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAC, reg.pc);
 

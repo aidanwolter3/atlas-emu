@@ -29,6 +29,7 @@ cc_test(
     ],
     data = [
         "//src/roms:nop_test",
+        "//src/roms:pretty_log_test",
     ],
 )
 
