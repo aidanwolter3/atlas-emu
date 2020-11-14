@@ -3,6 +3,7 @@ cc_library(
     visibility = ["//visibility:public"],
     hdrs = [
         "load.h",
+        "logic.h",
         "misc.h",
         "stack.h",
         "status.h",
@@ -11,6 +12,7 @@ cc_library(
     srcs = [
         "instruction.cc",
         "load.cc",
+        "logic.cc",
         "misc.cc",
         "stack.cc",
         "status.cc",
