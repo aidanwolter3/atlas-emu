@@ -8,6 +8,7 @@
 
 #include "src/cpu.h"
 #include "src/instruction/load.h"
+#include "src/instruction/logic.h"
 #include "src/instruction/misc.h"
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
@@ -60,6 +61,10 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<STA>({0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91});
   RegisterInstruction<STX>({0x86, 0x96, 0x8E});
   RegisterInstruction<STY>({0x84, 0x94, 0x8C});
+
+  // logic
+  RegisterInstruction<AND>({0x29, 0x25, 0x35, 0x2D, 0x3D, 0x39, 0x21, 0x31});
+  RegisterInstruction<ORA>({0x09, 0x05, 0x15, 0x0D, 0x1D, 0x19, 0x01, 0x11});
 }
 
 Atlas::~Atlas() = default;
