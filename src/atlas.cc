@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <unistd.h>
 #include <vector>
 
 #include "src/cpu.h"
@@ -85,6 +86,7 @@ Atlas::~Atlas() = default;
 Cpu::Status Atlas::Run() {
   Cpu::Status status = Cpu::Status::OK;
   do {
+    usleep(100000);
     status = cpu_->Run();
   } while (status == Cpu::Status::OK);
   return status;
