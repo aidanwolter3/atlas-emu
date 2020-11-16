@@ -12,6 +12,7 @@
 #include "src/instruction/logic.h"
 #include "src/instruction/math.h"
 #include "src/instruction/misc.h"
+#include "src/instruction/shift.h"
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
 #include "src/instruction/store.h"
@@ -82,6 +83,10 @@ Atlas::Atlas(const std::string rom_file) {
   // math
   RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
   RegisterInstruction<SBC>({0xE9, 0xE5, 0xF5, 0xED, 0xFD, 0xF9, 0xE1, 0xF1});
+
+  // shift
+  RegisterInstruction<ASL>({0x0A, 0x06, 0x16, 0x0E, 0x1E});
+  RegisterInstruction<LSR>({0x4A, 0x46, 0x56, 0x4E, 0x5E});
 }
 
 Atlas::~Atlas() = default;
