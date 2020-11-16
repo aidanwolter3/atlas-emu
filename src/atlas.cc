@@ -11,6 +11,7 @@
 #include "src/instruction/load.h"
 #include "src/instruction/logic.h"
 #include "src/instruction/misc.h"
+#include "src/instruction/shift.h"
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
 #include "src/instruction/store.h"
@@ -74,6 +75,9 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<BCS>(0xB0);
   RegisterInstruction<BNE>(0xD0);
   RegisterInstruction<BEQ>(0xF0);
+
+  // shift
+  RegisterInstruction<ASL>({0x0A, 0x06, 0x16, 0x0E, 0x1E});
 }
 
 Atlas::~Atlas() = default;
