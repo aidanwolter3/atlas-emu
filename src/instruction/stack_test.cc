@@ -31,7 +31,8 @@ TEST_F(StackTest, PHA) {
   reg_.sp = 0xFF;
   reg_.acc = 0xAB;
   PHA pha(mem_, reg_);
-  EXPECT_CALL(mem_, Write(0x01FF, 0xAB)).WillOnce(Return(Memory::Status::OK));
+  EXPECT_CALL(mem_, Write(0x01FF, 0xAB))
+      .WillOnce(Return(Peripheral::Status::OK));
   pha.Execute(0x48);
   EXPECT_EQ(reg_.sp, 0xFE);
 }
@@ -41,7 +42,7 @@ TEST_F(StackTest, PLA) {
   reg_.acc = 0;
   PLA pla(mem_, reg_);
   EXPECT_CALL(mem_, Read(0x01FF, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Memory::Status::OK)));
+      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
   pla.Execute(0x68);
   EXPECT_EQ(reg_.sp, 0xFF);
   EXPECT_EQ(reg_.acc, 0xAB);
@@ -51,7 +52,8 @@ TEST_F(StackTest, PHP) {
   reg_.sp = 0xFF;
   reg_.status = 0xAB;
   PHP php(mem_, reg_);
-  EXPECT_CALL(mem_, Write(0x01FF, 0xAB)).WillOnce(Return(Memory::Status::OK));
+  EXPECT_CALL(mem_, Write(0x01FF, 0xAB))
+      .WillOnce(Return(Peripheral::Status::OK));
   php.Execute(0x08);
   EXPECT_EQ(reg_.sp, 0xFE);
 }
@@ -61,7 +63,7 @@ TEST_F(StackTest, PLP) {
   reg_.status = 0;
   PLP plp(mem_, reg_);
   EXPECT_CALL(mem_, Read(0x01FF, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Memory::Status::OK)));
+      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
   plp.Execute(0x28);
   EXPECT_EQ(reg_.sp, 0xFF);
   EXPECT_EQ(reg_.status, 0xAB);

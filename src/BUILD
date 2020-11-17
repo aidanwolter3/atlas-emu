@@ -3,12 +3,12 @@ cc_library(
     hdrs = [
         "atlas.h",
         "cpu.h",
-        "memory_impl.h",
+        "memory.h",
     ],
     srcs = [
         "atlas.cc",
         "cpu.cc",
-        "memory_impl.cc",
+        "memory.cc",
     ],
     deps = [
         "//src/instruction",

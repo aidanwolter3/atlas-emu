@@ -1,4 +1,4 @@
-#include "src/memory_impl.h"
+#include "src/memory.h"
 
 #include <algorithm>
 #include <iostream>
@@ -25,7 +25,7 @@ class MemoryImpl::Header {
   ~Header() = default;
 
   bool IsValid() {
-    // TODO: support CHR memory banks.
+    // TODO: support CHR MemoryImpl banks.
     return (prg_count_ <= 64 && chr_count_ == 0);
   }
 
@@ -52,15 +52,15 @@ MemoryImpl::MemoryImpl(std::vector<uint8_t> data)
 
 MemoryImpl::~MemoryImpl() = default;
 
-Memory::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
+MemoryImpl::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
   if (!byte || !header_->IsValid()) {
-    return Memory::Status::OUT_OF_BOUNDS;
+    return MemoryImpl::Status::OUT_OF_BOUNDS;
   }
 
   // Address falls within RAM.
   if (address < kRAMEndAddress) {
     *byte = prg_[address % kRAMSize];
-    return Memory::Status::OK;
+    return MemoryImpl::Status::OK;
   }
 
   // Address falls within the PRG address range.
@@ -75,22 +75,22 @@ Memory::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
     }
 
     *byte = prg_[prg_offset];
-    return Memory::Status::OK;
+    return MemoryImpl::Status::OK;
   }
 
-  return Memory::Status::OUT_OF_BOUNDS;
+  return MemoryImpl::Status::OUT_OF_BOUNDS;
 }
 
-Memory::Status MemoryImpl::Write(uint16_t address, uint8_t byte) {
+MemoryImpl::Status MemoryImpl::Write(uint16_t address, uint8_t byte) {
   if (!header_->IsValid()) {
-    return Memory::Status::OUT_OF_BOUNDS;
+    return MemoryImpl::Status::OUT_OF_BOUNDS;
   }
 
   // Address falls within RAM.
   if (address < kRAMEndAddress) {
     prg_[address % kRAMSize] = byte;
-    return Memory::Status::OK;
+    return MemoryImpl::Status::OK;
   }
 
-  return Memory::Status::OUT_OF_BOUNDS;
+  return MemoryImpl::Status::OUT_OF_BOUNDS;
 }

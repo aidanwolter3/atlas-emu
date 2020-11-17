@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "src/public/memory.h"
+#include "src/public/bus.h"
 #include "src/public/registers.h"
 
 #define SET_LOG_NAME(n) \
@@ -12,7 +12,7 @@
 
 class Instruction {
  public:
-  Instruction(Memory& mem, Registers& reg) : mem_(mem), reg_(reg) {}
+  Instruction(Peripheral& mem, Registers& reg) : mem_(mem), reg_(reg) {}
   virtual ~Instruction() {}
   void Execute(uint8_t opcode);
 
@@ -35,7 +35,7 @@ class Instruction {
   uint16_t IndexedIndirect(uint8_t index);
   uint16_t IndirectIndexed(uint8_t index);
 
-  Memory& mem_;
+  Peripheral& mem_;
   Registers& reg_;
 
   std::vector<std::string> log_elements_;

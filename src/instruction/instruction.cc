@@ -38,7 +38,7 @@ std::vector<uint8_t> Instruction::FetchOperands(int num) {
   uint16_t pc = reg_.pc;
   for (int i = 0; i < num; ++i) {
     auto status = mem_.Read(pc++, &operands[i]);
-    if (status != Memory::Status::OK) {
+    if (status != Peripheral::Status::OK) {
       std::cout << "Failed to fetch operands" << std::endl;
       return {};
     }

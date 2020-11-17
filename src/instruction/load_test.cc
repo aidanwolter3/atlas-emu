@@ -29,7 +29,7 @@ class LoadTest : public InstructionTestBase {
 
 uint8_t LoadTest::ExpectRead(uint16_t address) {
   EXPECT_CALL(mem_, Read(address, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Memory::Status::OK)));
+      .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
   return 0xAB;
 }
 
@@ -93,7 +93,7 @@ void LoadTest::TestStatusZero(Instruction& instruction,
                               uint8_t immediate_opcode) {
   reg_.pc = 0x00;
   EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0x00), Return(Memory::Status::OK)));
+      .WillOnce(DoAll(SetArgPointee<1>(0x00), Return(Peripheral::Status::OK)));
   instruction.Execute(immediate_opcode);
 
   EXPECT_TRUE(reg_.status.test(Status::kZero));
@@ -104,7 +104,7 @@ void LoadTest::TestStatusNegative(Instruction& instruction,
                                   uint8_t immediate_opcode) {
   reg_.pc = 0x00;
   EXPECT_CALL(mem_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xFF), Return(Memory::Status::OK)));
+      .WillOnce(DoAll(SetArgPointee<1>(0xFF), Return(Peripheral::Status::OK)));
   instruction.Execute(immediate_opcode);
 
   EXPECT_FALSE(reg_.status.test(Status::kZero));

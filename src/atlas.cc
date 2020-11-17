@@ -1,5 +1,7 @@
 #include "atlas.h"
 
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -10,7 +12,7 @@
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
 #include "src/instruction/store.h"
-#include "src/memory_impl.h"
+#include "src/memory.h"
 
 Atlas::Atlas(const std::string rom_file) {
   // Open the ROM file as an input stream.

@@ -2,8 +2,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "src/memory.h"
 #include "src/public/instruction.h"
-#include "src/public/memory.h"
 #include "src/public/registers.h"
 
 namespace {
@@ -17,8 +17,8 @@ const uint8_t kFakeOpcode = 0x12;
 
 class MockMemory : public Memory {
  public:
-  MOCK_METHOD2(Read, Memory::Status(uint16_t address, uint8_t* data));
-  MOCK_METHOD2(Write, Memory::Status(uint16_t address, uint8_t data));
+  MOCK_METHOD2(Read, Peripheral::Status(uint16_t address, uint8_t* data));
+  MOCK_METHOD2(Write, Peripheral::Status(uint16_t address, uint8_t data));
 };
 
 class MockInstruction : public Instruction {
@@ -29,10 +29,12 @@ class MockInstruction : public Instruction {
 };
 
 void ExpectReadStartAddress(MockMemory& mem, uint16_t address) {
-  EXPECT_CALL(mem, Read(0xFFFC, _)).WillOnce(DoAll(
-        SetArgPointee<1>(address & 0xFF), Return(Memory::Status::OK)));
-  EXPECT_CALL(mem, Read(0xFFFD, _)).WillOnce(DoAll(
-        SetArgPointee<1>((address >> 8) & 0xFF), Return(Memory::Status::OK)));
+  EXPECT_CALL(mem, Read(0xFFFC, _))
+      .WillOnce(DoAll(SetArgPointee<1>(address & 0xFF),
+                      Return(Peripheral::Status::OK)));
+  EXPECT_CALL(mem, Read(0xFFFD, _))
+      .WillOnce(DoAll(SetArgPointee<1>((address >> 8) & 0xFF),
+                      Return(Peripheral::Status::OK)));
 }
 
 TEST(CpuTest, RunUntilSegfault) {
@@ -47,20 +49,20 @@ TEST(CpuTest, RunUntilSegfault) {
 
   EXPECT_CALL(mem, Read(0xBBAA, _))
       .WillOnce(
-          DoAll(SetArgPointee<1>(kFakeOpcode), Return(Memory::Status::OK)));
+          DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAB, reg.pc);
 
   EXPECT_CALL(mem, Read(0xBBAB, _))
       .WillOnce(
-          DoAll(SetArgPointee<1>(kFakeOpcode), Return(Memory::Status::OK)));
+          DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAC, reg.pc);
 
   EXPECT_CALL(mem, Read(0xBBAC, _))
-      .WillOnce(Return(Memory::Status::OUT_OF_BOUNDS));
+      .WillOnce(Return(Peripheral::Status::OUT_OF_BOUNDS));
   EXPECT_EQ(Cpu::Status::SEGFAULT, cpu.Run());
   EXPECT_EQ(0xBBAC, reg.pc);
 }

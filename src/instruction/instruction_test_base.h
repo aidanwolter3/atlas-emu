@@ -1,12 +1,12 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "src/public/memory.h"
+#include "src/public/bus.h"
 #include "src/public/registers.h"
 
-class MockMemory : public Memory {
+class MockMemory : public Peripheral {
  public:
-  MOCK_METHOD2(Read, Memory::Status(uint16_t address, uint8_t* data));
-  MOCK_METHOD2(Write, Memory::Status(uint16_t address, uint8_t data));
+  MOCK_METHOD2(Read, Peripheral::Status(uint16_t address, uint8_t* data));
+  MOCK_METHOD2(Write, Peripheral::Status(uint16_t address, uint8_t data));
 };
 
 class InstructionTestBase : public testing::Test {

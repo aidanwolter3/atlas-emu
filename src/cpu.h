@@ -6,8 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "src/memory.h"
 #include "src/public/instruction.h"
-#include "src/public/memory.h"
 #include "src/public/registers.h"
 
 class Cpu {
