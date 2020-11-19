@@ -28,7 +28,7 @@ class LoadTest : public InstructionTestBase {
 };
 
 uint8_t LoadTest::ExpectRead(uint16_t address) {
-  EXPECT_CALL(mem_, Read(address, _))
+  EXPECT_CALL(bus_, Read(address, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
   return 0xAB;
 }
@@ -92,7 +92,7 @@ void LoadTest::TestIndirectIndexed(Instruction& instruction, uint8_t& dest,
 void LoadTest::TestStatusZero(Instruction& instruction,
                               uint8_t immediate_opcode) {
   reg_.pc = 0x00;
-  EXPECT_CALL(mem_, Read(0x00, _))
+  EXPECT_CALL(bus_, Read(0x00, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x00), Return(Peripheral::Status::OK)));
   instruction.Execute(immediate_opcode);
 
@@ -103,7 +103,7 @@ void LoadTest::TestStatusZero(Instruction& instruction,
 void LoadTest::TestStatusNegative(Instruction& instruction,
                                   uint8_t immediate_opcode) {
   reg_.pc = 0x00;
-  EXPECT_CALL(mem_, Read(0x00, _))
+  EXPECT_CALL(bus_, Read(0x00, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xFF), Return(Peripheral::Status::OK)));
   instruction.Execute(immediate_opcode);
 
@@ -112,7 +112,7 @@ void LoadTest::TestStatusNegative(Instruction& instruction,
 }
 
 TEST_F(LoadTest, LDA) {
-  LDA lda(mem_, reg_);
+  LDA lda(bus_, reg_);
   TestImmediate(lda, reg_.acc, 0xA9);
   TestZeroPage(lda, reg_.acc, 0xA5);
   TestIndexedZeroPage(lda, reg_.acc, reg_.x, 0xB5);
@@ -126,7 +126,7 @@ TEST_F(LoadTest, LDA) {
 }
 
 TEST_F(LoadTest, LDX) {
-  LDX ldx(mem_, reg_);
+  LDX ldx(bus_, reg_);
   TestImmediate(ldx, reg_.x, 0xA2);
   TestZeroPage(ldx, reg_.x, 0xA6);
   TestIndexedZeroPage(ldx, reg_.x, reg_.y, 0xB6);
@@ -137,7 +137,7 @@ TEST_F(LoadTest, LDX) {
 }
 
 TEST_F(LoadTest, LDY) {
-  LDY ldy(mem_, reg_);
+  LDY ldy(bus_, reg_);
   TestImmediate(ldy, reg_.y, 0xA0);
   TestZeroPage(ldy, reg_.y, 0xA4);
   TestIndexedZeroPage(ldy, reg_.y, reg_.x, 0xB4);

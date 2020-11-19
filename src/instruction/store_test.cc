@@ -23,7 +23,7 @@ class StoreTest : public InstructionTestBase {
 void StoreTest::TestZeroPage(Instruction& instruction, uint8_t data,
                              uint8_t opcode) {
   auto address = ExpectZeroPage();
-  EXPECT_CALL(mem_, Write(address, data))
+  EXPECT_CALL(bus_, Write(address, data))
       .WillOnce(Return(Peripheral::Status::OK));
   instruction.Execute(opcode);
   ExpectPostZeroPage();
@@ -32,7 +32,7 @@ void StoreTest::TestZeroPage(Instruction& instruction, uint8_t data,
 void StoreTest::TestIndexedZeroPage(Instruction& instruction, uint8_t data,
                                     uint8_t& index, uint8_t opcode) {
   auto address = ExpectIndexedZeroPage(index);
-  EXPECT_CALL(mem_, Write(address, data))
+  EXPECT_CALL(bus_, Write(address, data))
       .WillOnce(Return(Peripheral::Status::OK));
   instruction.Execute(opcode);
   ExpectPostIndexedZeroPage();
@@ -41,7 +41,7 @@ void StoreTest::TestIndexedZeroPage(Instruction& instruction, uint8_t data,
 void StoreTest::TestAbsolute(Instruction& instruction, uint8_t data,
                              uint8_t opcode) {
   auto address = ExpectAbsolute();
-  EXPECT_CALL(mem_, Write(address, data))
+  EXPECT_CALL(bus_, Write(address, data))
       .WillOnce(Return(Peripheral::Status::OK));
   instruction.Execute(opcode);
   ExpectPostAbsolute();
@@ -50,7 +50,7 @@ void StoreTest::TestAbsolute(Instruction& instruction, uint8_t data,
 void StoreTest::TestIndexedAbsolute(Instruction& instruction, uint8_t data,
                                     uint8_t& index, uint8_t opcode) {
   auto address = ExpectIndexedAbsolute(index);
-  EXPECT_CALL(mem_, Write(address, data))
+  EXPECT_CALL(bus_, Write(address, data))
       .WillOnce(Return(Peripheral::Status::OK));
   instruction.Execute(opcode);
   ExpectPostIndexedAbsolute();
@@ -59,7 +59,7 @@ void StoreTest::TestIndexedAbsolute(Instruction& instruction, uint8_t data,
 void StoreTest::TestIndexedIndirect(Instruction& instruction, uint8_t data,
                                     uint8_t& index, uint8_t opcode) {
   auto address = ExpectIndexedIndirect(index);
-  EXPECT_CALL(mem_, Write(address, data))
+  EXPECT_CALL(bus_, Write(address, data))
       .WillOnce(Return(Peripheral::Status::OK));
   instruction.Execute(opcode);
   ExpectPostIndexedIndirect();
@@ -68,14 +68,14 @@ void StoreTest::TestIndexedIndirect(Instruction& instruction, uint8_t data,
 void StoreTest::TestIndirectIndexed(Instruction& instruction, uint8_t data,
                                     uint8_t& index, uint8_t opcode) {
   auto address = ExpectIndirectIndexed(index);
-  EXPECT_CALL(mem_, Write(address, data))
+  EXPECT_CALL(bus_, Write(address, data))
       .WillOnce(Return(Peripheral::Status::OK));
   instruction.Execute(opcode);
   ExpectPostIndirectIndexed();
 }
 
 TEST_F(StoreTest, STA) {
-  STA sta(mem_, reg_);
+  STA sta(bus_, reg_);
   TestZeroPage(sta, reg_.acc, 0x85);
   TestIndexedZeroPage(sta, reg_.acc, reg_.x, 0x95);
   TestAbsolute(sta, reg_.acc, 0x8D);
@@ -86,14 +86,14 @@ TEST_F(StoreTest, STA) {
 }
 
 TEST_F(StoreTest, STX) {
-  STX stx(mem_, reg_);
+  STX stx(bus_, reg_);
   TestZeroPage(stx, reg_.x, 0x86);
   TestIndexedZeroPage(stx, reg_.x, reg_.y, 0x96);
   TestAbsolute(stx, reg_.x, 0x8E);
 }
 
 TEST_F(StoreTest, STY) {
-  STY sty(mem_, reg_);
+  STY sty(bus_, reg_);
   TestZeroPage(sty, reg_.y, 0x84);
   TestIndexedZeroPage(sty, reg_.y, reg_.x, 0x94);
   TestAbsolute(sty, reg_.y, 0x8C);

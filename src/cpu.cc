@@ -15,12 +15,12 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::Cpu(Memory& mem, Registers& reg) : mem_(mem), reg_(reg) {
+Cpu::Cpu(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {
   // Read the start address
   uint8_t start_address_low, start_address_high;
   Peripheral::Status status_low, status_high;
-  status_low = mem_.Read(0xFFFC, &start_address_low);
-  status_high = mem_.Read(0xFFFD, &start_address_high);
+  status_low = bus_.Read(0xFFFC, &start_address_low);
+  status_high = bus_.Read(0xFFFD, &start_address_high);
   if (status_low != Peripheral::Status::OK ||
       status_high != Peripheral::Status::OK) {
     std::cout << "Failed to read the start address" << std::endl;
@@ -66,7 +66,7 @@ Cpu::Status Cpu::Run() {
 }
 
 Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {
-  auto status = mem_.Read(location, opcode);
+  auto status = bus_.Read(location, opcode);
   if (status != Peripheral::Status::OK) {
     std::cout << "Encountered error "
               << "(" << std::to_string(static_cast<uint8_t>(status)) << ") "

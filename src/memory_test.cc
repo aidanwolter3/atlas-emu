@@ -1,52 +1,15 @@
 #include "src/memory.h"
 
 #include <cstdint>
-#include <vector>
 
 #include "gtest/gtest.h"
 
 namespace {
 
-const std::vector<uint8_t> kTestData = {
-    // Header
-    'N',
-    'E',
-    'S',
-    0x1a,
-    1,  // PRG count
-    0,  // CHR count
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,  // Flags
-
-    // Code
-    0x01,
-    0x02,
-    0x03,
-    0x04,
-};
-
-std::vector<uint8_t> GenerateLargeTestData(uint8_t prg_count) {
-  std::vector<uint8_t> data(0x4010, 0xFF);
-  data[4] = prg_count;
-  data[5] = 0;  // CHR count
-  data[0x10] = 0xAA;
-  data[0x110] = 0xBB;
-  data[0x400F] = 0xCC;
-  return data;
-}
-
 TEST(MemoryTest, ReadBoundaries) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem(GenerateLargeTestData(1));
+  MemoryImpl mem;
 
   // first ram byte
   status = mem.Read(0x0000, &byte_read);
@@ -59,25 +22,11 @@ TEST(MemoryTest, ReadBoundaries) {
   // after last ram byte
   status = mem.Read(0x2000, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OUT_OF_BOUNDS);
-
-  // before first prg byte
-  status = mem.Read(0x7FFF, &byte_read);
-  EXPECT_EQ(status, Peripheral::Status::OUT_OF_BOUNDS);
-
-  // first prg byte
-  status = mem.Read(0x8000, &byte_read);
-  EXPECT_EQ(status, Peripheral::Status::OK);
-  EXPECT_EQ(byte_read, 0xAA);
-
-  // last prg byte
-  status = mem.Read(0xBFFF, &byte_read);
-  EXPECT_EQ(status, Peripheral::Status::OK);
-  EXPECT_EQ(byte_read, 0xCC);
 }
 
 TEST(MemoryTest, WriteBoundaries) {
   Peripheral::Status status;
-  MemoryImpl mem(GenerateLargeTestData(1));
+  MemoryImpl mem;
 
   // first ram byte
   status = mem.Write(0x0000, 0xAA);
@@ -93,7 +42,7 @@ TEST(MemoryTest, WriteBoundaries) {
 }
 
 TEST(MemoryTest, ReadInvalidPointer) {
-  MemoryImpl mem(kTestData);
+  MemoryImpl mem;
   auto status = mem.Read(0x0000, nullptr);
   EXPECT_EQ(status, Peripheral::Status::OUT_OF_BOUNDS);
 }
@@ -101,7 +50,7 @@ TEST(MemoryTest, ReadInvalidPointer) {
 TEST(MemoryTest, ReadFromMirroredRAM) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem(kTestData);
+  MemoryImpl mem;
 
   status = mem.Write(0x0000, 0xAA);
   EXPECT_EQ(status, Peripheral::Status::OK);
@@ -126,7 +75,7 @@ TEST(MemoryTest, ReadFromMirroredRAM) {
 TEST(MemoryTest, WriteToMirroredRAM) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem(kTestData);
+  MemoryImpl mem;
 
   status = mem.Write(0x0800, 0xAA);
   EXPECT_EQ(status, Peripheral::Status::OK);
@@ -147,28 +96,10 @@ TEST(MemoryTest, WriteToMirroredRAM) {
   EXPECT_EQ(byte_read, 0xCC);
 }
 
-TEST(MemoryTest, ReadFromMirroredPRG) {
-  uint8_t byte_read;
-  Peripheral::Status status;
-  MemoryImpl mem(GenerateLargeTestData(1));
-
-  status = mem.Read(0xC000, &byte_read);
-  EXPECT_EQ(status, Peripheral::Status::OK);
-  EXPECT_EQ(byte_read, 0xAA);
-
-  status = mem.Read(0xC100, &byte_read);
-  EXPECT_EQ(status, Peripheral::Status::OK);
-  EXPECT_EQ(byte_read, 0xBB);
-
-  status = mem.Read(0xFFFF, &byte_read);
-  EXPECT_EQ(status, Peripheral::Status::OK);
-  EXPECT_EQ(byte_read, 0xCC);
-}
-
 TEST(MemoryTest, WriteAndReadRAM) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem(kTestData);
+  MemoryImpl mem;
 
   for (uint8_t i = 0; i < 10; ++i) {
     status = mem.Write(i, i);

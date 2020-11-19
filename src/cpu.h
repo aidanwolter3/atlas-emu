@@ -6,13 +6,13 @@
 #include <memory>
 #include <vector>
 
-#include "src/memory.h"
+#include "src/public/bus.h"
 #include "src/public/instruction.h"
 #include "src/public/registers.h"
 
 class Cpu {
  public:
-  Cpu(Memory& mem, Registers& reg);
+  Cpu(Bus& bus, Registers& reg);
   ~Cpu();
 
   // TODO: Consider prefixing each instruction with the stage (FETCH, DECODE).
@@ -34,7 +34,7 @@ class Cpu {
   // Fetch the |opcode| at |location| in |mem_|.
   Cpu::Status Fetch(uint16_t location, uint8_t* opcode);
 
-  Memory& mem_;
+  Bus& bus_;
   Registers& reg_;
   std::vector<std::unique_ptr<Instruction>> instructions_;
   // Map of opcode to Instruction pointer, which points to the Instruction in

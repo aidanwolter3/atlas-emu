@@ -2,7 +2,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "src/memory.h"
+#include "src/public/bus.h"
 #include "src/public/instruction.h"
 #include "src/public/registers.h"
 
@@ -15,10 +15,12 @@ using testing::SetArgPointee;
 
 const uint8_t kFakeOpcode = 0x12;
 
-class MockMemory : public Memory {
+class MockBus : public Bus {
  public:
   MOCK_METHOD2(Read, Peripheral::Status(uint16_t address, uint8_t* data));
   MOCK_METHOD2(Write, Peripheral::Status(uint16_t address, uint8_t data));
+  void RegisterPeripheral(Peripheral& peripheral, uint16_t start) {}
+  uint16_t GetAddressLength() { return 0; }
 };
 
 class MockInstruction : public Instruction {
@@ -28,51 +30,51 @@ class MockInstruction : public Instruction {
   SET_LOG_NAME("mock");
 };
 
-void ExpectReadStartAddress(MockMemory& mem, uint16_t address) {
-  EXPECT_CALL(mem, Read(0xFFFC, _))
+void ExpectReadStartAddress(MockBus& bus, uint16_t address) {
+  EXPECT_CALL(bus, Read(0xFFFC, _))
       .WillOnce(DoAll(SetArgPointee<1>(address & 0xFF),
                       Return(Peripheral::Status::OK)));
-  EXPECT_CALL(mem, Read(0xFFFD, _))
+  EXPECT_CALL(bus, Read(0xFFFD, _))
       .WillOnce(DoAll(SetArgPointee<1>((address >> 8) & 0xFF),
                       Return(Peripheral::Status::OK)));
 }
 
 TEST(CpuTest, RunUntilSegfault) {
-  MockMemory mem;
+  MockBus bus;
   Registers reg;
-  auto mock_instruction = std::make_unique<MockInstruction>(mem, reg);
+  auto mock_instruction = std::make_unique<MockInstruction>(bus, reg);
   MockInstruction* instruction_ptr = mock_instruction.get();
 
-  ExpectReadStartAddress(mem, 0xBBAA);
-  Cpu cpu(mem, reg);
+  ExpectReadStartAddress(bus, 0xBBAA);
+  Cpu cpu(bus, reg);
   cpu.RegisterInstruction(std::move(mock_instruction), {kFakeOpcode});
 
-  EXPECT_CALL(mem, Read(0xBBAA, _))
+  EXPECT_CALL(bus, Read(0xBBAA, _))
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAB, reg.pc);
 
-  EXPECT_CALL(mem, Read(0xBBAB, _))
+  EXPECT_CALL(bus, Read(0xBBAB, _))
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
   EXPECT_EQ(Cpu::Status::OK, cpu.Run());
   EXPECT_EQ(0xBBAC, reg.pc);
 
-  EXPECT_CALL(mem, Read(0xBBAC, _))
+  EXPECT_CALL(bus, Read(0xBBAC, _))
       .WillOnce(Return(Peripheral::Status::OUT_OF_BOUNDS));
   EXPECT_EQ(Cpu::Status::SEGFAULT, cpu.Run());
   EXPECT_EQ(0xBBAC, reg.pc);
 }
 
 TEST(CpuTest, InitialStateOfStatusRegister) {
-  MockMemory mem;
+  MockBus bus;
   Registers reg;
 
-  ExpectReadStartAddress(mem, 0xBBAA);
-  Cpu cpu(mem, reg);
+  ExpectReadStartAddress(bus, 0xBBAA);
+  Cpu cpu(bus, reg);
 
   EXPECT_FALSE(reg.status.test(Status::kCarry));
   EXPECT_FALSE(reg.status.test(Status::kZero));

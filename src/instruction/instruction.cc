@@ -37,7 +37,7 @@ std::vector<uint8_t> Instruction::FetchOperands(int num) {
   std::vector<uint8_t> operands(num);
   uint16_t pc = reg_.pc;
   for (int i = 0; i < num; ++i) {
-    auto status = mem_.Read(pc++, &operands[i]);
+    auto status = bus_.Read(pc++, &operands[i]);
     if (status != Peripheral::Status::OK) {
       std::cout << "Failed to fetch operands" << std::endl;
       return {};
@@ -83,7 +83,7 @@ uint16_t Instruction::IndexedAbsolute(uint8_t index) {
 uint16_t Instruction::IndexedIndirect(uint8_t index) {
   std::vector<uint8_t> operands = FetchOperands(1);
   uint8_t address;
-  mem_.Read(operands[0] + index, &address);
+  bus_.Read(operands[0] + index, &address);
   log_elements_.push_back("($" + IntToHexString(operands[0]) + " + " +
                           IntToHexString(index) + ") = $" +
                           IntToHexString(address));
@@ -93,7 +93,7 @@ uint16_t Instruction::IndexedIndirect(uint8_t index) {
 uint16_t Instruction::IndirectIndexed(uint8_t index) {
   std::vector<uint8_t> operands = FetchOperands(1);
   uint8_t address;
-  mem_.Read(operands[0], &address);
+  bus_.Read(operands[0], &address);
   log_elements_.push_back("($" + IntToHexString(operands[0]) + ") + " +
                           IntToHexString(index) + " = $" +
                           IntToHexString(address));

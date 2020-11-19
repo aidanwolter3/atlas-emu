@@ -29,8 +29,10 @@ Atlas::Atlas(const std::string rom_file) {
   std::copy(std::istream_iterator<uint8_t>(rom_stream),
             std::istream_iterator<uint8_t>(), std::back_inserter(data));
 
-  mem_ = std::make_unique<MemoryImpl>(std::move(data));
-  cpu_ = std::make_unique<Cpu>(*mem_, reg_);
+  storage_ = std::make_unique<StorageImpl>(std::move(data));
+  bus_.RegisterPeripheral(mem_, 0);
+  bus_.RegisterPeripheral(*storage_, 0x8000);
+  cpu_ = std::make_unique<Cpu>(bus_, reg_);
 
   RegisterInstruction<NOP>(0xEA);
 
@@ -88,6 +90,6 @@ void Atlas::RegisterInstruction(uint8_t opcode) {
 
 template <class INS>
 void Atlas::RegisterInstruction(std::vector<uint8_t> opcodes) {
-  cpu_->RegisterInstruction(std::make_unique<INS>(*mem_, reg_),
+  cpu_->RegisterInstruction(std::make_unique<INS>(bus_, reg_),
                             std::move(opcodes));
 }

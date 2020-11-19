@@ -19,25 +19,25 @@ void LDA::ExecuteInternal(uint8_t opcode) {
       reg_.acc = Immediate();
       break;
     case 0xA5:
-      mem_.Read(ZeroPage(), &reg_.acc);
+      bus_.Read(ZeroPage(), &reg_.acc);
       break;
     case 0xB5:
-      mem_.Read(IndexedZeroPage(reg_.x), &reg_.acc);
+      bus_.Read(IndexedZeroPage(reg_.x), &reg_.acc);
       break;
     case 0xAD:
-      mem_.Read(Absolute(), &reg_.acc);
+      bus_.Read(Absolute(), &reg_.acc);
       break;
     case 0xBD:
-      mem_.Read(IndexedAbsolute(reg_.x), &reg_.acc);
+      bus_.Read(IndexedAbsolute(reg_.x), &reg_.acc);
       break;
     case 0xB9:
-      mem_.Read(IndexedAbsolute(reg_.y), &reg_.acc);
+      bus_.Read(IndexedAbsolute(reg_.y), &reg_.acc);
       break;
     case 0xA1:
-      mem_.Read(IndexedIndirect(reg_.x), &reg_.acc);
+      bus_.Read(IndexedIndirect(reg_.x), &reg_.acc);
       break;
     case 0xB1:
-      mem_.Read(IndirectIndexed(reg_.y), &reg_.acc);
+      bus_.Read(IndirectIndexed(reg_.y), &reg_.acc);
       break;
     default:
       std::cout << "Unsupported LDA variant: " << opcode << std::endl;
@@ -52,16 +52,16 @@ void LDX::ExecuteInternal(uint8_t opcode) {
       reg_.x = Immediate();
       break;
     case 0xA6:
-      mem_.Read(ZeroPage(), &reg_.x);
+      bus_.Read(ZeroPage(), &reg_.x);
       break;
     case 0xB6:
-      mem_.Read(IndexedZeroPage(reg_.y), &reg_.x);
+      bus_.Read(IndexedZeroPage(reg_.y), &reg_.x);
       break;
     case 0xAE:
-      mem_.Read(Absolute(), &reg_.x);
+      bus_.Read(Absolute(), &reg_.x);
       break;
     case 0xBE:
-      mem_.Read(IndexedAbsolute(reg_.y), &reg_.x);
+      bus_.Read(IndexedAbsolute(reg_.y), &reg_.x);
       break;
     default:
       std::cout << "Unsupported LDX variant: " << opcode << std::endl;
@@ -76,16 +76,16 @@ void LDY::ExecuteInternal(uint8_t opcode) {
       reg_.y = Immediate();
       break;
     case 0xA4:
-      mem_.Read(ZeroPage(), &reg_.y);
+      bus_.Read(ZeroPage(), &reg_.y);
       break;
     case 0xB4:
-      mem_.Read(IndexedZeroPage(reg_.x), &reg_.y);
+      bus_.Read(IndexedZeroPage(reg_.x), &reg_.y);
       break;
     case 0xAC:
-      mem_.Read(Absolute(), &reg_.y);
+      bus_.Read(Absolute(), &reg_.y);
       break;
     case 0xBC:
-      mem_.Read(IndexedAbsolute(reg_.x), &reg_.y);
+      bus_.Read(IndexedAbsolute(reg_.x), &reg_.y);
       break;
     default:
       std::cout << "Unsupported LDY variant: " << opcode << std::endl;

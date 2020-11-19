@@ -3,10 +3,12 @@
 #include "src/public/bus.h"
 #include "src/public/registers.h"
 
-class MockMemory : public Peripheral {
+class MockBus : public Bus {
  public:
   MOCK_METHOD2(Read, Peripheral::Status(uint16_t address, uint8_t* data));
   MOCK_METHOD2(Write, Peripheral::Status(uint16_t address, uint8_t data));
+  void RegisterPeripheral(Peripheral& peripheral, uint16_t start) {}
+  uint16_t GetAddressLength() { return 0; }
 };
 
 class InstructionTestBase : public testing::Test {
@@ -26,6 +28,6 @@ class InstructionTestBase : public testing::Test {
   uint16_t ExpectIndirectIndexed(uint8_t& index);
   void ExpectPostIndirectIndexed();
 
-  MockMemory mem_;
+  MockBus bus_;
   Registers reg_;
 };

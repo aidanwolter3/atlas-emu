@@ -12,7 +12,7 @@
 
 class Instruction {
  public:
-  Instruction(Peripheral& mem, Registers& reg) : mem_(mem), reg_(reg) {}
+  Instruction(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
   virtual ~Instruction() {}
   void Execute(uint8_t opcode);
 
@@ -35,7 +35,7 @@ class Instruction {
   uint16_t IndexedIndirect(uint8_t index);
   uint16_t IndirectIndexed(uint8_t index);
 
-  Peripheral& mem_;
+  Bus& bus_;
   Registers& reg_;
 
   std::vector<std::string> log_elements_;

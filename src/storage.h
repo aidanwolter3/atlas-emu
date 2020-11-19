@@ -1,17 +1,19 @@
-#ifndef MEMORY_H_
-#define MEMORY_H_
+#ifndef STORAGE_H_
+#define STORAGE_H_
 
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "src/public/bus.h"
 
 // An interface is helpful for mocking in tests.
-class Memory : public Peripheral {};
+class Storage : public Peripheral {};
 
-class MemoryImpl : public Memory {
+class StorageImpl : public Storage {
  public:
-  MemoryImpl();
-  ~MemoryImpl() override;
+  StorageImpl(std::vector<uint8_t> data);
+  ~StorageImpl() override;
 
   // Peripheral implementation:
   Peripheral::Status Read(uint16_t address, uint8_t* byte) override;
@@ -19,7 +21,10 @@ class MemoryImpl : public Memory {
   uint16_t GetAddressLength() override;
 
  private:
-  std::vector<uint8_t> data_;
+  class Header;
+
+  std::unique_ptr<Header> header_;
+  std::vector<uint8_t> prg_;
 };
 
-#endif  // MEMORY_H_
+#endif  // STORAGE_H_

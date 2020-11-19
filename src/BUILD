@@ -2,13 +2,17 @@ cc_library(
     name = "atlas",
     hdrs = [
         "atlas.h",
+        "bus_impl.h",
         "cpu.h",
         "memory.h",
+        "storage.h",
     ],
     srcs = [
         "atlas.cc",
+        "bus_impl.cc",
         "cpu.cc",
         "memory.cc",
+        "storage.cc"
     ],
     deps = [
         "//src/instruction",
@@ -20,8 +24,10 @@ cc_test(
     name = "atlas_test",
     srcs = [
         "atlas_test.cc",
+        "bus_impl_test.cc",
         "cpu_test.cc",
         "memory_test.cc",
+        "storage_test.cc",
     ],
     deps = [
         ":atlas",

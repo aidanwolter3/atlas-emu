@@ -4,9 +4,11 @@
 #include <memory>
 #include <string>
 
+#include "src/bus_impl.h"
 #include "src/cpu.h"
 #include "src/memory.h"
 #include "src/public/registers.h"
+#include "src/storage.h"
 
 class Atlas {
  public:
@@ -29,8 +31,10 @@ class Atlas {
   template <class INS>
   void RegisterInstruction(std::vector<uint8_t> opcodes);
 
-  std::unique_ptr<MemoryImpl> mem_;
+  BusImpl bus_;
+  MemoryImpl mem_;
   Registers reg_;
+  std::unique_ptr<StorageImpl> storage_;
   std::unique_ptr<Cpu> cpu_;
 };
 
