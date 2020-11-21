@@ -34,6 +34,7 @@ Atlas::Atlas(const std::string rom_file) {
   storage_ = std::make_unique<StorageImpl>(std::move(data));
   bus_.RegisterPeripheral(mem_, 0);
   bus_.RegisterPeripheral(*storage_, 0x8000);
+  bus_.RegisterPeripheral(ppu_, 0x2000);
   cpu_ = std::make_unique<Cpu>(bus_, reg_);
 
   RegisterInstruction<NOP>(0xEA);

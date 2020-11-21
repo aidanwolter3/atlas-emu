@@ -11,6 +11,7 @@ class Peripheral {
     OK,
     OUT_OF_BOUNDS,
     READ_ONLY,
+    WRITE_ONLY,
   };
 
   virtual Status Read(uint16_t address, uint8_t* byte) = 0;

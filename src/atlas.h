@@ -7,6 +7,7 @@
 #include "src/bus_impl.h"
 #include "src/cpu.h"
 #include "src/memory.h"
+#include "src/ppu.h"
 #include "src/public/registers.h"
 #include "src/storage.h"
 
@@ -34,6 +35,7 @@ class Atlas {
   BusImpl bus_;
   MemoryImpl mem_;
   Registers reg_;
+  Ppu ppu_;
   std::unique_ptr<StorageImpl> storage_;
   std::unique_ptr<Cpu> cpu_;
 };

@@ -5,6 +5,7 @@ cc_library(
         "bus_impl.h",
         "cpu.h",
         "memory.h",
+        "ppu.h",
         "storage.h",
     ],
     srcs = [
@@ -12,6 +13,7 @@ cc_library(
         "bus_impl.cc",
         "cpu.cc",
         "memory.cc",
+        "ppu.cc",
         "storage.cc"
     ],
     deps = [
