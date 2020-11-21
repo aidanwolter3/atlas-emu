@@ -2,6 +2,7 @@ cc_library(
     name = "instruction",
     visibility = ["//visibility:public"],
     hdrs = [
+        "branch.h",
         "load.h",
         "logic.h",
         "misc.h",
@@ -10,6 +11,7 @@ cc_library(
         "store.h",
     ],
     srcs = [
+        "branch.cc",
         "instruction.cc",
         "load.cc",
         "logic.cc",

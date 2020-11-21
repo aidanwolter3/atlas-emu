@@ -34,6 +34,7 @@ cc_test(
         "@gtest//:gtest_main",
     ],
     data = [
+        "//src/roms:branch_test",
         "//src/roms:nop_test",
         "//src/roms:pretty_log_test",
     ],
