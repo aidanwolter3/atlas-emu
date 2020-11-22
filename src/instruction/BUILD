@@ -3,6 +3,7 @@ cc_library(
     visibility = ["//visibility:public"],
     hdrs = [
         "branch.h",
+        "jump.h",
         "load.h",
         "logic.h",
         "math.h",
@@ -15,6 +16,7 @@ cc_library(
     srcs = [
         "branch.cc",
         "instruction.cc",
+        "jump.cc",
         "load.cc",
         "logic.cc",
         "math.cc",

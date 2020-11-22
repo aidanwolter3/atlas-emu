@@ -8,6 +8,7 @@
 
 #include "src/cpu.h"
 #include "src/instruction/branch.h"
+#include "src/instruction/jump.h"
 #include "src/instruction/load.h"
 #include "src/instruction/logic.h"
 #include "src/instruction/math.h"
@@ -87,6 +88,11 @@ Atlas::Atlas(const std::string rom_file) {
   // shift
   RegisterInstruction<ASL>({0x0A, 0x06, 0x16, 0x0E, 0x1E});
   RegisterInstruction<LSR>({0x4A, 0x46, 0x56, 0x4E, 0x5E});
+
+  // jump
+  RegisterInstruction<JMP>({0x4C, 0x6C});
+  RegisterInstruction<JSR>(0x20);
+  RegisterInstruction<RTS>(0x60);
 }
 
 Atlas::~Atlas() = default;

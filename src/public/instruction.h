@@ -31,6 +31,7 @@ class Instruction {
   uint16_t ZeroPage();
   uint16_t IndexedZeroPage(uint8_t index);
   uint16_t Absolute();
+  uint16_t IndirectAbsolute();
   uint16_t IndexedAbsolute(uint8_t index);
   uint16_t IndexedIndirect(uint8_t index);
   uint16_t IndirectIndexed(uint8_t index);

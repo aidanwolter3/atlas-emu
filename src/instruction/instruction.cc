@@ -74,6 +74,27 @@ uint16_t Instruction::Absolute() {
   return address;
 }
 
+// IndirectAbsolute() is only used by JMP.
+// TODO: Move to that instruction.
+uint16_t Instruction::IndirectAbsolute() {
+  std::vector<uint8_t> operands = FetchOperands(2);
+  uint16_t address_location_1 = ((operands[1] << 8) | operands[0]);
+  log_elements_.push_back("($" + IntToHexString(address_location_1) + ")");
+
+  // The lower byte of the address does not carry when incremented.
+  // 0xABFF + 1 = 0xAB00
+  uint16_t address_location_2 = address_location_1;
+  address_location_2 &= 0xFF00;
+  address_location_2 |= static_cast<uint8_t>(address_location_1) + 1;
+
+  uint8_t lower_byte, upper_byte;
+  bus_.Read(address_location_1, &lower_byte);
+  bus_.Read(address_location_2, &upper_byte);
+  uint16_t address = (upper_byte << 8 | lower_byte);
+
+  return address;
+}
+
 uint16_t Instruction::IndexedAbsolute(uint8_t index) {
   uint16_t address = Absolute() + index;
   log_elements_.push_back("+ " + IntToHexString(index));
