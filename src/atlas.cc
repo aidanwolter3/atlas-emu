@@ -10,6 +10,7 @@
 #include "src/instruction/branch.h"
 #include "src/instruction/load.h"
 #include "src/instruction/logic.h"
+#include "src/instruction/math.h"
 #include "src/instruction/misc.h"
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
@@ -77,6 +78,10 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<BCS>(0xB0);
   RegisterInstruction<BNE>(0xD0);
   RegisterInstruction<BEQ>(0xF0);
+
+  // math
+  RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
+  RegisterInstruction<SBC>({0xE9, 0xE5, 0xF5, 0xED, 0xFD, 0xF9, 0xE1, 0xF1});
 }
 
 Atlas::~Atlas() = default;
