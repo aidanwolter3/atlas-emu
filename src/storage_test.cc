@@ -59,14 +59,6 @@ TEST(StorageTest, ReadBoundaries) {
   EXPECT_EQ(byte_read, 0xCC);
 }
 
-TEST(StorageTest, WriteNotAllowed) {
-  Peripheral::Status status;
-  StorageImpl storage(GenerateLargeTestData(1));
-
-  status = storage.Write(0x0000, 0xAA);
-  EXPECT_EQ(status, Peripheral::Status::READ_ONLY);
-}
-
 TEST(StorageTest, ReadInvalidPointer) {
   StorageImpl storage(kTestData);
   auto status = storage.Read(0x0000, nullptr);

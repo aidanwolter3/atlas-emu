@@ -63,12 +63,86 @@ Peripheral::Status StorageImpl::Read(uint16_t address, uint8_t* byte) {
     address -= kPRGSize;
   }
 
-  *byte = prg_[address];
+  // Adjust the address to account for the block mapping.
+  //
+  // TODO: Implement other control modes.
+  // Currently, we assume control mode 3:
+  // * last bank (7) fixed at $c000
+  // * first bank switchable and specified by |control_|
+  int prg_bank_num;
+  if (address < kPRGSize) {
+    prg_bank_num = prg_bank_ & 0x0F;
+  } else {
+    prg_bank_num = header_->GetPrgCount() - 1;
+  }
+
+  // The PRG may be up to 128K in MMC1, but mapped into 16K of address range. We
+  // need to use a uint32_t to index into the PRG.
+  uint32_t prg_address = (address % kPRGSize) + (prg_bank_num * kPRGSize);
+
+  *byte = prg_[prg_address];
   return Peripheral::Status::OK;
 }
 
 Peripheral::Status StorageImpl::Write(uint16_t address, uint8_t byte) {
-  return Peripheral::Status::READ_ONLY;
+  if (address >= kStorageSize) {
+    return Peripheral::Status::OUT_OF_BOUNDS;
+  }
+
+  bool should_transfer_shift = false;
+
+  // Reset.
+  if (byte & 0xF0) {
+    // The shift is initialized with a marker (1) to help identify when the
+    // shift should be transfered to a register.
+    shift_ = 0x10;
+    // Set the control to mode 3.
+    control_ |= 0x0C;
+    std::cout << "mmc1 reset" << std::endl;
+    std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
+    return Peripheral::Status::OK;
+  }
+
+  // Shift.
+  else {
+    // The shift is transfered to a register if we have moved in 5 bits (i.e.
+    // the marker (1) is about to be shift out.
+    should_transfer_shift = (shift_ & 0x01);
+    // Shift bit-1 of |byte| into bit-5 of |shift_|.
+    shift_ = shift_ >> 1;
+    shift_ |= ((byte & 0x01) << 4);
+  }
+
+  // Transfer the shift to a register.
+  if (should_transfer_shift) {
+    uint8_t data = shift_ | (byte & 0x01) << 4;
+    int register_num = (address >> 13);
+    switch (register_num) {
+      case 0:
+        control_ = data;
+        std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
+        break;
+      case 1:
+        chr_bank_0_ = data;
+        std::cout << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_) << std::endl;
+        break;
+      case 2:
+        chr_bank_1_ = data;
+        std::cout << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_) << std::endl;
+        break;
+      case 3:
+        prg_bank_ = data;
+        std::cout << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_) << std::endl;
+        break;
+      default:
+        std::cout << "Unexpected register: " << register_num << std::endl;
+        break;
+    }
+    // Reset the shift.
+    shift_ = 0x10;
+  }
+
+  return Peripheral::Status::OK;
 }
 
 uint16_t StorageImpl::GetAddressLength() { return kStorageSize; }

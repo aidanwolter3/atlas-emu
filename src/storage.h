@@ -25,6 +25,13 @@ class StorageImpl : public Storage {
 
   std::unique_ptr<Header> header_;
   std::vector<uint8_t> prg_;
+
+  // Mapping of 16K PRG blocks into the 32K address space.
+  uint8_t shift_ = 0;
+  uint8_t control_ = 0;
+  uint8_t chr_bank_0_ = 0;
+  uint8_t chr_bank_1_ = 0;
+  uint8_t prg_bank_ = 0;
 };
 
 #endif  // STORAGE_H_
