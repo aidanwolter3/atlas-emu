@@ -14,6 +14,7 @@
 #include "src/instruction/logic.h"
 #include "src/instruction/math.h"
 #include "src/instruction/misc.h"
+#include "src/instruction/register.h"
 #include "src/instruction/shift.h"
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
@@ -102,6 +103,16 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<CMP>({0xC9, 0xC5, 0xD5, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1});
   RegisterInstruction<CPX>({0xE0, 0xE4, 0xEC});
   RegisterInstruction<CPY>({0xC0, 0xC4, 0xCC});
+
+  // register
+  RegisterInstruction<TAX>(0xAA);
+  RegisterInstruction<TXA>(0x8A);
+  RegisterInstruction<DEX>(0xCA);
+  RegisterInstruction<INX>(0xE8);
+  RegisterInstruction<TAY>(0xA8);
+  RegisterInstruction<TYA>(0x98);
+  RegisterInstruction<DEY>(0x88);
+  RegisterInstruction<INY>(0xC8);
 }
 
 Atlas::~Atlas() = default;
