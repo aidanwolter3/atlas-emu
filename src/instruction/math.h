@@ -17,4 +17,11 @@ class SBC : public Instruction {
   SET_LOG_NAME("SBC");
 };
 
+class DEC : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("DEC");
+};
+
 #endif  // INSTRUCTION_MATH_H_

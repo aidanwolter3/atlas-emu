@@ -8,9 +8,14 @@ namespace {
 #define IS_POSITIVE(n) (n & 0x80 ? true : false)
 #define ONES_COMPLIMENT(n) (0xFF - n)
 
-void SetStatusFromData(Registers& reg, uint16_t a, uint16_t b, uint16_t sum) {
-  reg.status.set(Status::kZero, sum == 0);
-  reg.status.set(Status::kSign, static_cast<int8_t>(sum) < 0);
+void SetZeroSignStatus(Registers& reg, uint8_t data) {
+  reg.status.set(Status::kZero, data == 0);
+  reg.status.set(Status::kSign, static_cast<int8_t>(data) < 0);
+}
+
+void SetStatusFromSummation(Registers& reg, uint16_t a, uint16_t b,
+                            uint16_t sum) {
+  SetZeroSignStatus(reg, sum);
   reg.status.set(Status::kCarry, sum & 0x0100);
 
   // Set the overflow flag if two positives made a negative, or two negatives
@@ -58,7 +63,7 @@ void ADC::ExecuteInternal(uint8_t opcode) {
   }
 
   uint16_t sum = a + b + c;
-  SetStatusFromData(reg_, a, b, sum);
+  SetStatusFromSummation(reg_, a, b, sum);
   reg_.acc = sum;
 }
 
@@ -97,6 +102,32 @@ void SBC::ExecuteInternal(uint8_t opcode) {
   }
 
   uint16_t sum = a + b + c;
-  SetStatusFromData(reg_, a, b, sum);
+  SetStatusFromSummation(reg_, a, b, sum);
   reg_.acc = sum;
+}
+
+void DEC::ExecuteInternal(uint8_t opcode) {
+  uint16_t address;
+  switch (opcode) {
+    case 0xC6:
+      address = ZeroPage();
+      break;
+    case 0xD6:
+      address = IndexedZeroPage(reg_.x);
+      break;
+    case 0xCE:
+      address = Absolute();
+      break;
+    case 0xDE:
+      address = IndexedAbsolute(reg_.x);
+      break;
+    default:
+      std::cout << "Unsupported DEC variant: " << opcode << std::endl;
+      return;
+  }
+
+  uint8_t byte;
+  bus_.Read(address, &byte);
+  bus_.Write(address, byte + 1);
+  SetZeroSignStatus(reg_, byte);
 }
