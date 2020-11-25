@@ -36,6 +36,7 @@ class Atlas {
   Registers reg_;
   Ppu ppu_;
   std::unique_ptr<MemoryImpl> mem_;
+  std::unique_ptr<MemoryImpl> mmc1_mem_;
   std::unique_ptr<MMC1Impl> mmc1_;
   std::unique_ptr<Cpu> cpu_;
 };
