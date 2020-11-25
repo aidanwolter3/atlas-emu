@@ -67,7 +67,9 @@ uint16_t InstructionTestBase::ExpectIndexedIndirect(uint8_t& index) {
       .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Peripheral::Status::OK)));
   EXPECT_CALL(bus_, Read(0x19, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Peripheral::Status::OK)));
-  return 0x34;
+  EXPECT_CALL(bus_, Read(0x1A, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0x56), Return(Peripheral::Status::OK)));
+  return 0x5634;
 }
 
 void InstructionTestBase::ExpectPostIndexedIndirect() {
@@ -81,7 +83,9 @@ uint16_t InstructionTestBase::ExpectIndirectIndexed(uint8_t& index) {
       .WillOnce(DoAll(SetArgPointee<1>(0x12), Return(Peripheral::Status::OK)));
   EXPECT_CALL(bus_, Read(0x12, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x34), Return(Peripheral::Status::OK)));
-  return 0x34 + 7;
+  EXPECT_CALL(bus_, Read(0x13, _))
+      .WillOnce(DoAll(SetArgPointee<1>(0x56), Return(Peripheral::Status::OK)));
+  return 0x5634 + 7;
 }
 
 void InstructionTestBase::ExpectPostIndirectIndexed() {

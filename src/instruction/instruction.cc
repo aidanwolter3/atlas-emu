@@ -103,8 +103,12 @@ uint16_t Instruction::IndexedAbsolute(uint8_t index) {
 
 uint16_t Instruction::IndexedIndirect(uint8_t index) {
   std::vector<uint8_t> operands = FetchOperands(1);
-  uint8_t address;
-  bus_.Read(operands[0] + index, &address);
+
+  uint8_t address_low, address_high;
+  bus_.Read(operands[0] + index, &address_low);
+  bus_.Read(operands[0] + index + 1, &address_high);
+  uint16_t address = (address_high << 8) | address_low;
+
   log_elements_.push_back("($" + IntToHexString(operands[0]) + " + " +
                           IntToHexString(index) + ") = $" +
                           IntToHexString(address));
@@ -113,10 +117,15 @@ uint16_t Instruction::IndexedIndirect(uint8_t index) {
 
 uint16_t Instruction::IndirectIndexed(uint8_t index) {
   std::vector<uint8_t> operands = FetchOperands(1);
-  uint8_t address;
-  bus_.Read(operands[0], &address);
+
+  uint8_t address_low, address_high;
+  bus_.Read(operands[0], &address_low);
+  bus_.Read(operands[0] + 1, &address_high);
+  uint16_t address = (address_high << 8) | address_low;
+  address += index;
+
   log_elements_.push_back("($" + IntToHexString(operands[0]) + ") + " +
                           IntToHexString(index) + " = $" +
                           IntToHexString(address));
-  return address + index;
+  return address;
 }
