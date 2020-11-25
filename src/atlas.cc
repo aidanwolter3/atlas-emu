@@ -35,8 +35,9 @@ Atlas::Atlas(const std::string rom_file) {
   std::copy(std::istream_iterator<uint8_t>(rom_stream),
             std::istream_iterator<uint8_t>(), std::back_inserter(data));
 
+  mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
   mmc1_ = std::make_unique<MMC1Impl>(std::move(data));
-  bus_.RegisterPeripheral(mem_, 0);
+  bus_.RegisterPeripheral(*mem_, 0);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
   bus_.RegisterPeripheral(ppu_, 0x2000);
   cpu_ = std::make_unique<Cpu>(bus_, reg_);

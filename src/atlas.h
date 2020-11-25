@@ -33,9 +33,9 @@ class Atlas {
   void RegisterInstruction(std::vector<uint8_t> opcodes);
 
   BusImpl bus_;
-  MemoryImpl mem_;
   Registers reg_;
   Ppu ppu_;
+  std::unique_ptr<MemoryImpl> mem_;
   std::unique_ptr<MMC1Impl> mmc1_;
   std::unique_ptr<Cpu> cpu_;
 };

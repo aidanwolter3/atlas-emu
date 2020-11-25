@@ -1,33 +1,26 @@
 #include "src/memory.h"
 
-namespace {
+MemoryImpl::MemoryImpl(uint16_t size, int mirror_count)
+    : size_(size), mirror_count_(mirror_count), data_(size * mirror_count, 0) {}
 
-// The RAM is only 0x0800 bytes.
-const uint16_t kRAMSize = 0x0800;
-// But is mirrored to 0x2000 of memory space.
-const uint16_t kMemorySize = 0x2000;
-
-}  // namespace
-
-MemoryImpl::MemoryImpl() : data_(kRAMSize, 0) {}
 MemoryImpl::~MemoryImpl() = default;
 
 MemoryImpl::Status MemoryImpl::Read(uint16_t address, uint8_t* byte) {
-  if (!byte || address >= kMemorySize) {
+  if (!byte || address >= (size_ * mirror_count_)) {
     return MemoryImpl::Status::OUT_OF_BOUNDS;
   }
 
-  *byte = data_[address % kRAMSize];
+  *byte = data_[address % size_];
   return MemoryImpl::Status::OK;
 }
 
 MemoryImpl::Status MemoryImpl::Write(uint16_t address, uint8_t byte) {
-  if (address >= kMemorySize) {
+  if (address >= (size_ * mirror_count_)) {
     return MemoryImpl::Status::OUT_OF_BOUNDS;
   }
 
-  data_[address % kRAMSize] = byte;
+  data_[address % size_] = byte;
   return MemoryImpl::Status::OK;
 }
 
-uint16_t MemoryImpl::GetAddressLength() { return kMemorySize; }
+uint16_t MemoryImpl::GetAddressLength() { return size_ * mirror_count_; }

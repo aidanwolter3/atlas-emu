@@ -9,7 +9,7 @@ namespace {
 TEST(MemoryTest, ReadBoundaries) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem;
+  MemoryImpl mem(0x800, 4);
 
   // first ram byte
   status = mem.Read(0x0000, &byte_read);
@@ -26,7 +26,7 @@ TEST(MemoryTest, ReadBoundaries) {
 
 TEST(MemoryTest, WriteBoundaries) {
   Peripheral::Status status;
-  MemoryImpl mem;
+  MemoryImpl mem(0x800, 4);
 
   // first ram byte
   status = mem.Write(0x0000, 0xAA);
@@ -42,7 +42,7 @@ TEST(MemoryTest, WriteBoundaries) {
 }
 
 TEST(MemoryTest, ReadInvalidPointer) {
-  MemoryImpl mem;
+  MemoryImpl mem(0x800, 4);
   auto status = mem.Read(0x0000, nullptr);
   EXPECT_EQ(status, Peripheral::Status::OUT_OF_BOUNDS);
 }
@@ -50,7 +50,7 @@ TEST(MemoryTest, ReadInvalidPointer) {
 TEST(MemoryTest, ReadFromMirroredRAM) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem;
+  MemoryImpl mem(0x800, 4);
 
   status = mem.Write(0x0000, 0xAA);
   EXPECT_EQ(status, Peripheral::Status::OK);
@@ -75,7 +75,7 @@ TEST(MemoryTest, ReadFromMirroredRAM) {
 TEST(MemoryTest, WriteToMirroredRAM) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem;
+  MemoryImpl mem(0x800, 4);
 
   status = mem.Write(0x0800, 0xAA);
   EXPECT_EQ(status, Peripheral::Status::OK);
@@ -99,7 +99,7 @@ TEST(MemoryTest, WriteToMirroredRAM) {
 TEST(MemoryTest, WriteAndReadRAM) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MemoryImpl mem;
+  MemoryImpl mem(0x800, 4);
 
   for (uint8_t i = 0; i < 10; ++i) {
     status = mem.Write(i, i);

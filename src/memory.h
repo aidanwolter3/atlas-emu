@@ -10,7 +10,9 @@ class Memory : public Peripheral {};
 
 class MemoryImpl : public Memory {
  public:
-  MemoryImpl();
+  // size*mirror_count amount of data is allocated total. The first |size| bytes
+  // are mirrored to adjacent memory |mirror_count| number of times.
+  MemoryImpl(uint16_t size, int mirror_count = 0);
   ~MemoryImpl() override;
 
   // Peripheral implementation:
@@ -19,6 +21,8 @@ class MemoryImpl : public Memory {
   uint16_t GetAddressLength() override;
 
  private:
+  const uint16_t size_;
+  const int mirror_count_;
   std::vector<uint8_t> data_;
 };
 
