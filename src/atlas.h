@@ -7,9 +7,9 @@
 #include "src/bus_impl.h"
 #include "src/cpu.h"
 #include "src/memory.h"
+#include "src/mmc1.h"
 #include "src/ppu.h"
 #include "src/public/registers.h"
-#include "src/storage.h"
 
 class Atlas {
  public:
@@ -36,7 +36,7 @@ class Atlas {
   MemoryImpl mem_;
   Registers reg_;
   Ppu ppu_;
-  std::unique_ptr<StorageImpl> storage_;
+  std::unique_ptr<MMC1Impl> mmc1_;
   std::unique_ptr<Cpu> cpu_;
 };
 

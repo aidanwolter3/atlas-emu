@@ -1,5 +1,5 @@
-#ifndef STORAGE_H_
-#define STORAGE_H_
+#ifndef MMC1_H_
+#define MMC1_H_
 
 #include <cstdint>
 #include <memory>
@@ -8,12 +8,12 @@
 #include "src/public/bus.h"
 
 // An interface is helpful for mocking in tests.
-class Storage : public Peripheral {};
+class MMC1 : public Peripheral {};
 
-class StorageImpl : public Storage {
+class MMC1Impl : public MMC1 {
  public:
-  StorageImpl(std::vector<uint8_t> data);
-  ~StorageImpl() override;
+  MMC1Impl(std::vector<uint8_t> data);
+  ~MMC1Impl() override;
 
   // Peripheral implementation:
   Peripheral::Status Read(uint16_t address, uint8_t* byte) override;
@@ -34,4 +34,4 @@ class StorageImpl : public Storage {
   uint8_t prg_bank_ = 0;
 };
 
-#endif  // STORAGE_H_
+#endif  // MMC1_H_

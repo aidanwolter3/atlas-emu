@@ -1,4 +1,4 @@
-#include "src/storage.h"
+#include "src/mmc1.h"
 
 #include <cstdint>
 #include <vector>
@@ -43,42 +43,42 @@ std::vector<uint8_t> GenerateLargeTestData(uint8_t prg_count) {
   return data;
 }
 
-TEST(StorageTest, ReadBoundaries) {
+TEST(MMC1Test, ReadBoundaries) {
   uint8_t byte_read;
   Peripheral::Status status;
-  StorageImpl storage(GenerateLargeTestData(1));
+  MMC1Impl mmc1(GenerateLargeTestData(1));
 
   // first prg byte
-  status = storage.Read(0x0000, &byte_read);
+  status = mmc1.Read(0x0000, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OK);
   EXPECT_EQ(byte_read, 0xAA);
 
   // last prg byte
-  status = storage.Read(0x3FFF, &byte_read);
+  status = mmc1.Read(0x3FFF, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OK);
   EXPECT_EQ(byte_read, 0xCC);
 }
 
-TEST(StorageTest, ReadInvalidPointer) {
-  StorageImpl storage(kTestData);
-  auto status = storage.Read(0x0000, nullptr);
+TEST(MMC1Test, ReadInvalidPointer) {
+  MMC1Impl mmc1(kTestData);
+  auto status = mmc1.Read(0x0000, nullptr);
   EXPECT_EQ(status, Peripheral::Status::OUT_OF_BOUNDS);
 }
 
-TEST(StorageTest, ReadFromMirroredPRG) {
+TEST(MMC1Test, ReadFromMirroredPRG) {
   uint8_t byte_read;
   Peripheral::Status status;
-  StorageImpl storage(GenerateLargeTestData(1));
+  MMC1Impl mmc1(GenerateLargeTestData(1));
 
-  status = storage.Read(0x4000, &byte_read);
+  status = mmc1.Read(0x4000, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OK);
   EXPECT_EQ(byte_read, 0xAA);
 
-  status = storage.Read(0x4100, &byte_read);
+  status = mmc1.Read(0x4100, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OK);
   EXPECT_EQ(byte_read, 0xBB);
 
-  status = storage.Read(0x7FFF, &byte_read);
+  status = mmc1.Read(0x7FFF, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OK);
   EXPECT_EQ(byte_read, 0xCC);
 }

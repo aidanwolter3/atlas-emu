@@ -1,4 +1,4 @@
-#include "src/storage.h"
+#include "src/mmc1.h"
 
 #include <iostream>
 
@@ -7,12 +7,12 @@ namespace {
 const uint16_t kHeaderSize = 0x0010;
 // A single PRG is only 0x4000 bytes.
 const uint16_t kPRGSize = 0x4000;
-// But we may have to PRGs in storage, or the first PRG could be mirrored.
-const uint16_t kStorageSize = 0x8000;
+// But we may have to PRGs, or the first PRG could be mirrored.
+const uint16_t kMMC1Size = 0x8000;
 
 }  // namespace
 
-class StorageImpl::Header {
+class MMC1Impl::Header {
  public:
   Header(const std::vector<uint8_t>& data) {
     if (data.size() < 16) {
@@ -36,7 +36,7 @@ class StorageImpl::Header {
   int chr_count_ = -1;
 };
 
-StorageImpl::StorageImpl(std::vector<uint8_t> data)
+MMC1Impl::MMC1Impl(std::vector<uint8_t> data)
     : header_(std::make_unique<Header>(data)) {
   if (!header_->IsValid()) {
     std::cout << "Header is invalid" << std::endl;
@@ -49,10 +49,10 @@ StorageImpl::StorageImpl(std::vector<uint8_t> data)
   std::move(prg_begin, prg_end, std::back_inserter(prg_));
 }
 
-StorageImpl::~StorageImpl() = default;
+MMC1Impl::~MMC1Impl() = default;
 
-Peripheral::Status StorageImpl::Read(uint16_t address, uint8_t* byte) {
-  if (!byte || !header_->IsValid() || address >= kStorageSize) {
+Peripheral::Status MMC1Impl::Read(uint16_t address, uint8_t* byte) {
+  if (!byte || !header_->IsValid() || address >= kMMC1Size) {
     return Peripheral::Status::OUT_OF_BOUNDS;
   }
 
@@ -84,8 +84,8 @@ Peripheral::Status StorageImpl::Read(uint16_t address, uint8_t* byte) {
   return Peripheral::Status::OK;
 }
 
-Peripheral::Status StorageImpl::Write(uint16_t address, uint8_t byte) {
-  if (address >= kStorageSize) {
+Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
+  if (address >= kMMC1Size) {
     return Peripheral::Status::OUT_OF_BOUNDS;
   }
 
@@ -124,11 +124,13 @@ Peripheral::Status StorageImpl::Write(uint16_t address, uint8_t byte) {
         break;
       case 1:
         chr_bank_0_ = data;
-        std::cout << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_) << std::endl;
+        std::cout << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_)
+                  << std::endl;
         break;
       case 2:
         chr_bank_1_ = data;
-        std::cout << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_) << std::endl;
+        std::cout << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_)
+                  << std::endl;
         break;
       case 3:
         prg_bank_ = data;
@@ -145,4 +147,4 @@ Peripheral::Status StorageImpl::Write(uint16_t address, uint8_t byte) {
   return Peripheral::Status::OK;
 }
 
-uint16_t StorageImpl::GetAddressLength() { return kStorageSize; }
+uint16_t MMC1Impl::GetAddressLength() { return kMMC1Size; }

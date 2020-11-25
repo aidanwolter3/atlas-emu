@@ -5,16 +5,16 @@ cc_library(
         "bus_impl.h",
         "cpu.h",
         "memory.h",
+        "mmc1.h",
         "ppu.h",
-        "storage.h",
     ],
     srcs = [
         "atlas.cc",
         "bus_impl.cc",
         "cpu.cc",
         "memory.cc",
+        "mmc1.cc",
         "ppu.cc",
-        "storage.cc"
     ],
     deps = [
         "//src/instruction",
@@ -29,7 +29,7 @@ cc_test(
         "bus_impl_test.cc",
         "cpu_test.cc",
         "memory_test.cc",
-        "storage_test.cc",
+        "mmc1_test.cc",
     ],
     deps = [
         ":atlas",
