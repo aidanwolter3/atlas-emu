@@ -3,22 +3,6 @@
 
 #include "src/public/instruction.h"
 
-// Transfer X to stack pointer
-class TXS : public Instruction {
- public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TXS");
-};
-
-// Transfer stack pointer to X
-class TSX : public Instruction {
- public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TSX");
-};
-
 // Push Accumulator
 class PHA : public Instruction {
  public:

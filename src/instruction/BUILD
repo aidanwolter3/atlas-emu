@@ -9,11 +9,11 @@ cc_library(
         "logic.h",
         "math.h",
         "misc.h",
-        "register.h",
         "shift.h",
         "stack.h",
         "status.h",
         "store.h",
+        "transfer.h",
     ],
     srcs = [
         "branch.cc",
@@ -24,11 +24,11 @@ cc_library(
         "logic.cc",
         "math.cc",
         "misc.cc",
-        "register.cc",
         "shift.cc",
         "stack.cc",
         "status.cc",
         "store.cc",
+        "transfer.cc",
     ],
     deps = [
         "//src/public",
@@ -46,6 +46,7 @@ cc_test(
         "stack_test.cc",
         "status_test.cc",
         "store_test.cc",
+        "transfer_test.cc",
     ],
     deps = [
         ":instruction",

@@ -11,22 +11,6 @@ using testing::SetArgPointee;
 
 class StackTest : public InstructionTestBase {};
 
-TEST_F(StackTest, TXS) {
-  reg_.sp = 0;
-  reg_.x = 0xAB;
-  TXS txs(bus_, reg_);
-  txs.Execute(0x9A);
-  EXPECT_EQ(reg_.sp, 0xAB);
-}
-
-TEST_F(StackTest, TSX) {
-  reg_.sp = 0xAB;
-  reg_.x = 0;
-  TSX tsx(bus_, reg_);
-  tsx.Execute(0xBA);
-  EXPECT_EQ(reg_.x, 0xAB);
-}
-
 TEST_F(StackTest, PHA) {
   reg_.sp = 0xFF;
   reg_.acc = 0xAB;

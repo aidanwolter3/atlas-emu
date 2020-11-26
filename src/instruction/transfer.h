@@ -1,5 +1,5 @@
-#ifndef INSTRUCTION_REGISTER_H_
-#define INSTRUCTION_REGISTER_H_
+#ifndef INSTRUCTION_TRANSFER_H_
+#define INSTRUCTION_TRANSFER_H_
 
 #include "src/public/instruction.h"
 
@@ -19,22 +19,6 @@ class TXA : public Instruction {
   SET_LOG_NAME("TXA");
 };
 
-// Decrement X
-class DEX : public Instruction {
- public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("DEX");
-};
-
-// Increment X
-class INX : public Instruction {
- public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("INX");
-};
-
 // Transfer A to Y
 class TAY : public Instruction {
  public:
@@ -51,20 +35,20 @@ class TYA : public Instruction {
   SET_LOG_NAME("TYA");
 };
 
-// Decrement Y
-class DEY : public Instruction {
+// Transfer X to stack pointer
+class TXS : public Instruction {
  public:
   using Instruction::Instruction;
   void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("DEY");
+  SET_LOG_NAME("TXS");
 };
 
-// Increment Y
-class INY : public Instruction {
+// Transfer stack pointer to X
+class TSX : public Instruction {
  public:
   using Instruction::Instruction;
   void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("INY");
+  SET_LOG_NAME("TSX");
 };
 
-#endif  // INSTRUCTION_REGISTER_H_
+#endif  // INSTRUCTION_TRANSFER_H_

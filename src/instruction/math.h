@@ -24,4 +24,36 @@ class DEC : public Instruction {
   SET_LOG_NAME("DEC");
 };
 
+// Decrement X
+class DEX : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("DEX");
+};
+
+// Decrement Y
+class DEY : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("DEY");
+};
+
+// Increment X
+class INX : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("INX");
+};
+
+// Increment Y
+class INY : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("INY");
+};
+
 #endif  // INSTRUCTION_MATH_H_

@@ -131,3 +131,22 @@ void DEC::ExecuteInternal(uint8_t opcode) {
   bus_.Write(address, byte + 1);
   SetZeroSignStatus(reg_, byte);
 }
+
+void DEX::ExecuteInternal(uint8_t opcode) {
+  reg_.x -= 1;
+  SetZeroSignStatus(reg_, reg_.x);
+}
+
+void DEY::ExecuteInternal(uint8_t opcode) {
+  reg_.y -= 1;
+  SetZeroSignStatus(reg_, reg_.y);
+}
+
+void INX::ExecuteInternal(uint8_t opcode) {
+  reg_.x += 1;
+  SetZeroSignStatus(reg_, reg_.x);
+}
+void INY::ExecuteInternal(uint8_t opcode) {
+  reg_.y += 1;
+  SetZeroSignStatus(reg_, reg_.y);
+}

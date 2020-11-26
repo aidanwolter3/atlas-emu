@@ -14,11 +14,11 @@
 #include "src/instruction/logic.h"
 #include "src/instruction/math.h"
 #include "src/instruction/misc.h"
-#include "src/instruction/register.h"
 #include "src/instruction/shift.h"
 #include "src/instruction/stack.h"
 #include "src/instruction/status.h"
 #include "src/instruction/store.h"
+#include "src/instruction/transfer.h"
 #include "src/memory.h"
 
 Atlas::Atlas(const std::string rom_file) {
@@ -57,8 +57,6 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<SED>(0xF8);
 
   // stack
-  RegisterInstruction<TXS>(0x9A);
-  RegisterInstruction<TSX>(0xBA);
   RegisterInstruction<PHA>(0x48);
   RegisterInstruction<PLA>(0x68);
   RegisterInstruction<PHP>(0x08);
@@ -90,6 +88,10 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
   RegisterInstruction<SBC>({0xE9, 0xE5, 0xF5, 0xED, 0xFD, 0xF9, 0xE1, 0xF1});
   RegisterInstruction<DEC>({0xC6, 0xD6, 0xCE, 0xDE});
+  RegisterInstruction<DEX>(0xCA);
+  RegisterInstruction<DEY>(0x88);
+  RegisterInstruction<INX>(0xE8);
+  RegisterInstruction<INY>(0xC8);
 
   // shift
   RegisterInstruction<ASL>({0x0A, 0x06, 0x16, 0x0E, 0x1E});
@@ -108,12 +110,10 @@ Atlas::Atlas(const std::string rom_file) {
   // register
   RegisterInstruction<TAX>(0xAA);
   RegisterInstruction<TXA>(0x8A);
-  RegisterInstruction<DEX>(0xCA);
-  RegisterInstruction<INX>(0xE8);
   RegisterInstruction<TAY>(0xA8);
   RegisterInstruction<TYA>(0x98);
-  RegisterInstruction<DEY>(0x88);
-  RegisterInstruction<INY>(0xC8);
+  RegisterInstruction<TXS>(0x9A);
+  RegisterInstruction<TSX>(0xBA);
 }
 
 Atlas::~Atlas() = default;

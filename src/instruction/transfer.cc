@@ -1,4 +1,4 @@
-#include "src/instruction/register.h"
+#include "src/instruction/transfer.h"
 
 namespace {
 
@@ -19,16 +19,6 @@ void TXA::ExecuteInternal(uint8_t opcode) {
   SetStatusFromData(reg_, reg_.acc);
 }
 
-void DEX::ExecuteInternal(uint8_t opcode) {
-  reg_.x -= 1;
-  SetStatusFromData(reg_, reg_.x);
-}
-
-void INX::ExecuteInternal(uint8_t opcode) {
-  reg_.x += 1;
-  SetStatusFromData(reg_, reg_.x);
-}
-
 void TAY::ExecuteInternal(uint8_t opcode) {
   reg_.y = reg_.acc;
   SetStatusFromData(reg_, reg_.y);
@@ -39,12 +29,6 @@ void TYA::ExecuteInternal(uint8_t opcode) {
   SetStatusFromData(reg_, reg_.acc);
 }
 
-void DEY::ExecuteInternal(uint8_t opcode) {
-  reg_.y -= 1;
-  SetStatusFromData(reg_, reg_.y);
-}
+void TXS::ExecuteInternal(uint8_t) { reg_.sp = reg_.x; }
 
-void INY::ExecuteInternal(uint8_t opcode) {
-  reg_.y += 1;
-  SetStatusFromData(reg_, reg_.y);
-}
+void TSX::ExecuteInternal(uint8_t) { reg_.x = reg_.sp; }
