@@ -92,3 +92,21 @@ void ORA::ExecuteInternal(uint8_t opcode) {
   }
   SetStatusFromData(reg_, reg_.acc);
 }
+
+void BIT::ExecuteInternal(uint8_t opcode) {
+  uint8_t value;
+  switch (opcode) {
+    case 0x24:
+      value = ZeroPage();
+      break;
+    case 0x2C:
+      value = Absolute();
+      break;
+    default:
+      std::cout << "Unsupported BIT variant: " << opcode << std::endl;
+      return;
+  }
+  reg_.status.set(Status::kZero, value & reg_.acc);
+  reg_.status.set(Status::kSign, value & 0x80);
+  reg_.status.set(Status::kOverflow, value & 0x40);
+}
