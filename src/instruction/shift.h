@@ -19,4 +19,20 @@ class LSR : public Instruction {
   SET_LOG_NAME("LSR");
 };
 
+// Rotate Left
+class ROL : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("ROL");
+};
+
+// Rotate Right
+class ROR : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("ROR");
+};
+
 #endif  // INSTRUCTION_SHIFT_H_

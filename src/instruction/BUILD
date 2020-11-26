@@ -43,6 +43,7 @@ cc_test(
         "load_test.cc",
         "math_test.cc",
         "misc_test.cc",
+        "shift_test.cc",
         "stack_test.cc",
         "status_test.cc",
         "store_test.cc",
