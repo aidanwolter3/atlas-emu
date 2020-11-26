@@ -3,6 +3,7 @@
 
 #include "src/public/instruction.h"
 
+// Add with Carry
 class ADC : public Instruction {
  public:
   using Instruction::Instruction;
@@ -10,6 +11,7 @@ class ADC : public Instruction {
   SET_LOG_NAME("ADC");
 };
 
+// Subtract with Carry
 class SBC : public Instruction {
  public:
   using Instruction::Instruction;
@@ -17,6 +19,7 @@ class SBC : public Instruction {
   SET_LOG_NAME("SBC");
 };
 
+// Decrement Memory
 class DEC : public Instruction {
  public:
   using Instruction::Instruction;
@@ -38,6 +41,14 @@ class DEY : public Instruction {
   using Instruction::Instruction;
   void ExecuteInternal(uint8_t opcode) override;
   SET_LOG_NAME("DEY");
+};
+
+// Increment Memory
+class INC : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("INC");
 };
 
 // Increment X

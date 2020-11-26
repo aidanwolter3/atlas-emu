@@ -128,7 +128,8 @@ void DEC::ExecuteInternal(uint8_t opcode) {
 
   uint8_t byte;
   bus_.Read(address, &byte);
-  bus_.Write(address, byte + 1);
+  byte += 1;
+  bus_.Write(address, byte);
   SetZeroSignStatus(reg_, byte);
 }
 
@@ -140,6 +141,33 @@ void DEX::ExecuteInternal(uint8_t opcode) {
 void DEY::ExecuteInternal(uint8_t opcode) {
   reg_.y -= 1;
   SetZeroSignStatus(reg_, reg_.y);
+}
+
+void INC::ExecuteInternal(uint8_t opcode) {
+  uint16_t address;
+  switch (opcode) {
+    case 0xE6:
+      address = ZeroPage();
+      break;
+    case 0xF6:
+      address = IndexedZeroPage(reg_.x);
+      break;
+    case 0xEE:
+      address = Absolute();
+      break;
+    case 0xFE:
+      address = IndexedAbsolute(reg_.x);
+      break;
+    default:
+      std::cout << "Unsupported INC variant: " << opcode << std::endl;
+      return;
+  }
+
+  uint8_t byte;
+  bus_.Read(address, &byte);
+  byte -= 1;
+  bus_.Write(address, byte);
+  SetZeroSignStatus(reg_, byte);
 }
 
 void INX::ExecuteInternal(uint8_t opcode) {

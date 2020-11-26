@@ -90,6 +90,7 @@ Atlas::Atlas(const std::string rom_file) {
   RegisterInstruction<DEC>({0xC6, 0xD6, 0xCE, 0xDE});
   RegisterInstruction<DEX>(0xCA);
   RegisterInstruction<DEY>(0x88);
+  RegisterInstruction<INC>({0xE6, 0xF6, 0xEE, 0xFE});
   RegisterInstruction<INX>(0xE8);
   RegisterInstruction<INY>(0xC8);
 
