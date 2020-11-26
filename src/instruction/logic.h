@@ -19,6 +19,14 @@ class ORA : public Instruction {
   SET_LOG_NAME("ORA");
 };
 
+// Exclusive OR Accumulator
+class EOR : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("EOR");
+};
+
 // Bit Test
 class BIT : public Instruction {
  public:
