@@ -5,7 +5,9 @@
 #include <string>
 
 #include "src/bus_impl.h"
+#include "src/clock_impl.h"
 #include "src/cpu.h"
+#include "src/event_logger_impl.h"
 #include "src/memory.h"
 #include "src/mmc1.h"
 #include "src/ppu.h"
@@ -16,11 +18,11 @@ class Atlas {
   Atlas(const std::string rom_file);
   ~Atlas();
 
-  // Run the CPU until an error occurs.
-  Cpu::Status Run();
+  // Run the CPU until an error occurs, and returns true for success, or false
+  // for error.
+  bool Run();
 
-  // Run the CPU |times| clock cycles or until an error occurs.
-  Cpu::Status RunTimes(int times);
+  // TODO: Make is so that BRK returns a code (maybe in the ACC register?)
 
  private:
   // Construct and register an instruction with the classname INS that will get
@@ -32,6 +34,9 @@ class Atlas {
   template <class INS>
   void RegisterInstruction(std::vector<uint8_t> opcodes);
 
+  EventLoggerImpl event_logger_;
+  PlatformSleepPosix platform_sleep_;
+  ClockImpl clock_;
   BusImpl bus_;
   Registers reg_;
   Ppu ppu_;

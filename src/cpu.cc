@@ -7,6 +7,8 @@
 
 namespace {
 
+const uint64_t kCpuPeriod = 1.0 / 0.00179;
+
 std::string IntToHexString(int num) {
   std::stringstream ss;
   ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << num;
@@ -15,7 +17,10 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::Cpu(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {
+Cpu::Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg)
+    : event_logger_(event_logger), bus_(bus), reg_(reg) {
+  clock.RegisterTimerObserver(this, kCpuPeriod);
+
   // Read the start address
   uint8_t start_address_low, start_address_high;
   Peripheral::Status status_low, status_high;
@@ -23,11 +28,15 @@ Cpu::Cpu(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {
   status_high = bus_.Read(0xFFFD, &start_address_high);
   if (status_low != Peripheral::Status::OK ||
       status_high != Peripheral::Status::OK) {
-    std::cout << "Failed to read the start address" << std::endl;
+    std::string event_name = "Failed to read the start address";
+    event_logger_.LogEvent(
+        {.type = EventLogger::EventType::kError, .name = event_name});
     return;
   }
   reg_.pc = (start_address_high << 8) | start_address_low;
-  std::cout << "Start address: " << IntToHexString(reg_.pc) << std::endl;
+  std::string event_name = "Start address: " + IntToHexString(reg_.pc);
+  event_logger_.LogEvent(
+      {.type = EventLogger::EventType::kInfo, .name = event_name});
 }
 
 Cpu::~Cpu() = default;
@@ -41,38 +50,23 @@ void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
   }
 }
 
-Cpu::Status Cpu::Run() {
-  Cpu::Status status = Status::OK;
-
+void Cpu::OnTimerCalled() {
   // Fetch
   uint8_t opcode;
-  status = Fetch(reg_.pc, &opcode);
-  if (status != Status::OK) return status;
+  bus_.Read(reg_.pc, &opcode);
   reg_.pc++;
 
   // Decode
   auto instruction_it = instruction_map_.find(opcode);
   if (instruction_it == instruction_map_.end()) {
-    std::cout << "Failed to decode: unknown instruction: "
-              << IntToHexString(opcode) << std::endl;
-    return Status::UNKNOWN_INSTRUCTION;
+    std::string event_name =
+        "Failed to decode: unknown instruction: " + IntToHexString(opcode);
+    event_logger_.LogEvent(
+        {.type = EventLogger::EventType::kError, .name = event_name});
+    return;
   }
 
   // Execute
   Instruction* instruction_ptr = instruction_it->second;
   instruction_ptr->Execute(opcode);
-
-  return status;
-}
-
-Cpu::Status Cpu::Fetch(uint16_t location, uint8_t* opcode) {
-  auto status = bus_.Read(location, opcode);
-  if (status != Peripheral::Status::OK) {
-    std::cout << "Encountered error "
-              << "(" << std::to_string(static_cast<uint8_t>(status)) << ") "
-              << "while reading memory at address: " << IntToHexString(location)
-              << std::endl;
-    return Status::SEGFAULT;
-  }
-  return Status::OK;
 }

@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <vector>
 
 #include "src/cpu.h"
@@ -21,7 +22,7 @@
 #include "src/instruction/transfer.h"
 #include "src/memory.h"
 
-Atlas::Atlas(const std::string rom_file) {
+Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
   rom_stream.unsetf(std::ios_base::skipws);
@@ -43,9 +44,11 @@ Atlas::Atlas(const std::string rom_file) {
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
   bus_.RegisterPeripheral(ppu_, 0x2000);
-  cpu_ = std::make_unique<Cpu>(bus_, reg_);
+  cpu_ = std::make_unique<Cpu>(event_logger_, clock_, bus_, reg_);
 
   RegisterInstruction<NOP>(0xEA);
+  cpu_->RegisterInstruction(std::make_unique<BRK>(bus_, reg_, event_logger_),
+                            {0x00});
 
   // status
   RegisterInstruction<CLC>(0x18);
@@ -123,23 +126,22 @@ Atlas::Atlas(const std::string rom_file) {
 
 Atlas::~Atlas() = default;
 
-Cpu::Status Atlas::Run() {
-  Cpu::Status status = Cpu::Status::OK;
-  do {
-    status = cpu_->Run();
-  } while (status == Cpu::Status::OK);
-  return status;
-}
+bool Atlas::Run() {
+  while (true) {
+    clock_.RunUntilTimer();
 
-Cpu::Status Atlas::RunTimes(int times) {
-  Cpu::Status status = Cpu::Status::OK;
-  for (int i = 0; i < times; ++i) {
-    status = cpu_->Run();
-    if (status != Cpu::Status::OK) {
-      return status;
+    std::optional<EventLogger::Event> error = event_logger_.GetError();
+    if (error) {
+      event_logger_.PrintLogs();
+      return false;
+    }
+
+    std::optional<EventLogger::Event> test_result =
+        event_logger_.GetTestResult();
+    if (test_result) {
+      return test_result->type == EventLogger::EventType::kTestPassed;
     }
   }
-  return status;
 }
 
 template <class INS>

@@ -10,7 +10,13 @@
     nop
     nop
     lda #$00
-    beq main
+    beq pass
+  fail:
+    lda #01
+    brk
+  pass:
+    lda #00
+    brk
 
 .segment "VECTORS"
   .word main ; $fffa = nmi

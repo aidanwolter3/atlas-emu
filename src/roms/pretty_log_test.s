@@ -15,6 +15,9 @@
     lda $abcd,x
     lda ($ab,x)
     lda ($ab),y
+  pass:
+    lda #$00
+    brk
 
 .segment "VECTORS"
   .word main ; $fffa = nmi

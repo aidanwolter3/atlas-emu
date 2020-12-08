@@ -9,6 +9,9 @@
     nop
     nop
     nop
+  pass:
+    lda #$00
+    brk
 
 .segment "VECTORS"
   .word main ; $fffa = nmi

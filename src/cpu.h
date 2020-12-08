@@ -7,33 +7,25 @@
 #include <vector>
 
 #include "src/public/bus.h"
+#include "src/public/clock.h"
+#include "src/public/event_logger.h"
 #include "src/public/instruction.h"
 #include "src/public/registers.h"
 
-class Cpu {
+class Cpu : public Clock::TimerObserver {
  public:
-  Cpu(Bus& bus, Registers& reg);
-  ~Cpu();
-
-  // TODO: Consider prefixing each instruction with the stage (FETCH, DECODE).
-  // TODO: Override the operator<< to print the status name.
-  enum class Status : uint8_t {
-    OK,
-    SEGFAULT,
-    UNKNOWN_INSTRUCTION,
-  };
+  Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg);
+  ~Cpu() override;
 
   // Register an Instruction which will be executed for the set of |opcodes|.
   void RegisterInstruction(std::unique_ptr<Instruction> instruction,
                            std::vector<uint8_t> opcodes);
 
-  // Run a single clock cycle.
-  Cpu::Status Run();
-
  private:
-  // Fetch the |opcode| at |location| in |mem_|.
-  Cpu::Status Fetch(uint16_t location, uint8_t* opcode);
+  // Clock::TimerObserver implementation:
+  void OnTimerCalled() override;
 
+  EventLogger& event_logger_;
   Bus& bus_;
   Registers& reg_;
   std::vector<std::unique_ptr<Instruction>> instructions_;
