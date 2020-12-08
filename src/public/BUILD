@@ -3,6 +3,7 @@ cc_library(
     visibility = ["//visibility:public"],
     hdrs = [
         "bus.h",
+        "event_logger.h",
         "instruction.h",
         "registers.h",
     ]
