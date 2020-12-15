@@ -30,32 +30,32 @@ void SetStatusFromSummation(Registers& reg, uint16_t a, uint16_t b,
 
 void ADC::ExecuteInternal(uint8_t opcode) {
   uint16_t a = reg_.acc;
-  uint16_t b;
-  uint16_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
+  uint8_t b;
+  uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
   switch (opcode) {
     case 0x69:
       b = Immediate();
       break;
     case 0x65:
-      b = ZeroPage();
+      bus_.Read(ZeroPage(), &b);
       break;
     case 0x75:
-      b = IndexedZeroPage(reg_.x);
+      bus_.Read(IndexedZeroPage(reg_.x), &b);
       break;
     case 0x6D:
-      b = Absolute();
+      bus_.Read(Absolute(), &b);
       break;
     case 0x7D:
-      b = IndexedAbsolute(reg_.x);
+      bus_.Read(IndexedAbsolute(reg_.x), &b);
       break;
     case 0x79:
-      b = IndexedAbsolute(reg_.y);
+      bus_.Read(IndexedAbsolute(reg_.y), &b);
       break;
     case 0x61:
-      b = IndexedIndirect(reg_.x);
+      bus_.Read(IndexedIndirect(reg_.x), &b);
       break;
     case 0x71:
-      b = IndirectIndexed(reg_.y);
+      bus_.Read(IndirectIndexed(reg_.y), &b);
       break;
     default:
       std::cout << "Unsupported ADC variant: " << opcode << std::endl;
@@ -69,32 +69,39 @@ void ADC::ExecuteInternal(uint8_t opcode) {
 
 void SBC::ExecuteInternal(uint8_t opcode) {
   uint16_t a = reg_.acc;
-  uint16_t b;
-  uint16_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
+  uint8_t b;
+  uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
   switch (opcode) {
     case 0xE9:
       b = ONES_COMPLIMENT(Immediate());
       break;
     case 0xE5:
-      b = ONES_COMPLIMENT(ZeroPage());
+      bus_.Read(ZeroPage(), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     case 0xF5:
-      b = ONES_COMPLIMENT(IndexedZeroPage(reg_.x));
+      bus_.Read(IndexedZeroPage(reg_.x), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     case 0xED:
-      b = ONES_COMPLIMENT(IndexedZeroPage(reg_.y));
+      bus_.Read(IndexedZeroPage(reg_.y), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     case 0xFD:
-      b = ONES_COMPLIMENT(Absolute());
+      bus_.Read(Absolute(), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     case 0xF9:
-      b = ONES_COMPLIMENT(IndexedAbsolute(reg_.x));
+      bus_.Read(IndexedAbsolute(reg_.x), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     case 0xE1:
-      b = ONES_COMPLIMENT(IndexedIndirect(reg_.x));
+      bus_.Read(IndexedIndirect(reg_.x), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     case 0xF1:
-      b = ONES_COMPLIMENT(IndirectIndexed(reg_.y));
+      bus_.Read(IndirectIndexed(reg_.y), &b);
+      b = ONES_COMPLIMENT(b);
       break;
     default:
       std::cout << "Unsupported SBC variant: " << opcode << std::endl;
@@ -128,7 +135,7 @@ void DEC::ExecuteInternal(uint8_t opcode) {
 
   uint8_t byte;
   bus_.Read(address, &byte);
-  byte += 1;
+  byte -= 1;
   bus_.Write(address, byte);
   SetZeroSignStatus(reg_, byte);
 }
@@ -165,7 +172,7 @@ void INC::ExecuteInternal(uint8_t opcode) {
 
   uint8_t byte;
   bus_.Read(address, &byte);
-  byte -= 1;
+  byte += 1;
   bus_.Write(address, byte);
   SetZeroSignStatus(reg_, byte);
 }
