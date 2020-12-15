@@ -7,7 +7,7 @@ namespace {
 
 void Compare(Registers& reg, uint8_t value, uint8_t comparison) {
   reg.status.set(Status::kZero, value == comparison);
-  reg.status.set(Status::kSign, static_cast<int8_t>(value) < 0);
+  reg.status.set(Status::kSign, comparison > value);
   reg.status.set(Status::kCarry, value >= comparison);
 }
 
@@ -20,25 +20,25 @@ void CMP::ExecuteInternal(uint8_t opcode) {
       comparison = Immediate();
       break;
     case 0xC5:
-      comparison = ZeroPage();
+      bus_.Read(ZeroPage(), &comparison);
       break;
     case 0xD5:
-      comparison = IndexedZeroPage(reg_.x);
+      bus_.Read(IndexedZeroPage(reg_.x), &comparison);
       break;
     case 0xCD:
-      comparison = Absolute();
+      bus_.Read(Absolute(), &comparison);
       break;
     case 0xDD:
-      comparison = IndexedAbsolute(reg_.x);
+      bus_.Read(IndexedAbsolute(reg_.x), &comparison);
       break;
     case 0xD9:
-      comparison = IndexedAbsolute(reg_.y);
+      bus_.Read(IndexedAbsolute(reg_.y), &comparison);
       break;
     case 0xC1:
-      comparison = IndexedIndirect(reg_.x);
+      bus_.Read(IndexedIndirect(reg_.x), &comparison);
       break;
     case 0xD1:
-      comparison = IndirectIndexed(reg_.y);
+      bus_.Read(IndirectIndexed(reg_.y), &comparison);
       break;
     default:
       std::cout << "Unsupported CMP variant: " << opcode << std::endl;
@@ -54,10 +54,10 @@ void CPX::ExecuteInternal(uint8_t opcode) {
       comparison = Immediate();
       break;
     case 0xE4:
-      comparison = ZeroPage();
+      bus_.Read(ZeroPage(), &comparison);
       break;
     case 0xEC:
-      comparison = Absolute();
+      bus_.Read(Absolute(), &comparison);
       break;
     default:
       std::cout << "Unsupported CPX variant: " << opcode << std::endl;
@@ -73,10 +73,10 @@ void CPY::ExecuteInternal(uint8_t opcode) {
       comparison = Immediate();
       break;
     case 0xC4:
-      comparison = ZeroPage();
+      bus_.Read(ZeroPage(), &comparison);
       break;
     case 0xCC:
-      comparison = Absolute();
+      bus_.Read(Absolute(), &comparison);
       break;
     default:
       std::cout << "Unsupported CPy variant: " << opcode << std::endl;

@@ -38,6 +38,7 @@ cc_library(
 cc_test(
     name = "instruction_test",
     srcs = [
+        "compare_test.cc",
         "instruction_test_base.cc",
         "instruction_test_base.h",
         "load_test.cc",
