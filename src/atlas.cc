@@ -109,6 +109,7 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
   RegisterInstruction<JMP>({0x4C, 0x6C});
   RegisterInstruction<JSR>(0x20);
   RegisterInstruction<RTS>(0x60);
+  RegisterInstruction<RTI>(0x40);
 
   // compare
   RegisterInstruction<CMP>({0xC9, 0xC5, 0xD5, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1});

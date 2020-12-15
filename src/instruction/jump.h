@@ -27,4 +27,12 @@ class RTS : public Instruction {
   SET_LOG_NAME("RTS");
 };
 
+// Return From Interrupt
+class RTI : public Instruction {
+ public:
+  using Instruction::Instruction;
+  void ExecuteInternal(uint8_t opcode) override;
+  SET_LOG_NAME("RTI");
+};
+
 #endif  // INSTRUCTION_JUMP_H_
