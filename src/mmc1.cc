@@ -25,7 +25,7 @@ class MMC1Impl::Header {
 
   bool IsValid() {
     // TODO: support CHR banks.
-    return (prg_count_ <= 64 && chr_count_ == 0);
+    return (prg_count_ <= 64);
   }
 
   int GetPrgCount() { return prg_count_; }
