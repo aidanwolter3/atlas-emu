@@ -103,7 +103,7 @@ std::optional<uint16_t> BusImpl::FindPeripheralStartForAddress(
     uint16_t address) {
   for (auto it : peripherals_) {
     if (address >= it.first &&
-        address <= it.first + it.second.GetAddressLength()) {
+        address < it.first + it.second.GetAddressLength()) {
       return it.first;
     }
   }

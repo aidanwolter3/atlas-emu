@@ -60,6 +60,10 @@ TEST(BusImplTest, RegisterPeripheralFront) {
   EXPECT_CALL(peripheral2, Read(0, _)).WillOnce(Return(Peripheral::Status::OK));
   status = bus.Read(0, nullptr);
   EXPECT_EQ(status, Peripheral::Status::OK);
+
+  EXPECT_CALL(peripheral1, Read(0, _)).WillOnce(Return(Peripheral::Status::OK));
+  status = bus.Read(10, nullptr);
+  EXPECT_EQ(status, Peripheral::Status::OK);
 }
 
 TEST(BusImplTest, RegisterPeripheralEnd) {
@@ -72,6 +76,10 @@ TEST(BusImplTest, RegisterPeripheralEnd) {
   Peripheral::Status status;
   EXPECT_CALL(peripheral2, Read(9, _)).WillOnce(Return(Peripheral::Status::OK));
   status = bus.Read(0xFFFF, nullptr);
+  EXPECT_EQ(status, Peripheral::Status::OK);
+
+  EXPECT_CALL(peripheral1, Read(9, _)).WillOnce(Return(Peripheral::Status::OK));
+  status = bus.Read(0xFFFF - 10, nullptr);
   EXPECT_EQ(status, Peripheral::Status::OK);
 }
 
