@@ -41,6 +41,7 @@ cc_test(
         "compare_test.cc",
         "instruction_test_base.cc",
         "instruction_test_base.h",
+        "jump_test.cc",
         "load_test.cc",
         "math_test.cc",
         "misc_test.cc",

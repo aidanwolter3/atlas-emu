@@ -27,8 +27,9 @@ void JMP::ExecuteInternal(uint8_t opcode) {
 
 void JSR::ExecuteInternal(uint8_t opcode) {
   uint16_t address = Absolute();
-  bus_.Write(kStackStartAddress + reg_.sp--, reg_.pc >> 8);
-  bus_.Write(kStackStartAddress + reg_.sp--, reg_.pc & 0xFF);
+  uint16_t address_to_push = reg_.pc - 1;
+  bus_.Write(kStackStartAddress + reg_.sp--, address_to_push >> 8);
+  bus_.Write(kStackStartAddress + reg_.sp--, address_to_push & 0xFF);
   reg_.pc = address;
 }
 
@@ -36,5 +37,6 @@ void RTS::ExecuteInternal(uint8_t opcode) {
   uint8_t lower_byte, upper_byte;
   bus_.Read(kStackStartAddress + ++reg_.sp, &lower_byte);
   bus_.Read(kStackStartAddress + ++reg_.sp, &upper_byte);
-  reg_.pc = (upper_byte << 8) | lower_byte;
+  uint16_t address_from_stack = (upper_byte << 8) | lower_byte;
+  reg_.pc = address_from_stack + 1;
 }
