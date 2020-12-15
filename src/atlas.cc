@@ -43,8 +43,9 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
   bus_.RegisterPeripheral(*mem_, 0);
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
-  bus_.RegisterPeripheral(ppu_, 0x2000);
   cpu_ = std::make_unique<Cpu>(event_logger_, clock_, bus_, reg_);
+  ppu_ = std::make_unique<Ppu>(clock_, *cpu_);
+  bus_.RegisterPeripheral(*ppu_, 0x2000);
 
   RegisterInstruction<NOP>(0xEA);
   cpu_->RegisterInstruction(std::make_unique<BRK>(bus_, reg_, event_logger_),
