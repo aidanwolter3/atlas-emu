@@ -120,10 +120,10 @@ void BIT::ExecuteInternal(uint8_t opcode) {
   uint8_t value;
   switch (opcode) {
     case 0x24:
-      value = ZeroPage();
+      bus_.Read(ZeroPage(), &value);
       break;
     case 0x2C:
-      value = Absolute();
+      bus_.Read(Absolute(), &value);
       break;
     default:
       std::cout << "Unsupported BIT variant: " << opcode << std::endl;

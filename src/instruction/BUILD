@@ -43,6 +43,7 @@ cc_test(
         "instruction_test_base.h",
         "jump_test.cc",
         "load_test.cc",
+        "logic_test.cc",
         "math_test.cc",
         "misc_test.cc",
         "shift_test.cc",
