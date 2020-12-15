@@ -17,6 +17,9 @@ class Cpu : public Clock::TimerObserver {
   Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg);
   ~Cpu() override;
 
+  void Reset();
+  void NMI();
+
   // Register an Instruction which will be executed for the set of |opcodes|.
   void RegisterInstruction(std::unique_ptr<Instruction> instruction,
                            std::vector<uint8_t> opcodes);
@@ -24,6 +27,8 @@ class Cpu : public Clock::TimerObserver {
  private:
   // Clock::TimerObserver implementation:
   void OnTimerCalled() override;
+
+  uint16_t ReadAddressFromVectorTable(uint16_t address);
 
   EventLogger& event_logger_;
   Bus& bus_;
