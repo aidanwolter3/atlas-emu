@@ -40,7 +40,7 @@ void STX::ExecuteInternal(uint8_t opcode) {
       bus_.Write(IndexedZeroPage(reg_.y), reg_.x);
       break;
     case 0x8E:
-      bus_.Write(Absolute(), reg_.acc);
+      bus_.Write(Absolute(), reg_.x);
       break;
     default:
       std::cout << "Unsupported STX variant: " << opcode << std::endl;

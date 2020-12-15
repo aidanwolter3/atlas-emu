@@ -75,6 +75,7 @@ void StoreTest::TestIndirectIndexed(Instruction& instruction, uint8_t data,
 }
 
 TEST_F(StoreTest, STA) {
+  reg_.acc = 0xAA;
   STA sta(bus_, reg_);
   TestZeroPage(sta, reg_.acc, 0x85);
   TestIndexedZeroPage(sta, reg_.acc, reg_.x, 0x95);
@@ -86,6 +87,7 @@ TEST_F(StoreTest, STA) {
 }
 
 TEST_F(StoreTest, STX) {
+  reg_.x = 0xBB;
   STX stx(bus_, reg_);
   TestZeroPage(stx, reg_.x, 0x86);
   TestIndexedZeroPage(stx, reg_.x, reg_.y, 0x96);
@@ -93,6 +95,7 @@ TEST_F(StoreTest, STX) {
 }
 
 TEST_F(StoreTest, STY) {
+  reg_.y = 0xCC;
   STY sty(bus_, reg_);
   TestZeroPage(sty, reg_.y, 0x84);
   TestIndexedZeroPage(sty, reg_.y, reg_.x, 0x94);
