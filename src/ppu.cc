@@ -47,8 +47,22 @@ Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
       // start of ROMs.
       *byte = 0x80 | (last_write_value_ & 0x1F);
       break;
-    default:
-      *byte = 0x00;
+    case kPpuData:
+      // The memory range between 0x3000-0x3EFF are mirrors of 0x2000-0x2EFF.
+      uint16_t vram_address = address_;
+      if (vram_address >= 0x3000 && vram_address <= 0x3EFF) {
+        vram_address -= 0x1000;
+      }
+
+      if (vram_address > vram_.size() - 1) {
+        std::cout << "ppu error: Address is too large!" << std::endl;
+        return Peripheral::Status::OUT_OF_BOUNDS;
+      }
+
+      *byte = vram_[vram_address];
+      std::cout << "ppu read data: " << IntToHexString(vram_address) << "="
+                << IntToHexString(*byte) << std::endl;
+      address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }
   std::cout << "ppu read: " << IntToHexString(address) << "="

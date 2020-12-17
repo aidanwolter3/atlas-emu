@@ -17,3 +17,8 @@ TEST(AtlasTest, Branch) {
   Atlas atlas("src/roms/branch_test.nes");
   EXPECT_TRUE(atlas.Run());
 }
+
+TEST(AtlasTest, PPU) {
+  Atlas atlas("src/roms/ppu_test.nes");
+  EXPECT_TRUE(atlas.Run());
+}

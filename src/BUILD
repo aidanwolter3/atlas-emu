@@ -44,6 +44,7 @@ cc_test(
         "//src/roms:branch_test",
         "//src/roms:nop_test",
         "//src/roms:pretty_log_test",
+        "//src/roms:ppu_test",
     ],
 )
 
