@@ -7,10 +7,17 @@ filegroup(
     srcs = glob(["**"]),
 )
 
-# TODO: Swap these out with a config_setting so that it works on both Mac and
-# Linux.
 cc_library(
-    name = "glfw_config",
+    name = "linux_config",
+    linkopts = [
+      "-lX11",
+      "-ldl",
+      "-pthread",
+    ]
+)
+
+cc_library(
+    name = "osx_config",
     linkopts = [
       "-framework CoreVideo",
       "-framework OpenGL",
@@ -18,6 +25,20 @@ cc_library(
       "-framework Cocoa",
       "-framework Carbon",
     ]
+)
+
+config_setting(
+    name = "linux",
+    constraint_values = [
+        "@platforms//os:linux",
+    ],
+)
+
+config_setting(
+    name = "osx",
+    constraint_values = [
+        "@platforms//os:osx",
+    ],
 )
 
 cmake_external(
@@ -29,5 +50,8 @@ cmake_external(
         "GLFW_BUILD_DOCS": "OFF",
         "GLFW_BUILD_EXAMPLES": "OFF",
     },
-    deps = ["glfw_config"],
+    deps = select({
+        ":linux": [":linux_config"],
+        ":osx": [":osx_config"],
+    }),
 )
