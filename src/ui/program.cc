@@ -105,12 +105,13 @@ void Program::AddTiles() {
           });
 
       // Add the texture coordinates.
+      float tile_num = ((row * width) + col) % 2;
       texture_coords_.insert(texture_coords_.end(),
                              {
-                                 0.0f, 1.0f,  // top left
-                                 1.0f, 1.0f,  // top right
-                                 1.0f, 0.0f,  // bottom right
-                                 0.0f, 0.0f,  // bottom left
+                                 0.0f, 1.0f, tile_num, // top left
+                                 1.0f, 1.0f, tile_num, // top right
+                                 1.0f, 0.0f, tile_num, // bottom right
+                                 0.0f, 0.0f, tile_num, // bottom left
                              });
     }
   }
@@ -147,10 +148,10 @@ void Program::AddTiles() {
 
   // Add the texture coordinates.
   glVertexAttribPointer(/*index=*/1,
-                        /*size=*/2,
+                        /*size=*/3,
                         /*type=*/GL_FLOAT,
                         /*normalized=*/GL_FALSE,
-                        /*stride=*/2 * sizeof(float),
+                        /*stride=*/3 * sizeof(float),
                         /*offset=*/(void*)(0 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
@@ -161,26 +162,28 @@ void Program::AddTiles() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   // Declare the texture.
-  glGenTextures(1, &tile_texture_);
-  glBindTexture(GL_TEXTURE_2D, tile_texture_);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glGenTextures(1, &tile_textures_);
+  glBindTexture(GL_TEXTURE_2D_ARRAY, tile_textures_);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   // Generate the image.
   for (int i = 0; i < 64; ++i) {
-    unsigned char color = 0xFF;  // white
-
     std::unordered_set<int> question_mark{13, 29, 38, 44, 45};
     if (question_mark.count(i) != 0) {
-      color = 0x00;  // black
+      tile_1_.insert(tile_1_.end(), {0xFF, 0x00, 0x00, 0xFF});
+      tile_2_.insert(tile_2_.end(), {0x00, 0xFF, 0x00, 0xFF});
+    } else {
+      tile_1_.insert(tile_1_.end(), {0x00, 0x00, 0x00, 0xFF});
+      tile_2_.insert(tile_2_.end(), {0x00, 0x00, 0x00, 0xFF});
     }
-    tile_.insert(tile_.end(), {color, color, color, 0xFF});
   }
 
-  // Load the texture with the image.
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-               tile_.data());
+  // Load the textures.
+  glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, 8, 8, /*count=*/2, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, /*offset=*/0, 8, 8, 1, GL_RGBA, GL_UNSIGNED_BYTE, tile_1_.data());
+  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, /*offset=*/1, 8, 8, 1, GL_RGBA, GL_UNSIGNED_BYTE, tile_2_.data());
   glGenerateMipmap(GL_TEXTURE_2D);
 }

@@ -29,8 +29,9 @@ class Program {
   std::vector<unsigned int> elements_;
   std::vector<float> texture_coords_;
 
-  std::vector<unsigned char> tile_;
-  unsigned int tile_texture_;
+  std::vector<unsigned char> tile_1_;
+  std::vector<unsigned char> tile_2_;
+  unsigned int tile_textures_;
 };
 
 #endif  // PROGRAM_H_
