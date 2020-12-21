@@ -2,12 +2,7 @@
 
 #include <iostream>
 
-namespace {
-
-// TODO: Determine if this constant can be shared with Stack.
-const uint16_t kStackStartAddress = 0x100;
-
-}  // namespace
+#include "src/public/constants.h"
 
 void JMP::ExecuteInternal(uint8_t opcode) {
   uint16_t address;

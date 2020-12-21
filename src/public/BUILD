@@ -4,6 +4,7 @@ cc_library(
     hdrs = [
         "bus.h",
         "clock.h",
+        "constants.h",
         "event_logger.h",
         "instruction.h",
         "registers.h",

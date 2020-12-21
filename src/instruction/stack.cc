@@ -1,10 +1,6 @@
 #include "src/instruction/stack.h"
 
-namespace {
-
-const uint16_t kStackStartAddress = 0x100;
-
-}  // namespace
+#include "src/public/constants.h"
 
 void PHA::ExecuteInternal(uint8_t) {
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.acc);

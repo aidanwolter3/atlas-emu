@@ -5,10 +5,9 @@
 #include <sstream>
 #include <string>
 
-namespace {
+#include "src/public/constants.h"
 
-// TODO: don't duplicate this.
-const uint16_t kStackStartAddress = 0x100;
+namespace {
 
 const uint64_t kCpuPeriod = 1.0 / 0.00179;
 
