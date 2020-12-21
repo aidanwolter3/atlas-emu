@@ -11,6 +11,7 @@
 #include "src/event_logger_impl.h"
 #include "src/memory.h"
 #include "src/mmc1.h"
+#include "src/platform/posix.h"
 #include "src/ppu.h"
 #include "src/public/registers.h"
 #include "src/ui/window.h"
@@ -39,7 +40,7 @@ class Atlas {
   void RegisterInstruction(std::vector<uint8_t> opcodes);
 
   EventLoggerImpl event_logger_;
-  PlatformSleepPosix platform_sleep_;
+  PlatformPosix platform_;
   ClockImpl clock_;
   BusImpl bus_;
   Registers reg_;

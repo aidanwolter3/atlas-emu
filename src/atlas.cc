@@ -22,8 +22,7 @@
 #include "src/memory.h"
 #include "src/ui/opengl/window.h"
 
-Atlas::Atlas(const std::string rom_file, bool headless)
-    : clock_(platform_sleep_) {
+Atlas::Atlas(const std::string rom_file, bool headless) : clock_(platform_) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
   rom_stream.unsetf(std::ios_base::skipws);

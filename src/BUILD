@@ -22,6 +22,7 @@ cc_library(
     ],
     deps = [
         "//src/instruction",
+        "//src/platform",
         "//src/public",
         "//src/ui/opengl",
     ],

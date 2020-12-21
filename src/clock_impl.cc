@@ -1,20 +1,9 @@
 #include "src/clock_impl.h"
 
-#include <time.h>
-
 #include <iostream>
 
-void PlatformSleepPosix::Sleep(uint64_t time_ns) {
-  timespec ts{
-      .tv_sec = static_cast<time_t>(time_ns / 1000000),
-      .tv_nsec = static_cast<long>(time_ns % 1000000),
-  };
-  // TODO: Capture errors.
-  nanosleep(&ts, NULL);
-}
-
-ClockImpl::ClockImpl(PlatformSleep& platform_sleep)
-    : global_ns_(0), is_running_(false), platform_sleep_(platform_sleep) {}
+ClockImpl::ClockImpl(Platform& platform)
+    : global_ns_(0), is_running_(false), platform_(platform) {}
 
 ClockImpl::~ClockImpl() = default;
 
@@ -52,7 +41,7 @@ void ClockImpl::RunUntilTimer() {
     std::cout << "Timer is registered for the past..." << std::endl;
   } else {
     uint64_t sleep_duration = timer_data.timer_expiration_ns - global_ns_;
-    platform_sleep_.Sleep(sleep_duration);
+    platform_.SleepNanoseconds(sleep_duration);
     global_ns_ += sleep_duration;
   }
 

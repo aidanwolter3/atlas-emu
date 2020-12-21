@@ -6,20 +6,12 @@
 #include <map>
 #include <queue>
 
+#include "src/platform/platform.h"
 #include "src/public/clock.h"
-
-class PlatformSleep {
- public:
-  virtual void Sleep(uint64_t time_ns) = 0;
-};
-
-class PlatformSleepPosix : public PlatformSleep {
-  void Sleep(uint64_t time_ns) override;
-};
 
 class ClockImpl : public Clock {
  public:
-  explicit ClockImpl(PlatformSleep& platform_sleep);
+  explicit ClockImpl(Platform& platform);
   ~ClockImpl() override;
 
   // Clock implementation:
@@ -33,7 +25,7 @@ class ClockImpl : public Clock {
 
   uint64_t global_ns_;
   bool is_running_;
-  PlatformSleep& platform_sleep_;
+  Platform& platform_;
 
   struct TimerData {
     typedef uint64_t value_type;
