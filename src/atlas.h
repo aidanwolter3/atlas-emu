@@ -24,6 +24,10 @@ class Atlas {
   // for error.
   bool Run();
 
+  // Reset the CPU, so that it can be run again. Useful for benchmarking, as we
+  // run Atlas mutliple times.
+  void Reset();
+
  private:
   // Construct and register an instruction with the classname INS that will get
   // executed when |opcode| is fetched.

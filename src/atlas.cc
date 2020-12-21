@@ -157,6 +157,8 @@ bool Atlas::Run() {
   return true;
 }
 
+void Atlas::Reset() { cpu_->Reset(); }
+
 template <class INS>
 void Atlas::RegisterInstruction(uint8_t opcode) {
   RegisterInstruction<INS>(std::vector<uint8_t>({opcode}));
