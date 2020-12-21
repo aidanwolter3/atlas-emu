@@ -1,7 +1,6 @@
 #include "src/atlas.h"
 
 #include "gtest/gtest.h"
-#include "src/cpu.h"
 
 TEST(AtlasTest, NOP) {
   Atlas atlas("src/roms/nop_test.nes", /*headless=*/true);
