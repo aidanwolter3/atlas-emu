@@ -25,10 +25,10 @@ void Instruction::Execute(uint8_t opcode) {
   ExecuteInternal(opcode);
 
   // TODO: Provide a --verbose flag to disable printing instructions.
-  for (auto el : log_elements_) {
-    std::cout << el << " ";
-  }
-  std::cout << std::endl;
+  //for (auto el : log_elements_) {
+  //  std::cout << el << " ";
+  //}
+  //std::cout << std::endl;
 }
 
 std::string Instruction::GetLogName() { return "<unknown>"; }
