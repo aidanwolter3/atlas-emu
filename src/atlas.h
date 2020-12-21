@@ -12,18 +12,16 @@
 #include "src/mmc1.h"
 #include "src/ppu.h"
 #include "src/public/registers.h"
-#include "src/ui/opengl/window.h"
+#include "src/ui/window.h"
 
 class Atlas {
  public:
-  Atlas(const std::string rom_file);
+  Atlas(const std::string rom_file, bool headless = false);
   ~Atlas();
 
   // Run the CPU until an error occurs, and returns true for success, or false
   // for error.
   bool Run();
-
-  // TODO: Make is so that BRK returns a code (maybe in the ACC register?)
 
  private:
   // Construct and register an instruction with the classname INS that will get
@@ -37,10 +35,10 @@ class Atlas {
 
   EventLoggerImpl event_logger_;
   PlatformSleepPosix platform_sleep_;
-  OpenGLWindow window_;
   ClockImpl clock_;
   BusImpl bus_;
   Registers reg_;
+  std::unique_ptr<Window> window_;
   std::unique_ptr<MemoryImpl> mem_;
   std::unique_ptr<MemoryImpl> mmc1_mem_;
   std::unique_ptr<MMC1Impl> mmc1_;

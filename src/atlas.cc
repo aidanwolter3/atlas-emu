@@ -21,8 +21,10 @@
 #include "src/instruction/store.h"
 #include "src/instruction/transfer.h"
 #include "src/memory.h"
+#include "src/ui/opengl/window.h"
 
-Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
+Atlas::Atlas(const std::string rom_file, bool headless)
+    : clock_(platform_sleep_) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
   rom_stream.unsetf(std::ios_base::skipws);
@@ -37,6 +39,14 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
   std::copy(std::istream_iterator<uint8_t>(rom_stream),
             std::istream_iterator<uint8_t>(), std::back_inserter(data));
 
+  // Create the window if not headless.
+  if (headless) {
+    window_ = std::make_unique<FakeWindow>();
+  } else {
+    window_ = std::make_unique<OpenGLWindow>();
+  }
+
+  // Connect all the peripherals to the bus.
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
   mmc1_mem_ = std::make_unique<MemoryImpl>(/*size=*/0x2000);
   mmc1_ = std::make_unique<MMC1Impl>(std::move(data));
@@ -44,9 +54,10 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
   cpu_ = std::make_unique<Cpu>(event_logger_, clock_, bus_, reg_);
-  ppu_ = std::make_unique<Ppu>(clock_, *cpu_, window_);
+  ppu_ = std::make_unique<Ppu>(clock_, *cpu_, *window_);
   bus_.RegisterPeripheral(*ppu_, 0x2000);
 
+  // Register all the instructions.
   RegisterInstruction<NOP>(0xEA);
   cpu_->RegisterInstruction(std::make_unique<BRK>(bus_, reg_, event_logger_),
                             {0x00});
@@ -129,7 +140,7 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
 Atlas::~Atlas() = default;
 
 bool Atlas::Run() {
-  while (!window_.IsClosed()) {
+  while (!window_->IsClosed()) {
     clock_.RunUntilTimer();
 
     std::optional<EventLogger::Event> error = event_logger_.GetError();
