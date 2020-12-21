@@ -6,7 +6,7 @@
 
 void PlatformSleepPosix::Sleep(uint64_t time_ns) {
   timespec ts{
-      .tv_sec = static_cast<__darwin_time_t>(time_ns / 1000000),
+      .tv_sec = static_cast<time_t>(time_ns / 1000000),
       .tv_nsec = static_cast<long>(time_ns % 1000000),
   };
   // TODO: Capture errors.
@@ -70,9 +70,9 @@ void ClockImpl::RunUntilTimer() {
 
   // Re-register the timer for the future.
   timer_queue_.push({
-      .period_ns = timer_data.period_ns,
       .timer_expiration_ns =
           timer_data.timer_expiration_ns + timer_data.period_ns,
+      .period_ns = timer_data.period_ns,
   });
 
   // Remove the old timer.
@@ -99,8 +99,8 @@ void ClockImpl::PrepareRunIfNeeded() {
   for (auto it = period_to_observers_map_.begin();
        it != period_to_observers_map_.end(); ++it) {
     timer_queue_.push({
-        .period_ns = it->first,
         .timer_expiration_ns = global_ns_ + it->first,
+        .period_ns = it->first,
     });
   }
 }
