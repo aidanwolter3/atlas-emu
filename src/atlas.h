@@ -12,6 +12,7 @@
 #include "src/mmc1.h"
 #include "src/ppu.h"
 #include "src/public/registers.h"
+#include "src/ui/opengl/window.h"
 
 class Atlas {
  public:
@@ -36,6 +37,7 @@ class Atlas {
 
   EventLoggerImpl event_logger_;
   PlatformSleepPosix platform_sleep_;
+  OpenGLWindow window_;
   ClockImpl clock_;
   BusImpl bus_;
   Registers reg_;

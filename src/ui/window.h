@@ -1,31 +1,15 @@
-#ifndef WINDOW_H_
-#define WINDOW_H_
+#ifndef UI_WINDOW_H_
+#define UI_WINDOW_H_
 
-#include <functional>
+#include <unistd.h>
 
-// clang-format off
-#include <glad/glad.h>  // must go before glfw.h
-// clang-format on
-#include <GLFW/glfw3.h>
-
-using AspectRatioCallback = std::function<void(float)>;
+#include <vector>
 
 class Window {
  public:
-  Window();
-  ~Window();
-
-  // Delete copy and assign.
-  Window operator=(const Window&) = delete;
-  Window(const Window&) = delete;
-
-  void SetAspectRatioCallback(AspectRatioCallback aspect_ratio_callback);
-
-  // Refreshes the view, and returns whether the window should close.
-  bool Update();
-
- private:
-  GLFWwindow* glfw_window_;
+  virtual bool IsClosed() = 0;
+  virtual void SetTile(int num, std::vector<uint8_t>& tile) = 0;
+  virtual void Update() = 0;
 };
 
-#endif  // WINDOW_H_
+#endif  // UI_WINDOW_H_

@@ -1,7 +1,6 @@
 #include "program.h"
 
 #include <iostream>
-#include <unordered_set>
 
 // clang-format off
 #include <glad/glad.h>  // must go before glfw.h
@@ -105,13 +104,13 @@ void Program::AddTiles() {
           });
 
       // Add the texture coordinates.
-      float tile_num = ((row * width) + col) % 2;
+      float tile_num = ((row * width) + col);
       texture_coords_.insert(texture_coords_.end(),
                              {
-                                 0.0f, 1.0f, tile_num, // top left
-                                 1.0f, 1.0f, tile_num, // top right
-                                 1.0f, 0.0f, tile_num, // bottom right
-                                 0.0f, 0.0f, tile_num, // bottom left
+                                 0.0f, 1.0f, tile_num,  // top left
+                                 1.0f, 1.0f, tile_num,  // top right
+                                 1.0f, 0.0f, tile_num,  // bottom right
+                                 0.0f, 0.0f, tile_num,  // bottom left
                              });
     }
   }
@@ -160,30 +159,4 @@ void Program::AddTiles() {
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  // Declare the texture.
-  glGenTextures(1, &tile_textures_);
-  glBindTexture(GL_TEXTURE_2D_ARRAY, tile_textures_);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  // Generate the image.
-  for (int i = 0; i < 64; ++i) {
-    std::unordered_set<int> question_mark{13, 29, 38, 44, 45};
-    if (question_mark.count(i) != 0) {
-      tile_1_.insert(tile_1_.end(), {0xFF, 0x00, 0x00, 0xFF});
-      tile_2_.insert(tile_2_.end(), {0x00, 0xFF, 0x00, 0xFF});
-    } else {
-      tile_1_.insert(tile_1_.end(), {0x00, 0x00, 0x00, 0xFF});
-      tile_2_.insert(tile_2_.end(), {0x00, 0x00, 0x00, 0xFF});
-    }
-  }
-
-  // Load the textures.
-  glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, 8, 8, /*count=*/2, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, /*offset=*/0, 8, 8, 1, GL_RGBA, GL_UNSIGNED_BYTE, tile_1_.data());
-  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, /*offset=*/1, 8, 8, 1, GL_RGBA, GL_UNSIGNED_BYTE, tile_2_.data());
-  glGenerateMipmap(GL_TEXTURE_2D);
 }

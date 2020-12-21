@@ -1,15 +1,17 @@
 #ifndef PPU_H_
 #define PPU_H_
 
+#include <unordered_set>
 #include <vector>
 
 #include "src/cpu.h"
 #include "src/public/bus.h"
 #include "src/public/clock.h"
+#include "src/ui/window.h"
 
 class Ppu : public Peripheral, public Clock::TimerObserver {
  public:
-  Ppu(Clock& clock, Cpu& cpu);
+  Ppu(Clock& clock, Cpu& cpu, Window& window);
   ~Ppu() override;
 
   // Peripheral implementation:
@@ -21,7 +23,10 @@ class Ppu : public Peripheral, public Clock::TimerObserver {
   void OnTimerCalled() override;
 
  private:
+  void LoadTile(int num, uint8_t tile_num, uint8_t palette);
+
   Cpu& cpu_;
+  Window& window_;
 
   // Store the last value written to a register, so that it can be returned in
   // the lowest bits of a read from the PPU status register.

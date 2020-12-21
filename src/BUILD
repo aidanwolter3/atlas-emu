@@ -23,7 +23,8 @@ cc_library(
     deps = [
         "//src/instruction",
         "//src/public",
-    ]
+        "//src/ui/opengl",
+    ],
 )
 
 cc_test(
@@ -46,6 +47,7 @@ cc_test(
         "//src/roms:pretty_log_test",
         "//src/roms:ppu_test",
     ],
+    linkstatic = True,
 )
 
 cc_binary(

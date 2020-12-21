@@ -27,11 +27,8 @@ class Program {
 
   std::vector<float> vertices_;
   std::vector<unsigned int> elements_;
+  // TODO: move this to opengl_window.h
   std::vector<float> texture_coords_;
-
-  std::vector<unsigned char> tile_1_;
-  std::vector<unsigned char> tile_2_;
-  unsigned int tile_textures_;
 };
 
 #endif  // PROGRAM_H_

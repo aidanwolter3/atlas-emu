@@ -44,7 +44,7 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
   cpu_ = std::make_unique<Cpu>(event_logger_, clock_, bus_, reg_);
-  ppu_ = std::make_unique<Ppu>(clock_, *cpu_);
+  ppu_ = std::make_unique<Ppu>(clock_, *cpu_, window_);
   bus_.RegisterPeripheral(*ppu_, 0x2000);
 
   RegisterInstruction<NOP>(0xEA);
@@ -129,7 +129,7 @@ Atlas::Atlas(const std::string rom_file) : clock_(platform_sleep_) {
 Atlas::~Atlas() = default;
 
 bool Atlas::Run() {
-  while (true) {
+  while (!window_.IsClosed()) {
     clock_.RunUntilTimer();
 
     std::optional<EventLogger::Event> error = event_logger_.GetError();
@@ -144,6 +144,7 @@ bool Atlas::Run() {
       return test_result->type == EventLogger::EventType::kTestPassed;
     }
   }
+  return true;
 }
 
 template <class INS>

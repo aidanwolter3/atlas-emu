@@ -1,32 +1,11 @@
 cc_library(
-    name = "base",
+    name = "ui",
+    visibility = ["//visibility:public"],
     hdrs = [
-        "program.h",
-        "shader.h",
+        "color.h",
         "window.h",
     ],
     srcs = [
-        "program.cc",
-        "shader.cc",
-        "window.cc",
+        "color.cc",
     ],
-    deps = [
-        "@glad",
-        "@glfw",
-        "@glm",
-    ],
-)
-
-cc_binary(
-    name = "test",
-    srcs = [
-        "main.cc",
-    ],
-    deps = [
-        ":base",
-    ],
-    data = [
-       "fragment.glsl",
-       "vertex.glsl",
-    ]
 )
