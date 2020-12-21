@@ -42,7 +42,6 @@ void Cpu::NMI() {
   reg_.pc = ReadAddressFromVectorTable(0xFFFA);
   std::string event_name = "NMI: " + IntToHexString(reg_.pc);
   event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name = event_name});
-  std::cout << event_name << std::endl;
 }
 
 void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
