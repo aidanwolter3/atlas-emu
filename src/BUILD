@@ -27,6 +27,13 @@ cc_library(
     ],
 )
 
+cc_binary(
+    name = "atlas_emu",
+    visibility = ["//visibility:public"],
+    srcs = ["main.cc"],
+    deps = [":atlas"],
+)
+
 cc_test(
     name = "atlas_test",
     srcs = [
@@ -43,7 +50,6 @@ cc_test(
     ],
     data = [
         "//src/roms:branch_test",
-        "//src/roms:nop_test",
         "//src/roms:pretty_log_test",
         "//src/roms:ppu_test",
     ],
@@ -51,14 +57,14 @@ cc_test(
 )
 
 cc_binary(
-    name = "atlas_emu",
-    visibility = [
-        "//visibility:public",
-    ],
-    srcs = [
-        "main.cc",
-    ],
+    name = "benchmark",
+    visibility = ["//visibility:public"],
+    srcs = ["benchmark.cc"],
     deps = [
         ":atlas",
-    ]
+        "@benchmark//:benchmark",
+    ],
+    data = [
+        "//src/roms:100_nops",
+    ],
 )

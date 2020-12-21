@@ -5,10 +5,9 @@
 
 .segment "CODE"
   main:
+    .repeat 100
     nop
-    nop
-    nop
-    nop
+    .endrep
   pass:
     lda #$00
     brk

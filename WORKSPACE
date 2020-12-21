@@ -9,10 +9,18 @@ git_repository(
     remote = "https://github.com/google/googletest.git",
 )
 
+# Benchmarking framework version 1.5.2.
+git_repository(
+    name = "benchmark",
+    commit = "73d4d5e8d6d449fc8663765a42aa8aeeee844489",
+    shallow_since = "1599818118 +0100",
+    remote = "https://github.com/google/benchmark.git",
+)
+
 # Compiler/Assembler for 65XX architectures.
 http_archive(
     name = "cc65",
-    urls = [ "https://github.com/cc65/cc65/archive/V2.18.zip"],
+    urls = ["https://github.com/cc65/cc65/archive/V2.18.zip"],
     sha256 = "aad4dbcb3152d1ad20d68083048159538cc50234097a09ee079e801a3a8bea2f",
     strip_prefix = "cc65-2.18",
     build_file = "cc65.BUILD",
