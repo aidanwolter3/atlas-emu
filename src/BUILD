@@ -1,5 +1,5 @@
 cc_library(
-    name = "atlas",
+    name = "atlas_core",
     hdrs = [
         "atlas.h",
         "bus_impl.h",
@@ -28,10 +28,10 @@ cc_library(
 )
 
 cc_binary(
-    name = "atlas_emu",
+    name = "atlas",
     visibility = ["//visibility:public"],
     srcs = ["main.cc"],
-    deps = [":atlas"],
+    deps = [":atlas_core"],
 )
 
 cc_test(
@@ -45,7 +45,7 @@ cc_test(
         "mmc1_test.cc",
     ],
     deps = [
-        ":atlas",
+        ":atlas_core",
         "@gtest//:gtest_main",
     ],
     data = [
@@ -61,7 +61,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     srcs = ["benchmark.cc"],
     deps = [
-        ":atlas",
+        ":atlas_core",
         "@benchmark//:benchmark",
     ],
     data = [

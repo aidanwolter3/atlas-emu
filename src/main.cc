@@ -3,7 +3,7 @@
 #include "src/atlas.h"
 
 int main(int argc, char** argv) {
-  std::cout << "Welcome to AtlasEmu!" << std::endl;
+  std::cout << "Welcome to Atlas!" << std::endl;
 
   std::string rom_path;
   if (argc < 2) {

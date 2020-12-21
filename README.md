@@ -1,4 +1,4 @@
-# AtlasEmu
+# Atlas
 Cross-platform NES emulator written in C++.
 
 ## Getting started
@@ -16,7 +16,7 @@ $ ln -s /opt/local/bin/cmake /usr/local/bin/cmake # bazel does not look in opt/
 
 **Run**
 ```bash
-$ blaze run atlas_emu
+$ bazel run atlas
 ```
 
 ## Run the linter
@@ -30,4 +30,10 @@ $ sudo port select --set clang mp-clang-9.0
 **Lint the source files**
 ```bash
 $ git-clang-format-mp-9.0
+```
+
+## Run the benchmarks
+
+```
+$ bazel run benchmark
 ```
