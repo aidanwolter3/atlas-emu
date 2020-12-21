@@ -1,8 +1,7 @@
 #ifndef UI_COLOR_H_
 #define UI_COLOR_H_
 
-#include <unistd.h>
-
+#include <cstdint>
 #include <vector>
 
 std::vector<uint8_t> Color(int num);

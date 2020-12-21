@@ -1,8 +1,7 @@
 #ifndef UI_WINDOW_H_
 #define UI_WINDOW_H_
 
-#include <unistd.h>
-
+#include <cstdint>
 #include <vector>
 
 class Window {

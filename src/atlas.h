@@ -1,6 +1,7 @@
 #ifndef ATLAS_H_
 #define ATLAS_H_
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
