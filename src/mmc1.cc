@@ -98,8 +98,8 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
     shift_ = 0x10;
     // Set the control to mode 3.
     control_ |= 0x0C;
-    std::cout << "mmc1 reset" << std::endl;
-    std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
+    // std::cout << "mmc1 reset" << std::endl;
+    // std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
     return Peripheral::Status::OK;
   }
 
@@ -120,24 +120,26 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
     switch (register_num) {
       case 0:
         control_ = data;
-        std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
+        // std::cout << "mmc1 control=" << std::bitset<5>(control_)
+        //           << std::endl;
         break;
       case 1:
         chr_bank_0_ = data;
-        std::cout << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_)
-                  << std::endl;
+        // std::cout << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_)
+        //           << std::endl;
         break;
       case 2:
         chr_bank_1_ = data;
-        std::cout << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_)
-                  << std::endl;
+        // std::cout << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_)
+        //           << std::endl;
         break;
       case 3:
         prg_bank_ = data;
-        std::cout << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_) << std::endl;
+        // std::cout << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_)
+        //           << std::endl;
         break;
       default:
-        std::cout << "Unexpected register: " << register_num << std::endl;
+        // std::cout << "Unexpected register: " << register_num << std::endl;
         break;
     }
     // Reset the shift.
