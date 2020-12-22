@@ -27,10 +27,10 @@ class MockEventLogger : public EventLogger {
 
 class MockClock : public Clock {
  public:
-  MOCK_METHOD(void, RegisterTimerObserver,
-              (TimerObserver * observer, uint64_t period_ns), (override));
+  MOCK_METHOD(void, RegisterTimerObserver, (TimerObserver*, TimerPeriod),
+              (override));
   MOCK_METHOD(void, RunUntilTimer, (), (override));
-  MOCK_METHOD(void, RunUntilTime, (uint64_t time_ns), (override));
+  MOCK_METHOD(void, RunForDuration, (std::chrono::nanoseconds), (override));
 };
 
 class MockBus : public Bus {

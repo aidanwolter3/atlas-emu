@@ -9,8 +9,6 @@
 
 namespace {
 
-const uint64_t kCpuPeriod = 1.0 / 0.00179;
-
 std::string IntToHexString(int num) {
   std::stringstream ss;
   ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << num;
@@ -21,7 +19,7 @@ std::string IntToHexString(int num) {
 
 Cpu::Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg)
     : event_logger_(event_logger), bus_(bus), reg_(reg) {
-  clock.RegisterTimerObserver(this, kCpuPeriod);
+  clock.RegisterTimerObserver(this, KHz(1790));
   Reset();
 }
 

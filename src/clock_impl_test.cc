@@ -6,9 +6,11 @@
 
 namespace {
 
+using std::chrono::nanoseconds;
+
 class MockPlatform : public Platform {
  public:
-  MOCK_METHOD(void, SleepNanoseconds, (uint64_t));
+  MOCK_METHOD(void, Sleep, (nanoseconds));
 };
 
 class MockTimerObserver : public Clock::TimerObserver {
@@ -19,7 +21,19 @@ class MockTimerObserver : public Clock::TimerObserver {
 TEST(ClockImplTest, RunZeroObservers) {
   MockPlatform platform;
   ClockImpl ClockImpl(platform);
-  ClockImpl.RunUntilTime(10);
+  ClockImpl.RunForDuration(nanoseconds{10});
+}
+
+TEST(ClockImplTest, RunUntilTimer) {
+  MockPlatform platform;
+  MockTimerObserver observer;
+
+  ClockImpl clock(platform);
+  clock.RegisterTimerObserver(&observer, nanoseconds{10});
+
+  EXPECT_CALL(platform, Sleep(nanoseconds{10}));
+  EXPECT_CALL(observer, OnTimerCalled);
+  clock.RunUntilTimer();
 }
 
 TEST(ClockImplTest, RunSingleObserver) {
@@ -27,11 +41,11 @@ TEST(ClockImplTest, RunSingleObserver) {
   MockTimerObserver observer;
 
   ClockImpl clock(platform);
-  clock.RegisterTimerObserver(&observer, 10);
+  clock.RegisterTimerObserver(&observer, nanoseconds{10});
 
-  EXPECT_CALL(platform, SleepNanoseconds(10)).Times(10);
+  EXPECT_CALL(platform, Sleep(nanoseconds{10})).Times(10);
   EXPECT_CALL(observer, OnTimerCalled).Times(10);
-  clock.RunUntilTime(100);
+  clock.RunForDuration(nanoseconds{100});
 }
 
 TEST(ClockImplTest, RunMultipleObservers) {
@@ -40,33 +54,33 @@ TEST(ClockImplTest, RunMultipleObservers) {
   MockTimerObserver observer2;
 
   ClockImpl clock(platform);
-  clock.RegisterTimerObserver(&observer1, 10);
-  clock.RegisterTimerObserver(&observer2, 15);
+  clock.RegisterTimerObserver(&observer1, nanoseconds{10});
+  clock.RegisterTimerObserver(&observer2, nanoseconds{15});
 
-  EXPECT_CALL(platform, SleepNanoseconds(10));
+  EXPECT_CALL(platform, Sleep(nanoseconds{10}));
   EXPECT_CALL(observer1, OnTimerCalled);
-  clock.RunUntilTime(10);
+  clock.RunForDuration(nanoseconds{10});
 
-  EXPECT_CALL(platform, SleepNanoseconds(5));
+  EXPECT_CALL(platform, Sleep(nanoseconds{5}));
   EXPECT_CALL(observer2, OnTimerCalled);
-  clock.RunUntilTime(15);
+  clock.RunForDuration(nanoseconds{5});
 
-  EXPECT_CALL(platform, SleepNanoseconds(5));
+  EXPECT_CALL(platform, Sleep(nanoseconds{5}));
   EXPECT_CALL(observer1, OnTimerCalled);
-  clock.RunUntilTime(20);
+  clock.RunForDuration(nanoseconds{5});
 
-  EXPECT_CALL(platform, SleepNanoseconds(10));
+  EXPECT_CALL(platform, Sleep(nanoseconds{10}));
   EXPECT_CALL(observer1, OnTimerCalled);
   EXPECT_CALL(observer2, OnTimerCalled);
-  clock.RunUntilTime(30);
+  clock.RunForDuration(nanoseconds{10});
 
-  EXPECT_CALL(platform, SleepNanoseconds(10));
+  EXPECT_CALL(platform, Sleep(nanoseconds{10}));
   EXPECT_CALL(observer1, OnTimerCalled);
-  clock.RunUntilTime(40);
+  clock.RunForDuration(nanoseconds{10});
 
-  EXPECT_CALL(platform, SleepNanoseconds(5));
+  EXPECT_CALL(platform, Sleep(nanoseconds{5}));
   EXPECT_CALL(observer2, OnTimerCalled);
-  clock.RunUntilTime(45);
+  clock.RunForDuration(nanoseconds{5});
 }
 
 }  // namespace

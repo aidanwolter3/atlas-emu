@@ -3,12 +3,12 @@
 #include <iostream>
 
 ClockImpl::ClockImpl(Platform& platform)
-    : global_ns_(0), is_running_(false), platform_(platform) {}
+    : is_running_(false), platform_(platform) {}
 
 ClockImpl::~ClockImpl() = default;
 
-void ClockImpl::RegisterTimerObserver(Clock::TimerObserver* observer,
-                                      uint64_t period_ns) {
+void ClockImpl::RegisterTimerObserver(TimerObserver* observer,
+                                      TimerPeriod period) {
   // TODO: should we pass a reference?
 
   if (is_running_) {
@@ -16,12 +16,12 @@ void ClockImpl::RegisterTimerObserver(Clock::TimerObserver* observer,
     return;
   }
 
-  if (period_to_observers_map_.count(period_ns) == 0) {
-    period_to_observers_map_.insert({period_ns, {}});
+  if (period_to_observers_map_.count(period) == 0) {
+    period_to_observers_map_.insert({period, {}});
   }
 
   // Add the observer to the list of observers-per-period.
-  auto it = period_to_observers_map_.find(period_ns);
+  auto it = period_to_observers_map_.find(period);
   it->second.push_back(observer);
 }
 
@@ -35,18 +35,13 @@ void ClockImpl::RunUntilTimer() {
   const TimerData& timer_data = timer_queue_.top();
 
   // Sleep till the next timer should be triggered.
-  if (global_ns_ >= timer_data.timer_expiration_ns) {
-    // This should only ever happen if the platform is really slow, or if two
-    // timers sync up.
-    std::cout << "Timer is registered for the past..." << std::endl;
-  } else {
-    uint64_t sleep_duration = timer_data.timer_expiration_ns - global_ns_;
-    platform_.SleepNanoseconds(sleep_duration);
-    global_ns_ += sleep_duration;
+  auto now = std::chrono::steady_clock::now();
+  if (timer_data.expiration > now) {
+    platform_.Sleep(timer_data.expiration - now);
   }
 
   // Call the observers.
-  auto it = period_to_observers_map_.find(timer_data.period_ns);
+  auto it = period_to_observers_map_.find(timer_data.period);
   if (it == period_to_observers_map_.end()) {
     // TODO: this should never happen.
     std::cout << "No observers for timer..." << std::endl;
@@ -59,37 +54,37 @@ void ClockImpl::RunUntilTimer() {
 
   // Re-register the timer for the future.
   timer_queue_.push({
-      .timer_expiration_ns =
-          timer_data.timer_expiration_ns + timer_data.period_ns,
-      .period_ns = timer_data.period_ns,
+      .expiration = timer_data.expiration + timer_data.period,
+      .period = timer_data.period,
   });
 
   // Remove the old timer.
   timer_queue_.pop();
 }
 
-void ClockImpl::RunUntilTime(uint64_t time_ns) {
+void ClockImpl::RunForDuration(std::chrono::nanoseconds duration) {
   PrepareRunIfNeeded();
 
-  while (!timer_queue_.empty() &&
-         (global_ns_ < time_ns ||
-          global_ns_ == timer_queue_.top().timer_expiration_ns)) {
+  auto stop_time = std::chrono::steady_clock::now() + duration;
+  while (!timer_queue_.empty() && timer_queue_.top().expiration < stop_time) {
     RunUntilTimer();
   }
 }
 
 void ClockImpl::PrepareRunIfNeeded() {
+  // TODO: this probably is not needed.
   if (is_running_) {
     return;
   }
   is_running_ = true;
 
   // Initialize the queue with a timer for every period.
+  auto now = std::chrono::steady_clock::now();
   for (auto it = period_to_observers_map_.begin();
        it != period_to_observers_map_.end(); ++it) {
     timer_queue_.push({
-        .timer_expiration_ns = global_ns_ + it->first,
-        .period_ns = it->first,
+        .expiration = now + it->first,
+        .period = it->first,
     });
   }
 }

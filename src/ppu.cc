@@ -9,7 +9,6 @@
 
 namespace {
 
-const uint64_t kPpuPeriod = 1.0 / 0.00000006;
 const uint16_t kPpuSize = 0x2000;
 
 // Register offsets.
@@ -32,7 +31,7 @@ std::string IntToHexString(int num) {
 
 Ppu::Ppu(Clock& clock, Cpu& cpu, Window& window)
     : cpu_(cpu), window_(window), vram_(0x4000, 0) {
-  clock.RegisterTimerObserver(this, kPpuPeriod);
+  clock.RegisterTimerObserver(this, MHz(5));
 
   // Generate the "unknown tile", which will indicate when a tile has not been
   // "loaded", but needs to be rendered. This "unknown tile" is a red question
