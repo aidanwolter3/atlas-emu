@@ -4,6 +4,7 @@
 #include "src/platform/platform.h"
 
 class PlatformPosix : public Platform {
+ public:
   void Sleep(std::chrono::nanoseconds duration) override;
 };
 
