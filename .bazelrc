@@ -1,2 +1,3 @@
 build --cxxopt='-std=c++17'
+build -c opt
 test --test_output=errors
