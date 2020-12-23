@@ -19,28 +19,9 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::TickMonitor::TickMonitor(Cpu& cpu, std::chrono::nanoseconds expected_speed,
-                              Clock& clock)
-    : cpu_(cpu),
-      last_ticks_(0),
-      last_time_(std::chrono::steady_clock::now()),
-      expected_speed_(expected_speed) {
-  clock.RegisterTimerObserver(this, Hz(1));
-}
-
-void Cpu::TickMonitor::OnTimerCalled() {
-  auto now = std::chrono::steady_clock::now();
-  auto time_passed = now - last_time_;
-  long long expected_num_ticks = time_passed / expected_speed_;
-  long long num_ticks = cpu_.ticks_ - last_ticks_;
-  std::cout << "Tick skew: " << expected_num_ticks - num_ticks << std::endl;
-  last_time_ = now;
-  last_ticks_ = cpu_.ticks_;
-}
-
 Cpu::Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg)
-    : tick_monitor_(*this, kCpuSpeed, clock),
-      ticks_(0),
+    : ticks_(0),
+      last_time_(std::chrono::steady_clock::now()),
       event_logger_(event_logger),
       bus_(bus),
       reg_(reg) {
@@ -76,7 +57,19 @@ void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
 }
 
 void Cpu::OnTimerCalled() {
+  // Check for tick skew.
   ticks_++;
+  if (ticks_ % 1790000 == 0) {
+    auto now = std::chrono::steady_clock::now();
+    auto time_passed = now - last_time_;
+    long long expected_num_ticks = time_passed / kCpuSpeed;
+    long long num_ticks = 1790000;
+    if (expected_num_ticks > num_ticks) {
+      std::cout << "Cpu slipped " << (expected_num_ticks - num_ticks)
+                << " ticks behind" << std::endl;
+    }
+    last_time_ = now;
+  }
 
   // Fetch
   uint8_t opcode;

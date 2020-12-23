@@ -26,28 +26,14 @@ class Cpu : public Clock::TimerObserver {
                            std::vector<uint8_t> opcodes);
 
  private:
-  // Monitor for regularly ensuring that the CPU is running at the appropriate
-  // speed.
-  class TickMonitor : public Clock::TimerObserver {
-   public:
-    TickMonitor(Cpu& cpu, Clock::TimerPeriod expected_speed, Clock& clock);
-
-   private:
-    // Clock::TimerObserver implementation:
-    void OnTimerCalled() override;
-    Cpu& cpu_;
-    long long last_ticks_;
-    Clock::Time last_time_;
-    Clock::TimerPeriod expected_speed_;
-  };
-
   // Clock::TimerObserver implementation:
   void OnTimerCalled() override;
 
   uint16_t ReadAddressFromVectorTable(uint16_t address);
 
-  TickMonitor tick_monitor_;
+  // Members used for tracking tick skew.
   long long ticks_;
+  Clock::Time last_time_;
 
   EventLogger& event_logger_;
   Bus& bus_;
