@@ -6,21 +6,19 @@
 
 #include "src/cpu.h"
 #include "src/public/bus.h"
-#include "src/public/clock.h"
 #include "src/ui/window.h"
 
-class Ppu : public Peripheral, public Clock::TimerObserver {
+class Ppu : public Peripheral {
  public:
-  Ppu(Clock& clock, Cpu& cpu, Window& window);
+  Ppu(Cpu& cpu, Window& window);
   ~Ppu() override;
+
+  void Render();
 
   // Peripheral implementation:
   Peripheral::Status Read(uint16_t address, uint8_t* byte) override;
   Peripheral::Status Write(uint16_t address, uint8_t byte) override;
   uint16_t GetAddressLength() override;
-
-  // Clock::TimerObserver implementation:
-  void OnTimerCalled() override;
 
  private:
   void LoadTile(int num, uint8_t tile_num, uint8_t palette);

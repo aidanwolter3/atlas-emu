@@ -3,7 +3,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "src/public/bus.h"
-#include "src/public/clock.h"
 #include "src/public/event_logger.h"
 #include "src/public/instruction.h"
 #include "src/public/registers.h"
@@ -23,14 +22,6 @@ class MockEventLogger : public EventLogger {
  public:
   MOCK_METHOD(void, LogEvent, (Event event), (override));
   MOCK_METHOD(void, PrintLogs, (), (override));
-};
-
-class MockClock : public Clock {
- public:
-  MOCK_METHOD(void, RegisterTimerObserver, (TimerObserver*, TimerPeriod),
-              (override));
-  MOCK_METHOD(void, RunUntilTimer, (), (override));
-  MOCK_METHOD(void, RunForDuration, (std::chrono::nanoseconds), (override));
 };
 
 class MockBus : public Bus {
@@ -59,17 +50,12 @@ void ExpectReadStartAddress(MockBus& bus, uint16_t address) {
 
 TEST(CpuTest, RunUntilSegfault) {
   MockEventLogger event_logger;
-  MockClock clock;
   MockBus bus;
   Registers reg;
 
   // Prepare the Cpu
-  Clock::TimerObserver* timer_observer = nullptr;
-  EXPECT_CALL(clock, RegisterTimerObserver(_, _))
-      .WillOnce(SaveArg<0>(&timer_observer));
   ExpectReadStartAddress(bus, 0xBBAA);
-  Cpu cpu(event_logger, clock, bus, reg);
-  ASSERT_NE(nullptr, timer_observer);
+  Cpu cpu(event_logger, bus, reg);
 
   // Add a mock instruction
   auto mock_instruction = std::make_unique<MockInstruction>(bus, reg);
@@ -80,33 +66,32 @@ TEST(CpuTest, RunUntilSegfault) {
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
-  timer_observer->OnTimerCalled();
+  cpu.Tick();
   EXPECT_EQ(0xBBAB, reg.pc);
 
   EXPECT_CALL(bus, Read(0xBBAB, _))
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
-  timer_observer->OnTimerCalled();
+  cpu.Tick();
   EXPECT_EQ(0xBBAC, reg.pc);
 
   EXPECT_CALL(bus, Read(0xBBAC, _))
       .WillOnce(Return(Peripheral::Status::OUT_OF_BOUNDS));
   EXPECT_CALL(event_logger, LogEvent(Field(&EventLogger::Event::type,
                                            EventLogger::EventType::kError)));
-  timer_observer->OnTimerCalled();
+  cpu.Tick();
   EXPECT_EQ(0xBBAD, reg.pc);
 }
 
 TEST(CpuTest, InitialStateOfStatusRegister) {
   MockEventLogger event_logger;
-  MockClock clock;
   MockBus bus;
   Registers reg;
 
   // Prepare the Cpu
   ExpectReadStartAddress(bus, 0xBBAA);
-  Cpu cpu(event_logger, clock, bus, reg);
+  Cpu cpu(event_logger, bus, reg);
 
   EXPECT_FALSE(reg.status.test(Status::kCarry));
   EXPECT_FALSE(reg.status.test(Status::kZero));

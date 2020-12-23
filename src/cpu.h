@@ -8,32 +8,28 @@
 #include <vector>
 
 #include "src/public/bus.h"
-#include "src/public/clock.h"
 #include "src/public/event_logger.h"
 #include "src/public/instruction.h"
 #include "src/public/registers.h"
 
-class Cpu : public Clock::TimerObserver {
+class Cpu {
  public:
-  Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg);
-  ~Cpu() override;
+  Cpu(EventLogger& event_logger, Bus& bus, Registers& reg);
 
   void Reset();
   void NMI();
+  void Tick();
 
   // Register an Instruction which will be executed for the set of |opcodes|.
   void RegisterInstruction(std::unique_ptr<Instruction> instruction,
                            std::vector<uint8_t> opcodes);
 
  private:
-  // Clock::TimerObserver implementation:
-  void OnTimerCalled() override;
-
   uint16_t ReadAddressFromVectorTable(uint16_t address);
 
   // Members used for tracking tick skew.
   long long ticks_;
-  Clock::Time last_time_;
+  std::chrono::time_point<std::chrono::steady_clock> last_time_;
 
   EventLogger& event_logger_;
   Bus& bus_;

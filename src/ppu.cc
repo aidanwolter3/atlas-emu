@@ -29,10 +29,8 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Ppu::Ppu(Clock& clock, Cpu& cpu, Window& window)
+Ppu::Ppu(Cpu& cpu, Window& window)
     : cpu_(cpu), window_(window), vram_(0x4000, 0) {
-  clock.RegisterTimerObserver(this, MHz(5));
-
   // Generate the "unknown tile", which will indicate when a tile has not been
   // "loaded", but needs to be rendered. This "unknown tile" is a red question
   // mark.
@@ -55,6 +53,52 @@ Ppu::Ppu(Clock& clock, Cpu& cpu, Window& window)
 }
 
 Ppu::~Ppu() = default;
+
+void Ppu::Render() {
+  // Trigger the NMI if the control bit is set.
+  if (ctrl_ & 0x80) {
+    cpu_.NMI();
+  }
+
+  // Load all 960 tiles.
+  // TODO: This should be make more efficient. Potentially, we could only load
+  // tiles that have changed since the last refresh.
+  const uint16_t nametable = 0x2000 + ((ctrl_ & 0x03) * 0x400);
+  const uint16_t attributes = nametable + 0x3C0;
+  for (int i = 0; i < 30; ++i) {
+    for (int j = 0; j < 32; ++j) {
+      // First, find the tile number from the nametable.
+      int tile_index = (i * 32) + j;
+      uint8_t tile_num = vram_[nametable + tile_index];
+
+      // Second, find the palette from the attributes.
+      int block_index = (((i / 4) * 8) + (j / 4));
+      uint8_t palette = vram_[attributes + block_index];
+
+      // Third, calculate which quad of the block the tile is in.
+      // This will be between 0 and 3.
+      int quad_num_in_block = ((j / 2) % 2) + (((i / 2) % 2) * 2);
+
+      // Fourth, take the 2-bits that correlate to that quad.
+      // The result will be between 0 and 3.
+      palette = (palette >> (quad_num_in_block * 2)) & 0x03;
+
+      // Finally, load the tile using these findings.
+      LoadTile(tile_index, tile_num, palette);
+    }
+  }
+
+  window_.Update();
+
+  // std::cout << "NAMETABLE" << std::endl;
+  // for (int i = 0; i < 30; ++i) {
+  //  for (int j = 0; j < 32; ++j) {
+  //    int index = i * 32 + j + 0x2000;
+  //    std::cout << " " << IntToHexString(vram_[index]);
+  //  }
+  //  std::cout << std::endl;
+  //}
+}
 
 Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
   address = address % 0x08;
@@ -155,52 +199,6 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
 }
 
 uint16_t Ppu::GetAddressLength() { return kPpuSize; }
-
-void Ppu::OnTimerCalled() {
-  // Trigger the NMI if the control bit is set.
-  if (ctrl_ & 0x80) {
-    cpu_.NMI();
-  }
-
-  // Load all 960 tiles.
-  // TODO: This should be make more efficient. Potentially, we could only load
-  // tiles that have changed since the last refresh.
-  const uint16_t nametable = 0x2000 + ((ctrl_ & 0x03) * 0x400);
-  const uint16_t attributes = nametable + 0x3C0;
-  for (int i = 0; i < 30; ++i) {
-    for (int j = 0; j < 32; ++j) {
-      // First, find the tile number from the nametable.
-      int tile_index = (i * 32) + j;
-      uint8_t tile_num = vram_[nametable + tile_index];
-
-      // Second, find the palette from the attributes.
-      int block_index = (((i / 4) * 8) + (j / 4));
-      uint8_t palette = vram_[attributes + block_index];
-
-      // Third, calculate which quad of the block the tile is in.
-      // This will be between 0 and 3.
-      int quad_num_in_block = ((j / 2) % 2) + (((i / 2) % 2) * 2);
-
-      // Fourth, take the 2-bits that correlate to that quad.
-      // The result will be between 0 and 3.
-      palette = (palette >> (quad_num_in_block * 2)) & 0x03;
-
-      // Finally, load the tile using these findings.
-      LoadTile(tile_index, tile_num, palette);
-    }
-  }
-
-  window_.Update();
-
-  // std::cout << "NAMETABLE" << std::endl;
-  // for (int i = 0; i < 30; ++i) {
-  //  for (int j = 0; j < 32; ++j) {
-  //    int index = i * 32 + j + 0x2000;
-  //    std::cout << " " << IntToHexString(vram_[index]);
-  //  }
-  //  std::cout << std::endl;
-  //}
-}
 
 void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t palette) {
   // TODO: Optimize this so that we are not reloading 960 textures 60 times a

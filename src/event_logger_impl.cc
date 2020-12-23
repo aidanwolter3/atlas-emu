@@ -33,6 +33,12 @@ void EventLoggerImpl::LogEvent(Event event) {
   events_.push_back(event);
 }
 
+void EventLoggerImpl::Reset() {
+  first_error_ = std::nullopt;
+  first_test_result_ = std::nullopt;
+  events_.clear();
+}
+
 std::optional<EventLogger::Event> EventLoggerImpl::GetError() {
   return first_error_;
 }

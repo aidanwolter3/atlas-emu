@@ -14,6 +14,7 @@ class EventLoggerImpl : public EventLogger {
   void LogEvent(Event event) override;
   void PrintLogs() override;
 
+  void Reset();
   std::optional<Event> GetError();
   std::optional<Event> GetTestResult();
 

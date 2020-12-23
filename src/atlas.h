@@ -6,7 +6,6 @@
 #include <string>
 
 #include "src/bus_impl.h"
-#include "src/clock_impl.h"
 #include "src/cpu.h"
 #include "src/event_logger_impl.h"
 #include "src/memory.h"
@@ -41,7 +40,6 @@ class Atlas {
 
   EventLoggerImpl event_logger_;
   PlatformPosix platform_;
-  ClockImpl clock_;
   BusImpl bus_;
   Registers reg_;
   std::unique_ptr<Window> window_;

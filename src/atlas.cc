@@ -1,5 +1,6 @@
 #include "atlas.h"
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -22,7 +23,7 @@
 #include "src/memory.h"
 #include "src/ui/opengl/window.h"
 
-Atlas::Atlas(const std::string rom_file, bool headless) : clock_(platform_) {
+Atlas::Atlas(const std::string rom_file, bool headless) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
   rom_stream.unsetf(std::ios_base::skipws);
@@ -51,8 +52,8 @@ Atlas::Atlas(const std::string rom_file, bool headless) : clock_(platform_) {
   bus_.RegisterPeripheral(*mem_, 0);
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
-  cpu_ = std::make_unique<Cpu>(event_logger_, clock_, bus_, reg_);
-  ppu_ = std::make_unique<Ppu>(clock_, *cpu_, *window_);
+  cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
+  ppu_ = std::make_unique<Ppu>(*cpu_, *window_);
   bus_.RegisterPeripheral(*ppu_, 0x2000);
 
   // Register all the instructions.
@@ -138,25 +139,61 @@ Atlas::Atlas(const std::string rom_file, bool headless) : clock_(platform_) {
 Atlas::~Atlas() = default;
 
 bool Atlas::Run() {
-  while (!window_->IsClosed()) {
-    clock_.RunUntilTimer();
+  bool has_error = false;
+  bool should_run = true;
 
-    std::optional<EventLogger::Event> error = event_logger_.GetError();
-    if (error) {
-      event_logger_.PrintLogs();
-      return false;
-    }
+  const int kCpuTicksPerFrame = 1790000 / 60;
+  auto start_time = std::chrono::steady_clock::now();
+  long long total_ticks = 0;
+  while (should_run) {
+    // Pump the CPU.
+    int ticks;
+    for (ticks = 0; ticks < kCpuTicksPerFrame; ++ticks) {
+      cpu_->Tick();
 
-    std::optional<EventLogger::Event> test_result =
+      // Check for errors.
+      std::optional<EventLogger::Event> error = event_logger_.GetError();
+      if (error) {
+        std::cout << "error" << std::endl;
+        has_error = true;
+        should_run = false;
+        break;
+      }
+
+      // Check for test results.
+      std::optional<EventLogger::Event> test_result =
         event_logger_.GetTestResult();
-    if (test_result) {
-      return test_result->type == EventLogger::EventType::kTestPassed;
+      if (test_result) {
+        has_error = test_result->type == EventLogger::EventType::kTestFailed;
+        std::cout << "test: " << has_error << std::endl;
+        should_run = false;
+        break;
+      }
     }
+    total_ticks += ticks;
+
+    // Pump the PPU.
+    ppu_->Render();
+
+    // Sleep for the expected amount of time to "sync up" with the correct clock
+    // speed.
+    auto frame_duration = std::chrono::nanoseconds{1000000000 / 60};
+    auto now = std::chrono::steady_clock::now();
+    auto desired_duration = frame_duration * total_ticks / kCpuTicksPerFrame;
+    auto sleep_duration = (start_time + desired_duration) - now;
+    platform_.Sleep(sleep_duration);
   }
-  return true;
+
+  if (has_error) {
+    event_logger_.PrintLogs();
+  }
+  return !has_error;
 }
 
-void Atlas::Reset() { cpu_->Reset(); }
+void Atlas::Reset() {
+  event_logger_.Reset();
+  cpu_->Reset();
+}
 
 template <class INS>
 void Atlas::RegisterInstruction(uint8_t opcode) {

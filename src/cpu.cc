@@ -9,8 +9,6 @@
 
 namespace {
 
-const Clock::TimerPeriod kCpuSpeed = KHz(1790);
-
 std::string IntToHexString(int num) {
   std::stringstream ss;
   ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << num;
@@ -19,22 +17,20 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::Cpu(EventLogger& event_logger, Clock& clock, Bus& bus, Registers& reg)
+Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
     : ticks_(0),
       last_time_(std::chrono::steady_clock::now()),
       event_logger_(event_logger),
       bus_(bus),
       reg_(reg) {
-  clock.RegisterTimerObserver(this, kCpuSpeed);
   Reset();
 }
 
-Cpu::~Cpu() = default;
-
 void Cpu::Reset() {
   reg_.pc = ReadAddressFromVectorTable(0xFFFC);
-  std::string event_name = "Reset: " + IntToHexString(reg_.pc);
-  event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name = event_name});
+  // std::string event_name = "Reset: " + IntToHexString(reg_.pc);
+  // event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name =
+  // event_name});
 }
 
 void Cpu::NMI() {
@@ -43,26 +39,18 @@ void Cpu::NMI() {
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.status.to_ulong());
   reg_.status.set(Status::kIntDisable);
   reg_.pc = ReadAddressFromVectorTable(0xFFFA);
-  std::string event_name = "NMI: " + IntToHexString(reg_.pc);
-  event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name = event_name});
+  //std::string event_name = "NMI: " + IntToHexString(reg_.pc);
+  //event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name = event_name});
 }
 
-void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
-                              std::vector<uint8_t> opcodes) {
-  instructions_.push_back(std::move(instruction));
-  Instruction* instruction_ptr = instructions_.back().get();
-  for (auto opcode : opcodes) {
-    instruction_map_[opcode] = instruction_ptr;
-  }
-}
-
-void Cpu::OnTimerCalled() {
+void Cpu::Tick() {
   // Check for tick skew.
   ticks_++;
   if (ticks_ % 1790000 == 0) {
     auto now = std::chrono::steady_clock::now();
     auto time_passed = now - last_time_;
-    long long expected_num_ticks = time_passed / kCpuSpeed;
+    std::chrono::nanoseconds cpu_period{1790000 / 1000000000};
+    long long expected_num_ticks = time_passed / cpu_period;
     long long num_ticks = 1790000;
     if (expected_num_ticks > num_ticks) {
       std::cout << "Cpu slipped " << (expected_num_ticks - num_ticks)
@@ -89,6 +77,15 @@ void Cpu::OnTimerCalled() {
   // Execute
   Instruction* instruction_ptr = instruction_it->second;
   instruction_ptr->Execute(opcode);
+}
+
+void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
+                              std::vector<uint8_t> opcodes) {
+  instructions_.push_back(std::move(instruction));
+  Instruction* instruction_ptr = instructions_.back().get();
+  for (auto opcode : opcodes) {
+    instruction_map_[opcode] = instruction_ptr;
+  }
 }
 
 uint16_t Cpu::ReadAddressFromVectorTable(uint16_t address) {

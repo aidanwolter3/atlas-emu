@@ -3,7 +3,6 @@ cc_library(
     hdrs = [
         "atlas.h",
         "bus_impl.h",
-        "clock_impl.h",
         "cpu.h",
         "event_logger_impl.h",
         "memory.h",
@@ -13,7 +12,6 @@ cc_library(
     srcs = [
         "atlas.cc",
         "bus_impl.cc",
-        "clock_impl.cc",
         "cpu.cc",
         "event_logger_impl.cc",
         "memory.cc",
@@ -40,7 +38,6 @@ cc_test(
     srcs = [
         "atlas_test.cc",
         "bus_impl_test.cc",
-        "clock_impl_test.cc",
         "cpu_test.cc",
         "memory_test.cc",
         "mmc1_test.cc",
