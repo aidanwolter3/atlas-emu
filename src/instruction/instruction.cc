@@ -18,10 +18,10 @@ std::string IntToHexString(int num) {
 void Instruction::Execute(uint8_t opcode) {
   // The PC has already been incremented by the CPU, so decrement one to find
   // the instruction.
-  uint16_t pc_of_instruction = reg_.pc - 1;
-  log_elements_.clear();
-  log_elements_.push_back("(0x" + IntToHexString(pc_of_instruction) + ")");
-  log_elements_.push_back(GetLogName());
+  // uint16_t pc_of_instruction = reg_.pc - 1;
+  // log_elements_.clear();
+  // log_elements_.push_back("(0x" + IntToHexString(pc_of_instruction) + ")");
+  // log_elements_.push_back(GetLogName());
   ExecuteInternal(opcode);
 
   // TODO: Provide a --verbose flag to disable printing instructions.
@@ -50,27 +50,27 @@ std::vector<uint8_t> Instruction::FetchOperands(int num) {
 uint16_t Instruction::Immediate() {
   std::vector<uint8_t> operands = FetchOperands(1);
   uint16_t data = operands[0];
-  log_elements_.push_back("#" + IntToHexString(data));
+  // log_elements_.push_back("#" + IntToHexString(data));
   return data;
 }
 
 uint16_t Instruction::ZeroPage() {
   std::vector<uint8_t> operands = FetchOperands(1);
   uint16_t address = operands[0];
-  log_elements_.push_back("$" + IntToHexString(address));
+  // log_elements_.push_back("$" + IntToHexString(address));
   return address;
 }
 
 uint16_t Instruction::IndexedZeroPage(uint8_t index) {
   uint16_t address = ZeroPage() + index;
-  log_elements_.push_back("+ " + IntToHexString(index));
+  // log_elements_.push_back("+ " + IntToHexString(index));
   return address;
 }
 
 uint16_t Instruction::Absolute() {
   std::vector<uint8_t> operands = FetchOperands(2);
   uint16_t address = ((operands[1] << 8) | operands[0]);
-  log_elements_.push_back("$" + IntToHexString(address));
+  // log_elements_.push_back("$" + IntToHexString(address));
   return address;
 }
 
@@ -91,14 +91,14 @@ uint16_t Instruction::IndirectAbsolute() {
   bus_.Read(address_location_2, &upper_byte);
   uint16_t address = (upper_byte << 8 | lower_byte);
 
-  log_elements_.push_back("($" + IntToHexString(address_location_1) +
-                          ") = " + IntToHexString(address));
+  // log_elements_.push_back("($" + IntToHexString(address_location_1) +
+  //                        ") = " + IntToHexString(address));
   return address;
 }
 
 uint16_t Instruction::IndexedAbsolute(uint8_t index) {
   uint16_t address = Absolute() + index;
-  log_elements_.push_back("+ " + IntToHexString(index));
+  // log_elements_.push_back("+ " + IntToHexString(index));
   return address;
 }
 
@@ -110,9 +110,9 @@ uint16_t Instruction::IndexedIndirect(uint8_t index) {
   bus_.Read(operands[0] + index + 1, &address_high);
   uint16_t address = (address_high << 8) | address_low;
 
-  log_elements_.push_back("($" + IntToHexString(operands[0]) + " + " +
-                          IntToHexString(index) + ") = $" +
-                          IntToHexString(address));
+  // log_elements_.push_back("($" + IntToHexString(operands[0]) + " + " +
+  //                        IntToHexString(index) + ") = $" +
+  //                        IntToHexString(address));
   return address;
 }
 
@@ -125,8 +125,8 @@ uint16_t Instruction::IndirectIndexed(uint8_t index) {
   uint16_t address = (address_high << 8) | address_low;
   address += index;
 
-  log_elements_.push_back("($" + IntToHexString(operands[0]) + ") + " +
-                          IntToHexString(index) + " = $" +
-                          IntToHexString(address));
+  // log_elements_.push_back("($" + IntToHexString(operands[0]) + ") + " +
+  //                        IntToHexString(index) + " = $" +
+  //                        IntToHexString(address));
   return address;
 }
