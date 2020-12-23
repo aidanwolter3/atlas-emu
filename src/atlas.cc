@@ -154,7 +154,6 @@ bool Atlas::Run() {
       // Check for errors.
       std::optional<EventLogger::Event> error = event_logger_.GetError();
       if (error) {
-        std::cout << "error" << std::endl;
         has_error = true;
         should_run = false;
         break;
@@ -165,7 +164,6 @@ bool Atlas::Run() {
         event_logger_.GetTestResult();
       if (test_result) {
         has_error = test_result->type == EventLogger::EventType::kTestFailed;
-        std::cout << "test: " << has_error << std::endl;
         should_run = false;
         break;
       }
