@@ -32,13 +32,27 @@ void ClockImpl::RunUntilTimer() {
     return;
   }
 
-  const TimerData& timer_data = timer_queue_.top();
-
   // Sleep till the next timer should be triggered.
+  const TimerData& timer_data = timer_queue_.top();
   auto now = std::chrono::steady_clock::now();
   if (timer_data.expiration > now) {
     platform_.Sleep(timer_data.expiration - now);
   }
+
+  CompleteTopTimer();
+}
+
+void ClockImpl::RunForDuration(std::chrono::nanoseconds duration) {
+  PrepareRunIfNeeded();
+
+  auto stop_time = std::chrono::steady_clock::now() + duration;
+  while (!timer_queue_.empty() && timer_queue_.top().expiration < stop_time) {
+    CompleteTopTimer();
+  }
+}
+
+void ClockImpl::CompleteTopTimer() {
+  const TimerData& timer_data = timer_queue_.top();
 
   // Call the observers.
   auto it = period_to_observers_map_.find(timer_data.period);
@@ -60,15 +74,6 @@ void ClockImpl::RunUntilTimer() {
 
   // Remove the old timer.
   timer_queue_.pop();
-}
-
-void ClockImpl::RunForDuration(std::chrono::nanoseconds duration) {
-  PrepareRunIfNeeded();
-
-  auto stop_time = std::chrono::steady_clock::now() + duration;
-  while (!timer_queue_.empty() && timer_queue_.top().expiration < stop_time) {
-    RunUntilTimer();
-  }
 }
 
 void ClockImpl::PrepareRunIfNeeded() {

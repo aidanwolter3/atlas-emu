@@ -23,6 +23,7 @@ class ClockImpl : public Clock {
   void RunForDuration(std::chrono::nanoseconds duration) override;
 
  private:
+  void CompleteTopTimer();
   void PrepareRunIfNeeded();
 
   bool is_running_;
