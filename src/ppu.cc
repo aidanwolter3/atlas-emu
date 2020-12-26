@@ -174,6 +174,13 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
     case kPpuStatus:
       return Peripheral::Status::READ_ONLY;
     case kPpuCtrl:
+      if ((ctrl_ & 0x03) != (byte & 0x03)) {
+        nametable_dirty_ = true;
+        attribute_dirty_ = true;
+      }
+      if ((ctrl_ & 0x10) != (byte & 0x10)) {
+        pattern_dirty_ = true;
+      }
       ctrl_ = byte;
       break;
     case kPpuMask:
