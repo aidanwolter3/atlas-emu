@@ -18,11 +18,7 @@ std::string IntToHexString(int num) {
 }  // namespace
 
 Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
-    : ticks_(0),
-      last_time_(std::chrono::steady_clock::now()),
-      event_logger_(event_logger),
-      bus_(bus),
-      reg_(reg) {
+    : event_logger_(event_logger), bus_(bus), reg_(reg) {
   Reset();
 }
 
@@ -44,21 +40,6 @@ void Cpu::NMI() {
 }
 
 void Cpu::Tick() {
-  // Check for tick skew.
-  ticks_++;
-  if (ticks_ % 1790000 == 0) {
-    auto now = std::chrono::steady_clock::now();
-    auto time_passed = now - last_time_;
-    std::chrono::nanoseconds cpu_period{1790000 / 1000000000};
-    long long expected_num_ticks = time_passed / cpu_period;
-    long long num_ticks = 1790000;
-    if (expected_num_ticks > num_ticks) {
-      std::cout << "Cpu slipped " << (expected_num_ticks - num_ticks)
-                << " ticks behind" << std::endl;
-    }
-    last_time_ = now;
-  }
-
   // Fetch
   uint8_t opcode;
   bus_.Read(reg_.pc, &opcode);

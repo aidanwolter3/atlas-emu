@@ -1,7 +1,6 @@
 #ifndef CPU_H_
 #define CPU_H_
 
-#include <chrono>
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -26,10 +25,6 @@ class Cpu {
 
  private:
   uint16_t ReadAddressFromVectorTable(uint16_t address);
-
-  // Members used for tracking tick skew.
-  long long ticks_;
-  std::chrono::time_point<std::chrono::steady_clock> last_time_;
 
   EventLogger& event_logger_;
   Bus& bus_;

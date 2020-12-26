@@ -124,6 +124,10 @@ OpenGLWindow::OpenGLWindow() {
 
 OpenGLWindow::~OpenGLWindow() { CloseWindow(); }
 
+void OpenGLWindow::SetTitle(std::string title) {
+  glfwSetWindowTitle(glfw_window_, title.c_str());
+}
+
 void OpenGLWindow::SetTile(int num, std::vector<uint8_t>& tile) {
   if (num > kNumTextures) {
     std::cout << "Tile number is too large: " << num << std::endl;

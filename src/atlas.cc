@@ -1,5 +1,4 @@
 #include "atlas.h"
-
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -144,6 +143,7 @@ bool Atlas::Run() {
 
   const int kCpuTicksPerFrame = 1790000 / 60;
   auto start_time = std::chrono::steady_clock::now();
+  std::chrono::nanoseconds time_slept = std::chrono::nanoseconds{0};
   long long total_ticks = 0;
   while (should_run && !window_->IsClosed()) {
     // Pump the CPU.
@@ -177,9 +177,24 @@ bool Atlas::Run() {
     // speed.
     auto frame_duration = std::chrono::nanoseconds{1000000000 / 60};
     auto now = std::chrono::steady_clock::now();
-    auto desired_duration = frame_duration * total_ticks / kCpuTicksPerFrame;
+    auto desired_duration = (frame_duration * total_ticks) / kCpuTicksPerFrame;
     auto sleep_duration = (start_time + desired_duration) - now;
-    platform_.Sleep(sleep_duration);
+    if (sleep_duration > std::chrono::nanoseconds{0}) {
+      time_slept += sleep_duration;
+      platform_.Sleep(sleep_duration);
+    }
+
+    // Add the clock accuracy and performance to the title.
+    std::string title = "Atlas";
+    now = std::chrono::steady_clock::now();
+    auto time_passed = now - start_time;
+    std::chrono::nanoseconds cpu_period{1000000000 / 1790000};
+    long long expected_num_ticks = time_passed / cpu_period;
+    int clock_speed = (100 * total_ticks) / expected_num_ticks;
+    int idle = (100 * time_slept) / time_passed;
+    title += " | clock-speed=" + std::to_string(clock_speed) + "%";
+    title += " | idle-percentage=" + std::to_string(idle) + "%";
+    window_->SetTitle(title);
   }
 
   if (has_error) {
