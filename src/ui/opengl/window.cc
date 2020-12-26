@@ -92,8 +92,26 @@ OpenGLWindow::OpenGLWindow() {
                /*count=*/kNumTextures, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE,
                nullptr);
 
-  // Declare the palette texture.
+  // Declare the attribute table.
   glActiveTexture(GL_TEXTURE1);
+  glGenTextures(1, &attribute_table_);
+  glBindTexture(GL_TEXTURE_1D, attribute_table_);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  // Declare the frame palette.
+  glActiveTexture(GL_TEXTURE2);
+  glGenTextures(1, &frame_palette_);
+  glBindTexture(GL_TEXTURE_1D, frame_palette_);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  // Declare the palette.
+  glActiveTexture(GL_TEXTURE3);
   glGenTextures(1, &palette_);
   glBindTexture(GL_TEXTURE_1D, palette_);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -118,8 +136,22 @@ void OpenGLWindow::SetTile(int num, std::vector<uint8_t>& tile) {
                   GL_UNSIGNED_BYTE, tile.data());
 }
 
-void OpenGLWindow::SetPalette(std::vector<uint8_t>& palette) {
+void OpenGLWindow::SetAttributeTable(int num, std::vector<uint8_t>& table) {
   glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_1D, attribute_table_);
+  glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, table.size(), 0, GL_RED_INTEGER,
+               GL_UNSIGNED_BYTE, table.data());
+}
+
+void OpenGLWindow::SetFramePalette(std::vector<uint8_t>& palette) {
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_1D, frame_palette_);
+  glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, palette.size(), 0, GL_RED_INTEGER,
+               GL_UNSIGNED_BYTE, palette.data());
+}
+
+void OpenGLWindow::SetPalette(std::vector<uint8_t>& palette) {
+  glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_1D, palette_);
   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB8, palette.size() / 3, 0, GL_RGB,
                GL_UNSIGNED_BYTE, palette.data());

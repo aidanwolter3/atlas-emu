@@ -29,7 +29,13 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Ppu::Ppu(Cpu& cpu, Window& window) : cpu_(cpu), window_(window) {
+Ppu::Ppu(Cpu& cpu, Window& window)
+    : cpu_(cpu),
+      window_(window),
+      pattern_(2, std::vector<uint8_t>(0x1000, 0)),
+      nametable_(4, std::vector<uint8_t>(0x3C0, 0)),
+      attribute_(4, std::vector<uint8_t>(0x40, 0)),
+      frame_palette_(0x20, 0) {
   // Generate the "unknown tile", which will indicate when a tile has not been
   // "loaded", but needs to be rendered. This "unknown tile" is a red question
   // mark.
@@ -50,7 +56,7 @@ Ppu::Ppu(Cpu& cpu, Window& window) : cpu_(cpu), window_(window) {
     window_.SetTile(i, unknown_tile);
   }
 
-  // Load the palette.
+  // Load the color palette.
   window_.SetPalette(kColorPalette);
 }
 
@@ -62,31 +68,16 @@ void Ppu::Render() {
     cpu_.NMI();
   }
 
+  int table_num = (ctrl_ & 0x03);
+  window_.SetAttributeTable(table_num, attribute_[table_num]);
+  window_.SetFramePalette(frame_palette_);
+
   // Load all 960 tiles.
   // TODO: This should be make more efficient. Potentially, we could only load
   // tiles that have changed since the last refresh.
-  int table_num = (ctrl_ & 0x03);
-  for (int i = 0; i < 30; ++i) {
-    for (int j = 0; j < 32; ++j) {
-      // First, find the tile number from the nametable.
-      int tile_index = (i * 32) + j;
-      uint8_t tile_num = nametable_[table_num][tile_index];
-
-      // Second, find the palette from the attributes.
-      int block_index = (((i / 4) * 8) + (j / 4));
-      uint8_t palette = attribute_[table_num][block_index];
-
-      // Third, calculate which quad of the block the tile is in.
-      // This will be between 0 and 3.
-      int quad_num_in_block = ((j / 2) % 2) + (((i / 2) % 2) * 2);
-
-      // Fourth, take the 2-bits that correlate to that quad.
-      // The result will be between 0 and 3.
-      palette = (palette >> (quad_num_in_block * 2)) & 0x03;
-
-      // Finally, load the tile using these findings.
-      LoadTile(tile_index, tile_num, palette);
-    }
+  for (int i = 0; i < (30 * 32); ++i) {
+    uint8_t tile_num = nametable_[table_num][i];
+    LoadTile(i, tile_num);
   }
 
   window_.Update();
@@ -257,7 +248,7 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
 
 uint16_t Ppu::GetAddressLength() { return kPpuSize; }
 
-void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t frame_palette_num) {
+void Ppu::LoadTile(int index, uint8_t tile_num) {
   // TODO: Optimize this so that we are not reloading 960 textures 60 times a
   // second. Potentially, we could keep track of which tiles we have already
   // loaded, and not load them multiple times.
@@ -267,7 +258,6 @@ void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t frame_palette_num) {
   //          << ", palette=" << IntToHexString(palette)
   //          << std::endl;
 
-  uint16_t frame_palette_offset = frame_palette_num * 4;
   int pattern_table_num = (ctrl_ >> 4) & 0x01;
   int tile_offset = tile_num * 16;
 
@@ -277,8 +267,7 @@ void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t frame_palette_num) {
     uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
     for (int j = 0; j < 8; ++j) {
       uint8_t color_index = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
-      uint8_t color = frame_palette_[frame_palette_offset + color_index];
-      tile.insert(tile.begin(), color);
+      tile.insert(tile.begin(), color_index);
       byte_1 = byte_1 >> 1;
       byte_2 = byte_2 >> 1;
     }

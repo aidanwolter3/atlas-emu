@@ -23,6 +23,8 @@ class OpenGLWindow : public Window {
   // Window implementation:
   bool IsClosed() override { return is_closed_; }
   void SetTile(int num, std::vector<uint8_t>& tile) override;
+  void SetAttributeTable(int num, std::vector<uint8_t>& table) override;
+  void SetFramePalette(std::vector<uint8_t>& palette) override;
   void SetPalette(std::vector<uint8_t>& palette) override;
   void Update() override;
 
@@ -35,6 +37,8 @@ class OpenGLWindow : public Window {
 
   bool is_closed_ = false;
   unsigned int tile_textures_;
+  unsigned int attribute_table_;
+  unsigned int frame_palette_;
   unsigned int palette_;
 };
 

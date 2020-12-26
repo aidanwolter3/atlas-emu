@@ -40,10 +40,14 @@ Program::Program(std::vector<std::unique_ptr<Shader>> shaders)
   glGenVertexArrays(1, &vao_);
 
   glUseProgram(program_);
-  auto tileTexLocation = glGetUniformLocation(program_, "tiles");
-  auto paletteTexLocation = glGetUniformLocation(program_, "palette");
-  glUniform1i(tileTexLocation, 0);
-  glUniform1i(paletteTexLocation, 1);
+  auto tile_loc = glGetUniformLocation(program_, "tiles");
+  auto attribute_table_loc = glGetUniformLocation(program_, "attribute_table");
+  auto frame_palette_loc = glGetUniformLocation(program_, "frame_palette");
+  auto palette_loc = glGetUniformLocation(program_, "palette");
+  glUniform1i(tile_loc, 0);
+  glUniform1i(attribute_table_loc, 1);
+  glUniform1i(frame_palette_loc, 2);
+  glUniform1i(palette_loc, 3);
 
   AddElements();
 }

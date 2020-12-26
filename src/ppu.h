@@ -21,7 +21,7 @@ class Ppu : public Peripheral {
   uint16_t GetAddressLength() override;
 
  private:
-  void LoadTile(int num, uint8_t tile_num, uint8_t frame_palette_num);
+  void LoadTile(int num, uint8_t tile_num);
 
   Cpu& cpu_;
   Window& window_;
@@ -41,10 +41,10 @@ class Ppu : public Peripheral {
   bool address_write_to_upper_ = true;
   uint16_t data_address_;
 
-  uint8_t pattern_[2][0x1000] = {{}};
-  uint8_t nametable_[4][0x3C0] = {{}};
-  uint8_t attribute_[4][0x80] = {{}};
-  uint8_t frame_palette_[0x20] = {{}};
+  std::vector<std::vector<uint8_t>> pattern_;
+  std::vector<std::vector<uint8_t>> nametable_;
+  std::vector<std::vector<uint8_t>> attribute_;
+  std::vector<uint8_t> frame_palette_;
 };
 
 #endif  // PPU_H_
