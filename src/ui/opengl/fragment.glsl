@@ -1,10 +1,12 @@
 #version 330 core
-out vec4 FragColor;
-
 in vec3 TexCoord;
 
-uniform sampler2DArray tiles;
+out vec4 FragColor;
+
+uniform usampler2DArray tiles;
+uniform sampler1D palette;
 
 void main() {
-  FragColor = texture(tiles, TexCoord);
+  uint index = texture(tiles, TexCoord).r;
+  FragColor = texelFetch(palette, int(index), 0);
 }

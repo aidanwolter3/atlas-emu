@@ -39,7 +39,13 @@ Program::Program(std::vector<std::unique_ptr<Shader>> shaders)
   // This must be prepared before any objects can be initialized.
   glGenVertexArrays(1, &vao_);
 
-  AddTiles();
+  glUseProgram(program_);
+  auto tileTexLocation = glGetUniformLocation(program_, "tiles");
+  auto paletteTexLocation = glGetUniformLocation(program_, "palette");
+  glUniform1i(tileTexLocation, 0);
+  glUniform1i(paletteTexLocation, 1);
+
+  AddElements();
 }
 
 Program::~Program() {
@@ -55,14 +61,12 @@ void Program::Render() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-  glUseProgram(program_);
-
   glBindVertexArray(vao_);
   glDrawElements(GL_TRIANGLES, elements_.size(), GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
-void Program::AddTiles() {
+void Program::AddElements() {
   const int width = 32;
   const int height = 30;
   const float tile_unit_x = 2.0 / width;
@@ -118,7 +122,6 @@ void Program::AddTiles() {
   glGenBuffers(1, &vbo_);
   glGenBuffers(1, &ebo_);
   glGenBuffers(1, &tcbo_);
-
   glBindVertexArray(vao_);
 
   // Create the vertices.

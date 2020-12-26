@@ -1,11 +1,8 @@
 cc_library(
     name = "ui",
     visibility = ["//visibility:public"],
-    hdrs = [
+    srcs = [
         "color.h",
         "window.h",
-    ],
-    srcs = [
-        "color.cc",
     ],
 )

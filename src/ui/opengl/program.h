@@ -17,7 +17,7 @@ class Program {
   const unsigned int vao() { return vao_; }
 
  private:
-  void AddTiles();
+  void AddElements();
 
   unsigned int program_;
   unsigned int vao_;

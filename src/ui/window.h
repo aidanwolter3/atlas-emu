@@ -9,6 +9,7 @@ class Window {
   virtual ~Window() {}
   virtual bool IsClosed() = 0;
   virtual void SetTile(int num, std::vector<uint8_t>& tile) = 0;
+  virtual void SetPalette(std::vector<uint8_t>& palette) = 0;
   virtual void Update() = 0;
 };
 
@@ -17,6 +18,7 @@ class FakeWindow : public Window {
   // Window implementation:
   bool IsClosed() override { return false; }
   void SetTile(int num, std::vector<uint8_t>& tile) override {}
+  void SetPalette(std::vector<uint8_t>& palette) override {}
   void Update() override {}
 };
 

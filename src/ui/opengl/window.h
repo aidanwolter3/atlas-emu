@@ -23,6 +23,7 @@ class OpenGLWindow : public Window {
   // Window implementation:
   bool IsClosed() override { return is_closed_; }
   void SetTile(int num, std::vector<uint8_t>& tile) override;
+  void SetPalette(std::vector<uint8_t>& palette) override;
   void Update() override;
 
  private:
@@ -34,6 +35,7 @@ class OpenGLWindow : public Window {
 
   bool is_closed_ = false;
   unsigned int tile_textures_;
+  unsigned int palette_;
 };
 
 #endif  // UI_OPENGL_WINDOW_H_

@@ -38,9 +38,9 @@ Ppu::Ppu(Cpu& cpu, Window& window)
   for (int i = 0; i < 64; ++i) {
     std::unordered_set<int> question_mark{13, 29, 38, 44, 45};
     if (question_mark.count(i) != 0) {
-      unknown_tile.insert(unknown_tile.end(), {0xFF, 0x00, 0x00, 0xFF});
+      unknown_tile.push_back(0x01);
     } else {
-      unknown_tile.insert(unknown_tile.end(), {0x00, 0x00, 0x00, 0xFF});
+      unknown_tile.push_back(0x00);
     }
   }
 
@@ -50,6 +50,9 @@ Ppu::Ppu(Cpu& cpu, Window& window)
   for (int i = 0; i < 960; ++i) {
     window_.SetTile(i, unknown_tile);
   }
+
+  // Load the palette.
+  window_.SetPalette(kColorPalette);
 }
 
 Ppu::~Ppu() = default;
@@ -211,40 +214,19 @@ void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t palette) {
   //          << std::endl;
 
   uint16_t palette_offset = 0x3F00 + (palette * 4);
-  uint8_t color_0 = vram_[palette_offset];
-  uint8_t color_1 = vram_[palette_offset + 1];
-  uint8_t color_2 = vram_[palette_offset + 2];
-  uint8_t color_3 = vram_[palette_offset + 3];
-
-  int tile_index = tile_num * 16;
+  int tile_offset = tile_num * 16;
   if (ctrl_ & 0x10) {
-    tile_index += 0x1000;
+    tile_offset += 0x1000;
   }
 
   std::vector<uint8_t> tile;
   for (int i = 0; i < 8; ++i) {
-    uint8_t byte_1 = vram_[tile_index + i];
-    uint8_t byte_2 = vram_[tile_index + i + 8];
+    uint8_t byte_1 = vram_[tile_offset + i];
+    uint8_t byte_2 = vram_[tile_offset + i + 8];
     for (int j = 0; j < 8; ++j) {
-      uint8_t color = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
-      std::vector<uint8_t> pixel{0x00, 0x00, 0x00, 0xFF};
-      switch (color) {
-        case 0x00:
-          pixel = Color(color_0);
-          break;
-        case 0x01:
-          pixel = Color(color_1);
-          break;
-        case 0x02:
-          pixel = Color(color_2);
-          break;
-        case 0x03:
-          pixel = Color(color_3);
-          break;
-        default:
-          break;
-      }
-      tile.insert(tile.begin(), pixel.begin(), pixel.end());
+      uint8_t color_index = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
+      uint8_t color = vram_[palette_offset + color_index];
+      tile.insert(tile.begin(), color);
       byte_1 = byte_1 >> 1;
       byte_2 = byte_2 >> 1;
     }
