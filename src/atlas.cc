@@ -145,7 +145,7 @@ bool Atlas::Run() {
   const int kCpuTicksPerFrame = 1790000 / 60;
   auto start_time = std::chrono::steady_clock::now();
   long long total_ticks = 0;
-  while (should_run) {
+  while (should_run && !window_->IsClosed()) {
     // Pump the CPU.
     int ticks;
     for (ticks = 0; ticks < kCpuTicksPerFrame; ++ticks) {
