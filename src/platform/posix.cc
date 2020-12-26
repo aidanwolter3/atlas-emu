@@ -8,5 +8,8 @@
 void PlatformPosix::Sleep(std::chrono::nanoseconds duration) {
   // Reduce the duration by 20ms to account for the time it takes to do the
   // syscall.
-  std::this_thread::sleep_for(duration - std::chrono::microseconds{20});
+  auto real_duration = duration - std::chrono::microseconds{20};
+  if (duration > std::chrono::nanoseconds{0}) {
+    std::this_thread::sleep_for(real_duration);
+  }
 }
