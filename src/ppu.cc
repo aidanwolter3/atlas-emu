@@ -29,8 +29,7 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Ppu::Ppu(Cpu& cpu, Window& window)
-    : cpu_(cpu), window_(window), vram_(0x4000, 0) {
+Ppu::Ppu(Cpu& cpu, Window& window) : cpu_(cpu), window_(window) {
   // Generate the "unknown tile", which will indicate when a tile has not been
   // "loaded", but needs to be rendered. This "unknown tile" is a red question
   // mark.
@@ -66,17 +65,16 @@ void Ppu::Render() {
   // Load all 960 tiles.
   // TODO: This should be make more efficient. Potentially, we could only load
   // tiles that have changed since the last refresh.
-  const uint16_t nametable = 0x2000 + ((ctrl_ & 0x03) * 0x400);
-  const uint16_t attributes = nametable + 0x3C0;
+  int table_num = (ctrl_ & 0x03);
   for (int i = 0; i < 30; ++i) {
     for (int j = 0; j < 32; ++j) {
       // First, find the tile number from the nametable.
       int tile_index = (i * 32) + j;
-      uint8_t tile_num = vram_[nametable + tile_index];
+      uint8_t tile_num = nametable_[table_num][tile_index];
 
       // Second, find the palette from the attributes.
       int block_index = (((i / 4) * 8) + (j / 4));
-      uint8_t palette = vram_[attributes + block_index];
+      uint8_t palette = attribute_[table_num][block_index];
 
       // Third, calculate which quad of the block the tile is in.
       // This will be between 0 and 3.
@@ -117,21 +115,49 @@ Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
       *byte = 0x80 | (last_write_value_ & 0x1F);
       break;
     case kPpuData:
-      // The memory range between 0x3000-0x3EFF are mirrors of 0x2000-0x2EFF.
-      uint16_t vram_address = address_;
-      if (vram_address >= 0x3000 && vram_address <= 0x3EFF) {
-        vram_address -= 0x1000;
-      }
-
-      if (vram_address > vram_.size() - 1) {
+      if (data_address_ >= 0x4000) {
         std::cout << "ppu error: Address is too large!" << std::endl;
         return Peripheral::Status::OUT_OF_BOUNDS;
       }
 
-      *byte = vram_[vram_address];
-      // std::cout << "ppu read data: " << IntToHexString(vram_address) << "="
+      uint16_t tmp_address = data_address_;
+      uint8_t* data_location = nullptr;
+
+      // The memory range between 0x3000-0x3EFF are mirrors of 0x2000-0x2EFF.
+      if (tmp_address >= 0x3000 && tmp_address <= 0x3EFF) {
+        tmp_address -= 0x1000;
+      }
+
+      // Pattern table
+      if (tmp_address < 0x2000) {
+        int table_num = tmp_address / 0x1000;
+        tmp_address = tmp_address % 0x1000;
+        data_location = &pattern_[table_num][tmp_address];
+      }
+
+      // Nametable/Attribute table
+      else if (tmp_address < 0x3000) {
+        tmp_address -= 0x2000;
+        int table_num = tmp_address / 0x400;
+        tmp_address = tmp_address % 0x400;
+        if (tmp_address < 0x3C0) {
+          data_location = &nametable_[table_num][tmp_address];
+        } else {
+          tmp_address -= 0x3C0;
+          data_location = &attribute_[table_num][tmp_address];
+        }
+      }
+
+      // Frame palette
+      else {
+        tmp_address -= 0x3F00;
+        data_location = &frame_palette_[tmp_address % 0x20];
+      }
+
+      *byte = *data_location;
+      // std::cout << "ppu read data: " << IntToHexString(data_address_) << "="
       //          << IntToHexString(*byte) << std::endl;
-      address_ += (ctrl_ & 0x04) ? 32 : 1;
+      data_address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }
   // std::cout << "ppu read: " << IntToHexString(address) << "="
@@ -174,28 +200,56 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
       // byte is the lower byte of the address. After that it continues
       // alternating back and forth.
       if (address_write_to_upper_) {
-        address_ = (byte << 8);
+        data_address_ = (byte << 8);
       } else {
-        address_ = (address_ & 0xFF00) + byte;
+        data_address_ = (data_address_ & 0xFF00) + byte;
       }
       address_write_to_upper_ = !address_write_to_upper_;
       break;
     case kPpuData:
-      // The memory range between 0x3000-0x3EFF are mirrors of 0x2000-0x2EFF.
-      uint16_t vram_address = address_;
-      if (vram_address >= 0x3000 && vram_address <= 0x3EFF) {
-        vram_address -= 0x1000;
-      }
-
-      if (vram_address > vram_.size() - 1) {
+      if (data_address_ >= 0x4000) {
         std::cout << "ppu error: Address is too large!" << std::endl;
         return Peripheral::Status::OUT_OF_BOUNDS;
       }
 
-      // std::cout << "ppu write data: " << IntToHexString(vram_address) << "="
+      uint16_t tmp_address = data_address_;
+      uint8_t* data_location = nullptr;
+
+      // The memory range between 0x3000-0x3EFF are mirrors of 0x2000-0x2EFF.
+      if (tmp_address >= 0x3000 && tmp_address <= 0x3EFF) {
+        tmp_address -= 0x1000;
+      }
+
+      // Pattern table
+      if (tmp_address < 0x2000) {
+        int table_num = tmp_address / 0x1000;
+        tmp_address = tmp_address % 0x1000;
+        data_location = &pattern_[table_num][tmp_address];
+      }
+
+      // Nametable/Attribute table
+      else if (tmp_address < 0x3000) {
+        tmp_address -= 0x2000;
+        int table_num = tmp_address / 0x400;
+        tmp_address = tmp_address % 0x400;
+        if (tmp_address < 0x3C0) {
+          data_location = &nametable_[table_num][tmp_address];
+        } else {
+          tmp_address -= 0x3C0;
+          data_location = &attribute_[table_num][tmp_address];
+        }
+      }
+
+      // Frame palette
+      else {
+        tmp_address -= 0x3F00;
+        data_location = &frame_palette_[tmp_address % 0x20];
+      }
+
+      *data_location = byte;
+      // std::cout << "ppu write data: " << IntToHexString(data_address_) << "="
       //          << IntToHexString(byte) << std::endl;
-      vram_[vram_address] = byte;
-      address_ += (ctrl_ & 0x04) ? 32 : 1;
+      data_address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }
   return Peripheral::Status::OK;
@@ -203,7 +257,7 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
 
 uint16_t Ppu::GetAddressLength() { return kPpuSize; }
 
-void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t palette) {
+void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t frame_palette_num) {
   // TODO: Optimize this so that we are not reloading 960 textures 60 times a
   // second. Potentially, we could keep track of which tiles we have already
   // loaded, and not load them multiple times.
@@ -213,19 +267,17 @@ void Ppu::LoadTile(int index, uint8_t tile_num, uint8_t palette) {
   //          << ", palette=" << IntToHexString(palette)
   //          << std::endl;
 
-  uint16_t palette_offset = 0x3F00 + (palette * 4);
+  uint16_t frame_palette_offset = frame_palette_num * 4;
+  int pattern_table_num = (ctrl_ >> 4) & 0x01;
   int tile_offset = tile_num * 16;
-  if (ctrl_ & 0x10) {
-    tile_offset += 0x1000;
-  }
 
   std::vector<uint8_t> tile;
   for (int i = 0; i < 8; ++i) {
-    uint8_t byte_1 = vram_[tile_offset + i];
-    uint8_t byte_2 = vram_[tile_offset + i + 8];
+    uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
+    uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
     for (int j = 0; j < 8; ++j) {
       uint8_t color_index = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
-      uint8_t color = vram_[palette_offset + color_index];
+      uint8_t color = frame_palette_[frame_palette_offset + color_index];
       tile.insert(tile.begin(), color);
       byte_1 = byte_1 >> 1;
       byte_2 = byte_2 >> 1;
