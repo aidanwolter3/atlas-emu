@@ -57,6 +57,7 @@ OpenGLWindow::OpenGLWindow() {
     glfwTerminate();
   }
   glfwMakeContextCurrent(glfw_window_);
+  glfwSwapInterval(0);
 
   // Load GL.
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
