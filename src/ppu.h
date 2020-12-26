@@ -45,6 +45,10 @@ class Ppu : public Peripheral {
   std::vector<std::vector<uint8_t>> nametable_;
   std::vector<std::vector<uint8_t>> attribute_;
   std::vector<uint8_t> frame_palette_;
+  bool pattern_dirty_ = true;
+  bool nametable_dirty_ = true;
+  bool attribute_dirty_ = true;
+  bool frame_palette_dirty_ = true;
 };
 
 #endif  // PPU_H_

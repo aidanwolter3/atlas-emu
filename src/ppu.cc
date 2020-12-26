@@ -50,8 +50,6 @@ Ppu::Ppu(Cpu& cpu, Window& window)
   }
 
   // Load the "unknown tile" into the equivalent space for an entire nametable.
-  // TODO: We should ideally be able to use the same texture, and instead modify
-  // the texture coordinates for the vertices. Optimization opportunity!
   for (int i = 0; i < 960; ++i) {
     window_.SetTile(i, unknown_tile);
   }
@@ -69,15 +67,23 @@ void Ppu::Render() {
   }
 
   int table_num = (ctrl_ & 0x03);
-  window_.SetAttributeTable(table_num, attribute_[table_num]);
-  window_.SetFramePalette(frame_palette_);
 
-  // Load all 960 tiles.
-  // TODO: This should be make more efficient. Potentially, we could only load
-  // tiles that have changed since the last refresh.
-  for (int i = 0; i < (30 * 32); ++i) {
-    uint8_t tile_num = nametable_[table_num][i];
-    LoadTile(i, tile_num);
+  if (pattern_dirty_ || nametable_dirty_) {
+    pattern_dirty_ = nametable_dirty_ = false;
+    for (int i = 0; i < (30 * 32); ++i) {
+      uint8_t tile_num = nametable_[table_num][i];
+      LoadTile(i, tile_num);
+    }
+  }
+
+  if (attribute_dirty_) {
+    attribute_dirty_ = false;
+    window_.SetAttributeTable(table_num, attribute_[table_num]);
+  }
+
+  if (frame_palette_dirty_) {
+    frame_palette_dirty_ = false;
+    window_.SetFramePalette(frame_palette_);
   }
 
   window_.Update();
@@ -216,6 +222,7 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
         int table_num = tmp_address / 0x1000;
         tmp_address = tmp_address % 0x1000;
         data_location = &pattern_[table_num][tmp_address];
+        pattern_dirty_ = true;
       }
 
       // Nametable/Attribute table
@@ -225,9 +232,11 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
         tmp_address = tmp_address % 0x400;
         if (tmp_address < 0x3C0) {
           data_location = &nametable_[table_num][tmp_address];
+          nametable_dirty_ = true;
         } else {
           tmp_address -= 0x3C0;
           data_location = &attribute_[table_num][tmp_address];
+          attribute_dirty_ = true;
         }
       }
 
@@ -235,6 +244,7 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
       else {
         tmp_address -= 0x3F00;
         data_location = &frame_palette_[tmp_address % 0x20];
+        frame_palette_dirty_ = true;
       }
 
       *data_location = byte;
