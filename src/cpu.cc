@@ -60,6 +60,28 @@ void Cpu::Tick() {
   instruction_ptr->Execute(opcode);
 }
 
+void Cpu::DumpRegisters() {
+  std::cout << "-- CPU --" << std::endl;
+  std::cout << "PC=" << IntToHexString(reg_.pc) << std::endl;
+  std::cout << "SP=" << IntToHexString(reg_.sp) << std::endl;
+  std::cout << "Status=" << reg_.status << std::endl;
+  std::cout << "ACC=" << IntToHexString(reg_.acc) << std::endl;
+  std::cout << "X=" << IntToHexString(reg_.x) << std::endl;
+  std::cout << "Y=" << IntToHexString(reg_.y) << std::endl;
+  std::cout << "---------" << std::endl;
+
+  // Dump the stack
+  std::cout << "-- Stack --" << std::endl;
+  for (uint16_t addr = kStackStartAddress + reg_.sp + 1;
+       addr < kStackStartAddress + 0x100; ++addr) {
+    uint8_t stack_data;
+    bus_.Read(addr, &stack_data);
+    std::cout << IntToHexString(addr) << ": " << IntToHexString(stack_data)
+              << std::endl;
+  }
+  std::cout << "-----------" << std::endl;
+}
+
 void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
                               std::vector<uint8_t> opcodes) {
   instructions_.push_back(std::move(instruction));

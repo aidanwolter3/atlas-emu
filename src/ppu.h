@@ -14,6 +14,7 @@ class Ppu : public Peripheral {
   ~Ppu() override;
 
   void Render();
+  void DumpRegisters();
 
   // Peripheral implementation:
   Peripheral::Status Read(uint16_t address, uint8_t* byte) override;

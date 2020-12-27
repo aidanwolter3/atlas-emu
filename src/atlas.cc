@@ -199,6 +199,9 @@ bool Atlas::Run() {
 
   if (has_error) {
     event_logger_.PrintLogs();
+    cpu_->DumpRegisters();
+    mmc1_->DumpRegisters();
+    ppu_->DumpRegisters();
   }
   return !has_error;
 }

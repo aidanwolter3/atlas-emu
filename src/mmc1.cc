@@ -1,6 +1,9 @@
 #include "src/mmc1.h"
 
+#include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 namespace {
 
@@ -9,6 +12,12 @@ const uint16_t kHeaderSize = 0x0010;
 const uint16_t kPRGSize = 0x4000;
 // But we may have to PRGs, or the first PRG could be mirrored.
 const uint16_t kMMC1Size = 0x8000;
+
+std::string IntToHexString(int num) {
+  std::stringstream ss;
+  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << num;
+  return ss.str();
+}
 
 }  // namespace
 
@@ -50,6 +59,15 @@ MMC1Impl::MMC1Impl(std::vector<uint8_t> data)
 }
 
 MMC1Impl::~MMC1Impl() = default;
+
+void MMC1Impl::DumpRegisters() {
+  std::cout << "-- mmc1 --" << std::endl;
+  std::cout << "MMC1_CTRL=" << IntToHexString(control_) << std::endl;
+  std::cout << "MMC1_CHR_0=" << IntToHexString(chr_bank_0_) << std::endl;
+  std::cout << "MMC1_CHR_1=" << IntToHexString(chr_bank_1_) << std::endl;
+  std::cout << "MMC1_PRG=" << IntToHexString(prg_bank_) << std::endl;
+  std::cout << "----------" << std::endl;
+}
 
 Peripheral::Status MMC1Impl::Read(uint16_t address, uint8_t* byte) {
   if (!byte || !header_->IsValid() || address >= kMMC1Size) {

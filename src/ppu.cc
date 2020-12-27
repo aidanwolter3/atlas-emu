@@ -98,6 +98,17 @@ void Ppu::Render() {
   //}
 }
 
+void Ppu::DumpRegisters() {
+  std::cout << "-- PPU --" << std::endl;
+  std::cout << "PPU_CTRL=" << IntToHexString(ctrl_) << std::endl;
+  std::cout << "PPU_MASK=" << IntToHexString(mask_) << std::endl;
+  std::cout << "PPU_OAM_ADDR=" << IntToHexString(oam_address_) << std::endl;
+  std::cout << "PPU_SCROLL_X=" << IntToHexString(scroll_x_) << std::endl;
+  std::cout << "PPU_SCROLL_Y=" << IntToHexString(scroll_y_) << std::endl;
+  std::cout << "PPU_DATA_ADDR=" << IntToHexString(data_address_) << std::endl;
+  std::cout << "---------" << std::endl;
+}
+
 Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
   address = address % 0x08;
 

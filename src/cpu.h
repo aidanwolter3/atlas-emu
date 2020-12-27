@@ -18,6 +18,7 @@ class Cpu {
   void Reset();
   void NMI();
   void Tick();
+  void DumpRegisters();
 
   // Register an Instruction which will be executed for the set of |opcodes|.
   void RegisterInstruction(std::unique_ptr<Instruction> instruction,
