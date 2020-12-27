@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+#include "src/ppu.h"
 #include "src/public/bus.h"
 
 // An interface is helpful for mocking in tests.
@@ -12,7 +13,7 @@ class MMC1 : public Peripheral {};
 
 class MMC1Impl : public MMC1 {
  public:
-  MMC1Impl(std::vector<uint8_t> data);
+  MMC1Impl(Ppu& ppu, std::vector<uint8_t> data);
   ~MMC1Impl() override;
 
   void DumpRegisters();
@@ -25,6 +26,7 @@ class MMC1Impl : public MMC1 {
  private:
   class Header;
 
+  Ppu& ppu_;
   std::unique_ptr<Header> header_;
   std::vector<uint8_t> prg_;
 

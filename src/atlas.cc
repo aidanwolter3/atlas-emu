@@ -1,4 +1,5 @@
 #include "atlas.h"
+
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -45,15 +46,18 @@ Atlas::Atlas(const std::string rom_file, bool headless) {
   }
 
   // Connect all the peripherals to the bus.
+  cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
+  ppu_ = std::make_unique<PpuImpl>(*cpu_, *window_);
   mmc1_mem_ = std::make_unique<MemoryImpl>(/*size=*/0x2000);
-  mmc1_ = std::make_unique<MMC1Impl>(std::move(data));
+  mmc1_ = std::make_unique<MMC1Impl>(*ppu_, std::move(data));
   bus_.RegisterPeripheral(*mem_, 0);
+  bus_.RegisterPeripheral(*ppu_, 0x2000);
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
-  cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
-  ppu_ = std::make_unique<Ppu>(*cpu_, *window_);
-  bus_.RegisterPeripheral(*ppu_, 0x2000);
+
+  // Put the CPU into a ready state.
+  cpu_->Reset();
 
   // Register all the instructions.
   RegisterInstruction<NOP>(0xEA);

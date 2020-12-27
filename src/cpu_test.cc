@@ -56,6 +56,7 @@ TEST(CpuTest, RunUntilSegfault) {
   // Prepare the Cpu
   ExpectReadStartAddress(bus, 0xBBAA);
   Cpu cpu(event_logger, bus, reg);
+  cpu.Reset();
 
   // Add a mock instruction
   auto mock_instruction = std::make_unique<MockInstruction>(bus, reg);
@@ -92,6 +93,7 @@ TEST(CpuTest, InitialStateOfStatusRegister) {
   // Prepare the Cpu
   ExpectReadStartAddress(bus, 0xBBAA);
   Cpu cpu(event_logger, bus, reg);
+  cpu.Reset();
 
   EXPECT_FALSE(reg.status.test(Status::kCarry));
   EXPECT_FALSE(reg.status.test(Status::kZero));

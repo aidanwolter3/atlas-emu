@@ -27,14 +27,25 @@ std::string IntToHexString(int num) {
   return ss.str();
 }
 
+int AdjustTableNumForMirroring(int table_num, Ppu::MirroringMode mode) {
+  // TODO: Implement one-screen mirroring.
+  switch (mode) {
+    case Ppu::MirroringMode::kVertical:
+      return table_num & 0x01;
+    case Ppu::MirroringMode::kHorizontal:
+    default:
+      return table_num >> 1;
+  }
+}
+
 }  // namespace
 
-Ppu::Ppu(Cpu& cpu, Window& window)
+PpuImpl::PpuImpl(Cpu& cpu, Window& window)
     : cpu_(cpu),
       window_(window),
       pattern_(2, std::vector<uint8_t>(0x1000, 0)),
-      nametable_(4, std::vector<uint8_t>(0x3C0, 0)),
-      attribute_(4, std::vector<uint8_t>(0x40, 0)),
+      nametable_(2, std::vector<uint8_t>(0x3C0, 0)),
+      attribute_(2, std::vector<uint8_t>(0x40, 0)),
       frame_palette_(0x20, 0) {
   // Generate the "unknown tile", which will indicate when a tile has not been
   // "loaded", but needs to be rendered. This "unknown tile" is a red question
@@ -58,15 +69,16 @@ Ppu::Ppu(Cpu& cpu, Window& window)
   window_.SetPalette(kColorPalette);
 }
 
-Ppu::~Ppu() = default;
+PpuImpl::~PpuImpl() = default;
 
-void Ppu::Render() {
+void PpuImpl::Render() {
   // Trigger the NMI if the control bit is set.
   if (ctrl_ & 0x80) {
     cpu_.NMI();
   }
 
   int table_num = (ctrl_ & 0x03);
+  table_num = AdjustTableNumForMirroring(table_num, mirroring_mode_);
 
   if (pattern_dirty_ || nametable_dirty_) {
     pattern_dirty_ = nametable_dirty_ = false;
@@ -99,7 +111,7 @@ void Ppu::Render() {
   //}
 }
 
-void Ppu::DumpRegisters() {
+void PpuImpl::DumpRegisters() {
   std::cout << "-- PPU --" << std::endl;
   std::cout << "PPU_CTRL=" << IntToHexString(ctrl_) << std::endl;
   std::cout << "PPU_MASK=" << IntToHexString(mask_) << std::endl;
@@ -110,7 +122,9 @@ void Ppu::DumpRegisters() {
   std::cout << "---------" << std::endl;
 }
 
-Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
+void PpuImpl::SetMirroringMode(MirroringMode mode) { mirroring_mode_ = mode; }
+
+Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
   address = address % 0x08;
 
   switch (address) {
@@ -145,9 +159,12 @@ Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
       }
 
       // Nametable/Attribute table
+      // TODO: Allow the cartridge to redirect the read/writes to
+      // cartridge-owned memory.
       else if (tmp_address < 0x3000) {
         tmp_address -= 0x2000;
         int table_num = tmp_address / 0x400;
+        table_num = AdjustTableNumForMirroring(table_num, mirroring_mode_);
         tmp_address = tmp_address % 0x400;
         if (tmp_address < 0x3C0) {
           data_location = &nametable_[table_num][tmp_address];
@@ -174,7 +191,7 @@ Peripheral::Status Ppu::Read(uint16_t address, uint8_t* byte) {
   return Peripheral::Status::OK;
 }
 
-Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
+Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
   last_write_value_ = byte;
   // std::cout << "ppu write: " << IntToHexString(address) << "="
   //          << IntToHexString(byte) << std::endl;
@@ -248,6 +265,7 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
       else if (tmp_address < 0x3000) {
         tmp_address -= 0x2000;
         int table_num = tmp_address / 0x400;
+        table_num = AdjustTableNumForMirroring(table_num, mirroring_mode_);
         tmp_address = tmp_address % 0x400;
         if (tmp_address < 0x3C0) {
           data_location = &nametable_[table_num][tmp_address];
@@ -275,9 +293,9 @@ Peripheral::Status Ppu::Write(uint16_t address, uint8_t byte) {
   return Peripheral::Status::OK;
 }
 
-uint16_t Ppu::GetAddressLength() { return kPpuSize; }
+uint16_t PpuImpl::GetAddressLength() { return kPpuSize; }
 
-void Ppu::LoadTile(int index, uint8_t tile_num) {
+void PpuImpl::LoadTile(int index, uint8_t tile_num) {
   // TODO: Optimize this so that we are not reloading 960 textures 60 times a
   // second. Potentially, we could keep track of which tiles we have already
   // loaded, and not load them multiple times.

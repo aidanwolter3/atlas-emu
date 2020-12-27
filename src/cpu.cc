@@ -18,9 +18,7 @@ std::string IntToHexString(int num) {
 }  // namespace
 
 Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
-    : event_logger_(event_logger), bus_(bus), reg_(reg) {
-  Reset();
-}
+    : event_logger_(event_logger), bus_(bus), reg_(reg) {}
 
 void Cpu::Reset() {
   reg_.pc = ReadAddressFromVectorTable(0xFFFC);

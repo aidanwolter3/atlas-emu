@@ -8,13 +8,31 @@
 #include "src/public/bus.h"
 #include "src/ui/window.h"
 
-class Ppu : public Peripheral {
+class Ppu {
  public:
-  Ppu(Cpu& cpu, Window& window);
-  ~Ppu() override;
+  virtual ~Ppu() {}
 
-  void Render();
-  void DumpRegisters();
+  virtual void Render() = 0;
+  virtual void DumpRegisters() {}
+
+  enum class MirroringMode {
+    kOneScreenLower = 0,
+    kOneScreenUpper = 1,
+    kVertical = 2,
+    kHorizontal = 3,
+  };
+  virtual void SetMirroringMode(MirroringMode mode) {}
+};
+
+class PpuImpl : public Ppu, public Peripheral {
+ public:
+  PpuImpl(Cpu& cpu, Window& window);
+  ~PpuImpl() override;
+
+  // Ppu implementation:
+  void Render() override;
+  void DumpRegisters() override;
+  void SetMirroringMode(MirroringMode mode) override;
 
   // Peripheral implementation:
   Peripheral::Status Read(uint16_t address, uint8_t* byte) override;
@@ -26,11 +44,13 @@ class Ppu : public Peripheral {
 
   Cpu& cpu_;
   Window& window_;
+  MirroringMode mirroring_mode_;
 
   // Store the last value written to a register, so that it can be returned in
   // the lowest bits of a read from the PPU status register.
   uint8_t last_write_value_ = 0;
 
+  // Registers
   uint8_t ctrl_ = 0;
   uint8_t mask_ = 0;
   uint8_t oam_address_ = 0;
@@ -42,6 +62,7 @@ class Ppu : public Peripheral {
   bool address_write_to_upper_ = true;
   uint16_t data_address_;
 
+  // Data
   std::vector<std::vector<uint8_t>> pattern_;
   std::vector<std::vector<uint8_t>> nametable_;
   std::vector<std::vector<uint8_t>> attribute_;

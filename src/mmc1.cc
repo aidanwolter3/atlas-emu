@@ -19,6 +19,21 @@ std::string IntToHexString(int num) {
   return ss.str();
 }
 
+Ppu::MirroringMode MirroringModeFromControl(uint8_t control) {
+  switch (control & 0x03) {
+    case 0:
+      return Ppu::MirroringMode::kOneScreenLower;
+    case 1:
+      return Ppu::MirroringMode::kOneScreenUpper;
+    case 2:
+      return Ppu::MirroringMode::kVertical;
+    case 3:
+      return Ppu::MirroringMode::kHorizontal;
+    default:
+      return Ppu::MirroringMode::kHorizontal;
+  }
+}
+
 }  // namespace
 
 class MMC1Impl::Header {
@@ -45,8 +60,8 @@ class MMC1Impl::Header {
   int chr_count_ = -1;
 };
 
-MMC1Impl::MMC1Impl(std::vector<uint8_t> data)
-    : header_(std::make_unique<Header>(data)) {
+MMC1Impl::MMC1Impl(Ppu& ppu, std::vector<uint8_t> data)
+    : ppu_(ppu), header_(std::make_unique<Header>(data)) {
   if (!header_->IsValid()) {
     std::cout << "Header is invalid" << std::endl;
     return;
@@ -138,6 +153,7 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
     switch (register_num) {
       case 0:
         control_ = data;
+        ppu_.SetMirroringMode(MirroringModeFromControl(control_));
         // std::cout << "mmc1 control=" << std::bitset<5>(control_)
         //           << std::endl;
         break;

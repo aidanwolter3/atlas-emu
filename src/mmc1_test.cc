@@ -43,10 +43,16 @@ std::vector<uint8_t> GenerateLargeTestData(uint8_t prg_count) {
   return data;
 }
 
+class FakePpu : public Ppu {
+ public:
+  void Render() override {}
+};
+
 TEST(MMC1Test, ReadBoundaries) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MMC1Impl mmc1(GenerateLargeTestData(1));
+  FakePpu ppu;
+  MMC1Impl mmc1(ppu, GenerateLargeTestData(1));
 
   // first prg byte
   status = mmc1.Read(0x0000, &byte_read);
@@ -60,7 +66,8 @@ TEST(MMC1Test, ReadBoundaries) {
 }
 
 TEST(MMC1Test, ReadInvalidPointer) {
-  MMC1Impl mmc1(kTestData);
+  FakePpu ppu;
+  MMC1Impl mmc1(ppu, kTestData);
   auto status = mmc1.Read(0x0000, nullptr);
   EXPECT_EQ(status, Peripheral::Status::OUT_OF_BOUNDS);
 }
@@ -68,7 +75,8 @@ TEST(MMC1Test, ReadInvalidPointer) {
 TEST(MMC1Test, ReadFromMirroredPRG) {
   uint8_t byte_read;
   Peripheral::Status status;
-  MMC1Impl mmc1(GenerateLargeTestData(1));
+  FakePpu ppu;
+  MMC1Impl mmc1(ppu, GenerateLargeTestData(1));
 
   status = mmc1.Read(0x4000, &byte_read);
   EXPECT_EQ(status, Peripheral::Status::OK);
