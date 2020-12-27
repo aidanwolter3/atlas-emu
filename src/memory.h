@@ -12,7 +12,7 @@ class MemoryImpl : public Memory {
  public:
   // size*mirror_count amount of data is allocated total. The first |size| bytes
   // are mirrored to adjacent memory |mirror_count| number of times.
-  MemoryImpl(uint16_t size, int mirror_count = 0);
+  MemoryImpl(uint16_t size, int mirror_count = 1);
   ~MemoryImpl() override;
 
   // Peripheral implementation:
