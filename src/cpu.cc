@@ -24,9 +24,6 @@ Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
 
 void Cpu::Reset() {
   reg_.pc = ReadAddressFromVectorTable(0xFFFC);
-  // std::string event_name = "Reset: " + IntToHexString(reg_.pc);
-  // event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name =
-  // event_name});
 }
 
 void Cpu::NMI() {
@@ -35,8 +32,6 @@ void Cpu::NMI() {
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.status.to_ulong());
   reg_.status.set(Status::kIntDisable);
   reg_.pc = ReadAddressFromVectorTable(0xFFFA);
-  //std::string event_name = "NMI: " + IntToHexString(reg_.pc);
-  //event_logger_.LogEvent({.type = EventLogger::EventType::kInfo, .name = event_name});
 }
 
 void Cpu::Tick() {
