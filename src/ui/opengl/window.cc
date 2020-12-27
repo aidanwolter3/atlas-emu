@@ -6,6 +6,9 @@
 #include <utility>
 #include <vector>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include "src/ui/opengl/shader.h"
 
 // Suppress Apple's annoying deprecation warnings.
@@ -127,6 +130,16 @@ OpenGLWindow::~OpenGLWindow() { CloseWindow(); }
 
 void OpenGLWindow::SetTitle(std::string title) {
   glfwSetWindowTitle(glfw_window_, title.c_str());
+}
+
+void OpenGLWindow::SetScroll(uint8_t x, uint8_t y) {
+  glm::mat4 transform = glm::mat4(1.0f);
+  float scroll_x = 2.0f * x / float(0xFF);
+  float scroll_y = 2.0f * y / float(0xF0);
+  transform = glm::translate(transform, glm::vec3(scroll_x, scroll_y, 0.0f));
+  auto transform_loc =
+      glGetUniformLocation(program_->gl_program(), "transform");
+  glUniformMatrix4fv(transform_loc, 1, false, &transform[0][0]);
 }
 
 void OpenGLWindow::SetTile(int num, std::vector<uint8_t>& tile) {

@@ -15,6 +15,7 @@ class Program {
   void Render();
 
   const unsigned int vao() { return vao_; }
+  const unsigned int gl_program() { return program_; }
 
  private:
   void AddElements();

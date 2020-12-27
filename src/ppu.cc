@@ -86,6 +86,7 @@ void Ppu::Render() {
     window_.SetFramePalette(frame_palette_);
   }
 
+  window_.SetScroll(scroll_x_, scroll_y_);
   window_.Update();
 
   // std::cout << "NAMETABLE" << std::endl;
