@@ -1,9 +1,9 @@
 #version 330 core
 
 layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoord;
+layout (location = 1) in vec3 aTexCoord;
 
-out vec2 TexCoord;
+out vec3 TexCoord;
 
 // Transform for scrolling
 uniform mat4 transform;

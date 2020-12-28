@@ -1,10 +1,10 @@
 #version 330 core
-in vec2 TexCoord;
+in vec3 TexCoord;
 
 out vec4 FragColor;
 
-uniform usampler2D nametable;
-uniform usampler1D attribute_table;
+uniform usampler2DArray nametable;
+uniform usampler1DArray attribute_table;
 uniform usampler1D frame_palette;
 uniform sampler1D palette;
 
@@ -15,7 +15,8 @@ void main() {
 
   // Get the attribute for the block.
   int block_index = ((y / 4) * 8) + (x / 4);
-  uint attribute = texelFetch(attribute_table, block_index, 0).r;
+  ivec2 block_coord = ivec2(block_index, TexCoord.z);
+  uint attribute = texelFetch(attribute_table, block_coord, 0).r;
 
   // Find the palette/color numbers from the attribute.
   int quad_num_in_block = (((y / 2) % 2) * 2) + ((x / 2) % 2);

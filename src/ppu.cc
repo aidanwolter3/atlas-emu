@@ -58,17 +58,16 @@ void PpuImpl::Render() {
     cpu_.NMI();
   }
 
-  int table_num = (ctrl_ & 0x03);
-  table_num = AdjustTableNumForMirroring(table_num, mirroring_mode_);
-
   if (pattern_dirty_ || nametable_dirty_) {
     pattern_dirty_ = nametable_dirty_ = false;
-    LoadNametable(table_num);
+    LoadNametable(0);
+    LoadNametable(1);
   }
 
   if (attribute_dirty_) {
     attribute_dirty_ = false;
-    window_.SetAttributeTable(table_num, attribute_[table_num]);
+    window_.SetAttributeTable(0, attribute_[0]);
+    window_.SetAttributeTable(1, attribute_[1]);
   }
 
   if (frame_palette_dirty_) {
@@ -76,7 +75,9 @@ void PpuImpl::Render() {
     window_.SetFramePalette(frame_palette_);
   }
 
-  window_.SetScroll(scroll_x_, scroll_y_);
+  int base_scroll_x = (ctrl_ & 0x01) * 0x100;
+  int base_scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0;
+  window_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
   window_.Update();
 }
 

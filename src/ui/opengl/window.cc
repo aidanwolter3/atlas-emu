@@ -84,20 +84,27 @@ OpenGLWindow::OpenGLWindow() {
   // Declare the tile textures.
   glActiveTexture(GL_TEXTURE0);
   glGenTextures(1, &nametable_);
-  glBindTexture(GL_TEXTURE_2D, nametable_);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindTexture(GL_TEXTURE_2D_ARRAY, nametable_);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8UI,
+               /*width=*/32 * 8,
+               /*height=*/30 * 8,
+               /*count=*/2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
 
   // Declare the attribute table.
   glActiveTexture(GL_TEXTURE1);
   glGenTextures(1, &attribute_table_);
-  glBindTexture(GL_TEXTURE_1D, attribute_table_);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindTexture(GL_TEXTURE_1D_ARRAY, attribute_table_);
+  glTexParameteri(GL_TEXTURE_1D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_1D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_1D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_1D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_1D_ARRAY, 0, GL_R8UI,
+               /*width=*/0x40,
+               /*count=*/2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
 
   // Declare the frame palette.
   glActiveTexture(GL_TEXTURE2);
@@ -126,9 +133,11 @@ void OpenGLWindow::SetTitle(std::string title) {
   glfwSetWindowTitle(glfw_window_, title.c_str());
 }
 
-void OpenGLWindow::SetScroll(uint8_t x, uint8_t y) {
+void OpenGLWindow::SetScroll(int x, int y) {
+  x = x % 0x200;
+  y = y % 0x200;
   glm::mat4 transform = glm::mat4(1.0f);
-  float scroll_x = 2.0f * x / float(0xFF);
+  float scroll_x = 2.0f * x / float(0x100);
   float scroll_y = 2.0f * y / float(0xF0);
   transform = glm::translate(transform, glm::vec3(-scroll_x, scroll_y, 0.0f));
   auto transform_loc =
@@ -142,16 +151,25 @@ void OpenGLWindow::SetNametable(int num, std::vector<uint8_t>& nametable) {
     return;
   }
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, nametable_);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 32 * 8, 30 * 8, 0, GL_RED_INTEGER,
-               GL_UNSIGNED_BYTE, nametable.data());
+  glBindTexture(GL_TEXTURE_2D_ARRAY, nametable_);
+  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0,
+                  /*index=*/num,
+                  /*width=*/32 * 8,
+                  /*height=*/30 * 8, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE,
+                  nametable.data());
 }
 
 void OpenGLWindow::SetAttributeTable(int num, std::vector<uint8_t>& table) {
+  if (table.size() != 0x40) {
+    std::cout << "Attribute table is the wrong size" << std::endl;
+    return;
+  }
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_1D, attribute_table_);
-  glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, table.size(), 0, GL_RED_INTEGER,
-               GL_UNSIGNED_BYTE, table.data());
+  glBindTexture(GL_TEXTURE_1D_ARRAY, attribute_table_);
+  glTexSubImage2D(GL_TEXTURE_1D_ARRAY, 0, 0,
+                  /*index=*/num,
+                  /*width=*/0x40, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE,
+                  table.data());
 }
 
 void OpenGLWindow::SetFramePalette(std::vector<uint8_t>& palette) {

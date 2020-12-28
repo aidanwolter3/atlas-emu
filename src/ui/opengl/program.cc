@@ -72,20 +72,55 @@ void Program::Render() {
 
 void Program::DrawNametable() {
   vertices_ = {
+      // nametable 1
       -1.0, 1.0,   // top-left
-      1.0,  1.0,   // top-right
-      1.0,  -1.0,  // bottom-right
+      1.0, 1.0,    // top-right
+      1.0, -1.0,   // bottom-right
       -1.0, -1.0,  // bottom-left
+
+      // nametable 2
+      -1.0, -1.0,  // top-left
+      1.0, -1.0,   // top-right
+      1.0, -3.0,   // bottom-right
+      -1.0, -3.0,  // bottom-left
+
+      // nametable 1
+      -1.0, -3.0,  // top-left
+      1.0, -3.0,   // top-right
+      1.0, -5.0,   // bottom-right
+      -1.0, -5.0,  // bottom-left
   };
   elements_ = {
+      // nametable 1
       0, 1, 2,  // triangle in top-right
       2, 3, 0,  // triangle in bottom-left
+
+      // nametable 2
+      4, 5, 6,  // triangle in top-right
+      6, 7, 4,  // triangle in bottom-left
+
+      // nametable 1
+      8, 9, 10,   // triangle in top-right
+      10, 11, 8,  // triangle in bottom-left
   };
   texture_coords_ = {
-      0.0, 0.0,  // bottom-left = tile#0
-      1.0, 0.0,  // bottom-right
-      1.0, 1.0,  // top-right
-      0.0, 1.0,  // top-left
+      // nametable 1
+      0.0, 0.0, 0.0,  // bottom-left = tile#0
+      1.0, 0.0, 0.0,  // bottom-right
+      1.0, 1.0, 0.0,  // top-right
+      0.0, 1.0, 0.0,  // top-left
+
+      // nametable 2
+      0.0, 0.0, 1.0,  // bottom-left = tile#0
+      1.0, 0.0, 1.0,  // bottom-right
+      1.0, 1.0, 1.0,  // top-right
+      0.0, 1.0, 1.0,  // top-left
+
+      // nametable 1
+      0.0, 0.0, 0.0,  // bottom-left = tile#0
+      1.0, 0.0, 0.0,  // bottom-right
+      1.0, 1.0, 0.0,  // top-right
+      0.0, 1.0, 0.0,  // top-left
   };
 
   glGenBuffers(1, &vbo_);
@@ -119,10 +154,10 @@ void Program::DrawNametable() {
 
   // Add the texture coordinates.
   glVertexAttribPointer(/*index=*/1,
-                        /*size=*/2,
+                        /*size=*/3,
                         /*type=*/GL_FLOAT,
                         /*normalized=*/GL_FALSE,
-                        /*stride=*/2 * sizeof(float),
+                        /*stride=*/3 * sizeof(float),
                         /*offset=*/(void*)(0 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
