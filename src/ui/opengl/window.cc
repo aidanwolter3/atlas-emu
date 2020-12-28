@@ -19,9 +19,6 @@ namespace {
 
 const int kInitialWindowWidth = 680;
 const int kInitialWindowHeight = 600;
-// TODO: We should probably not be using so many textures. Also, this doesn't
-// scale to multiple nametables.
-const int kNumTextures = 960;
 
 // Ensure that only a single Window was created on this thread, because GLFW
 // and Window uses thread-local storage.
@@ -86,15 +83,12 @@ OpenGLWindow::OpenGLWindow() {
 
   // Declare the tile textures.
   glActiveTexture(GL_TEXTURE0);
-  glGenTextures(1, &tile_textures_);
-  glBindTexture(GL_TEXTURE_2D_ARRAY, tile_textures_);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8UI, 8, 8,
-               /*count=*/kNumTextures, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE,
-               nullptr);
+  glGenTextures(1, &nametable_);
+  glBindTexture(GL_TEXTURE_2D, nametable_);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   // Declare the attribute table.
   glActiveTexture(GL_TEXTURE1);
@@ -142,16 +136,15 @@ void OpenGLWindow::SetScroll(uint8_t x, uint8_t y) {
   glUniformMatrix4fv(transform_loc, 1, false, &transform[0][0]);
 }
 
-void OpenGLWindow::SetTile(int num, std::vector<uint8_t>& tile) {
-  if (num > kNumTextures) {
-    std::cout << "Tile number is too large: " << num << std::endl;
+void OpenGLWindow::SetNametable(int num, std::vector<uint8_t>& nametable) {
+  if (nametable.size() != (32 * 8 * 30 * 8)) {
+    std::cout << "Nametable is the wrong size" << std::endl;
     return;
   }
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D_ARRAY, tile_textures_);
-  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                  /*x=*/0, /*y=*/0, /*z=*/num, 8, 8, 1, GL_RED_INTEGER,
-                  GL_UNSIGNED_BYTE, tile.data());
+  glBindTexture(GL_TEXTURE_2D, nametable_);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 32 * 8, 30 * 8, 0, GL_RED_INTEGER,
+               GL_UNSIGNED_BYTE, nametable.data());
 }
 
 void OpenGLWindow::SetAttributeTable(int num, std::vector<uint8_t>& table) {

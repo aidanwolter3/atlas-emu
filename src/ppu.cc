@@ -47,25 +47,6 @@ PpuImpl::PpuImpl(Cpu& cpu, Window& window)
       nametable_(2, std::vector<uint8_t>(0x3C0, 0)),
       attribute_(2, std::vector<uint8_t>(0x40, 0)),
       frame_palette_(0x20, 0) {
-  // Generate the "unknown tile", which will indicate when a tile has not been
-  // "loaded", but needs to be rendered. This "unknown tile" is a red question
-  // mark.
-  std::vector<uint8_t> unknown_tile;
-  for (int i = 0; i < 64; ++i) {
-    std::unordered_set<int> question_mark{13, 29, 38, 44, 45};
-    if (question_mark.count(i) != 0) {
-      unknown_tile.push_back(0x01);
-    } else {
-      unknown_tile.push_back(0x00);
-    }
-  }
-
-  // Load the "unknown tile" into the equivalent space for an entire nametable.
-  for (int i = 0; i < 960; ++i) {
-    window_.SetTile(i, unknown_tile);
-  }
-
-  // Load the color palette.
   window_.SetPalette(kColorPalette);
 }
 
@@ -82,10 +63,7 @@ void PpuImpl::Render() {
 
   if (pattern_dirty_ || nametable_dirty_) {
     pattern_dirty_ = nametable_dirty_ = false;
-    for (int i = 0; i < (30 * 32); ++i) {
-      uint8_t tile_num = nametable_[table_num][i];
-      LoadTile(i, tile_num);
-    }
+    LoadNametable(table_num);
   }
 
   if (attribute_dirty_) {
@@ -100,15 +78,6 @@ void PpuImpl::Render() {
 
   window_.SetScroll(scroll_x_, scroll_y_);
   window_.Update();
-
-  // std::cout << "NAMETABLE" << std::endl;
-  // for (int i = 0; i < 30; ++i) {
-  //  for (int j = 0; j < 32; ++j) {
-  //    int index = i * 32 + j + 0x2000;
-  //    std::cout << " " << IntToHexString(vram_[index]);
-  //  }
-  //  std::cout << std::endl;
-  //}
 }
 
 void PpuImpl::DumpRegisters() {
@@ -295,29 +264,41 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
 
 uint16_t PpuImpl::GetAddressLength() { return kPpuSize; }
 
-void PpuImpl::LoadTile(int index, uint8_t tile_num) {
-  // TODO: Optimize this so that we are not reloading 960 textures 60 times a
-  // second. Potentially, we could keep track of which tiles we have already
-  // loaded, and not load them multiple times.
+void PpuImpl::LoadNametable(int table_num) {
+  constexpr int kBytesPerTile = 64;
+  constexpr int kBytesPerRow = kBytesPerTile * 32;
+  constexpr int kNametableSize = kBytesPerRow * 30;
+  std::vector<uint8_t> nametable(kNametableSize, 0);
 
-  // std::cout << "LoadTile: index=" << index
-  //          << ", tile_num=" << IntToHexString(tile_num)
-  //          << ", palette=" << IntToHexString(palette)
-  //          << std::endl;
+  // For every tile...
+  int tile_nametable_index = 0;
+  for (int row = 0; row < 30; ++row) {
+    for (int col = 0; col < 32; ++col) {
+      // Grab the tile number from memory...
+      int tile_num = nametable_[table_num][tile_nametable_index];
 
-  int pattern_table_num = (ctrl_ >> 4) & 0x01;
-  int tile_offset = tile_num * 16;
+      // For every bit in the tile...
+      const int pattern_table_num = (ctrl_ >> 4) & 0x01;
+      const int tile_offset = tile_num * 16;
+      for (int i = 0; i < 8; ++i) {
+        uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
+        uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
+        for (int j = 0; j < 8; ++j) {
+          // Calculate the bit color...
+          uint8_t color = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
 
-  std::vector<uint8_t> tile;
-  for (int i = 0; i < 8; ++i) {
-    uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
-    uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
-    for (int j = 0; j < 8; ++j) {
-      uint8_t color_index = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
-      tile.insert(tile.begin(), color_index);
-      byte_1 = byte_1 >> 1;
-      byte_2 = byte_2 >> 1;
+          // And insert the tile data into the nametable.
+          int nametable_index =
+              (row * kBytesPerRow) + (i * 32 * 8) + (col * 8) + (7 - j);
+          nametable[nametable_index] = color;
+
+          byte_1 = byte_1 >> 1;
+          byte_2 = byte_2 >> 1;
+        }
+      }
+
+      tile_nametable_index++;
     }
   }
-  window_.SetTile(index, tile);
+  window_.SetNametable(table_num, nametable);
 }

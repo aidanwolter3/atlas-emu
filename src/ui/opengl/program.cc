@@ -40,16 +40,16 @@ Program::Program(std::vector<std::unique_ptr<Shader>> shaders)
   glGenVertexArrays(1, &vao_);
 
   glUseProgram(program_);
-  auto tile_loc = glGetUniformLocation(program_, "tiles");
+  auto nametable_loc = glGetUniformLocation(program_, "nametable");
   auto attribute_table_loc = glGetUniformLocation(program_, "attribute_table");
   auto frame_palette_loc = glGetUniformLocation(program_, "frame_palette");
   auto palette_loc = glGetUniformLocation(program_, "palette");
-  glUniform1i(tile_loc, 0);
+  glUniform1i(nametable_loc, 0);
   glUniform1i(attribute_table_loc, 1);
   glUniform1i(frame_palette_loc, 2);
   glUniform1i(palette_loc, 3);
 
-  AddElements();
+  DrawNametable();
 }
 
 Program::~Program() {
@@ -70,58 +70,23 @@ void Program::Render() {
   glBindVertexArray(0);
 }
 
-void Program::AddElements() {
-  const int width = 32;
-  const int height = 30;
-  const float tile_unit_x = 2.0 / width;
-  const float tile_unit_y = 2.0 / height;
-
-  // Populate the vertices_/elements_/texture_coords_ vectors, starting from
-  // the top-left, and filling each row before moving down.
-  for (int row = 0; row < height; ++row) {
-    for (int col = 0; col < width; ++col) {
-      // Add the vertices.
-      const float top_left_x = -1.0 + (tile_unit_x * col);
-      const float top_left_y = 1.0 - (tile_unit_y * row);
-      vertices_.insert(vertices_.end(), {
-                                            top_left_x,
-                                            top_left_y,
-                                            0.0,
-                                            top_left_x + tile_unit_x,
-                                            top_left_y,
-                                            0.0,
-                                            top_left_x + tile_unit_x,
-                                            top_left_y - tile_unit_y,
-                                            0.0,
-                                            top_left_x,
-                                            top_left_y - tile_unit_y,
-                                            0.0,
-                                        });
-
-      // Add the elements.
-      const unsigned int top_left =
-          ((row * width) + col) * 4;  // tile_num * num_vertices_per_tile
-      const unsigned int top_right = top_left + 1;
-      const unsigned int bottom_right = top_left + 2;
-      const unsigned int bottom_left = top_left + 3;
-      elements_.insert(
-          elements_.end(),
-          {
-              top_left, top_right, bottom_right,    // triangle in top-right
-              bottom_right, bottom_left, top_left,  // triangle in bottom-left
-          });
-
-      // Add the texture coordinates.
-      float tile_num = ((row * width) + col);
-      texture_coords_.insert(texture_coords_.end(),
-                             {
-                                 0.0f, 1.0f, tile_num,  // top left
-                                 1.0f, 1.0f, tile_num,  // top right
-                                 1.0f, 0.0f, tile_num,  // bottom right
-                                 0.0f, 0.0f, tile_num,  // bottom left
-                             });
-    }
-  }
+void Program::DrawNametable() {
+  vertices_ = {
+      -1.0, 1.0,   // top-left
+      1.0,  1.0,   // top-right
+      1.0,  -1.0,  // bottom-right
+      -1.0, -1.0,  // bottom-left
+  };
+  elements_ = {
+      0, 1, 2,  // triangle in top-right
+      2, 3, 0,  // triangle in bottom-left
+  };
+  texture_coords_ = {
+      0.0, 0.0,  // bottom-left = tile#0
+      1.0, 0.0,  // bottom-right
+      1.0, 1.0,  // top-right
+      0.0, 1.0,  // top-left
+  };
 
   glGenBuffers(1, &vbo_);
   glGenBuffers(1, &ebo_);
@@ -140,10 +105,10 @@ void Program::AddElements() {
 
   // Add the vertices and elements to the Vertex Array Object (VAO).
   glVertexAttribPointer(/*index=*/0,
-                        /*size=*/3,
+                        /*size=*/2,
                         /*type=*/GL_FLOAT,
                         /*normalized=*/GL_FALSE,
-                        /*stride=*/3 * sizeof(float),
+                        /*stride=*/2 * sizeof(float),
                         /*offset=*/(void*)(0 * sizeof(float)));
   glEnableVertexAttribArray(0);
 
@@ -154,10 +119,10 @@ void Program::AddElements() {
 
   // Add the texture coordinates.
   glVertexAttribPointer(/*index=*/1,
-                        /*size=*/3,
+                        /*size=*/2,
                         /*type=*/GL_FLOAT,
                         /*normalized=*/GL_FALSE,
-                        /*stride=*/3 * sizeof(float),
+                        /*stride=*/2 * sizeof(float),
                         /*offset=*/(void*)(0 * sizeof(float)));
   glEnableVertexAttribArray(1);
 

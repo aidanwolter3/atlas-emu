@@ -18,7 +18,7 @@ class Program {
   const unsigned int gl_program() { return program_; }
 
  private:
-  void AddElements();
+  void DrawNametable();
 
   unsigned int program_;
   unsigned int vao_;

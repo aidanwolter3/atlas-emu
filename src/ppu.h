@@ -40,7 +40,7 @@ class PpuImpl : public Ppu, public Peripheral {
   uint16_t GetAddressLength() override;
 
  private:
-  void LoadTile(int num, uint8_t tile_num);
+  void LoadNametable(int table_num);
 
   Cpu& cpu_;
   Window& window_;
