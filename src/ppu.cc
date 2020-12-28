@@ -16,6 +16,7 @@ const uint16_t kPpuCtrl = 0;
 const uint16_t kPpuMask = 1;
 const uint16_t kPpuStatus = 2;
 const uint16_t kOamAddr = 3;
+const uint16_t kOamData = 4;
 const uint16_t kPpuScroll = 5;
 const uint16_t kPpuAddress = 6;
 const uint16_t kPpuData = 7;
@@ -43,6 +44,7 @@ int AdjustTableNumForMirroring(int table_num, Ppu::MirroringMode mode) {
 PpuImpl::PpuImpl(Cpu& cpu, Window& window)
     : cpu_(cpu),
       window_(window),
+      oam_(0x100, 0),
       pattern_(2, std::vector<uint8_t>(0x1000, 0)),
       nametable_(2, std::vector<uint8_t>(0x3C0, 0)),
       attribute_(2, std::vector<uint8_t>(0x40, 0)),
@@ -101,6 +103,9 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
     case kPpuCtrl:
     case kPpuMask:
     case kOamAddr:
+      return Peripheral::Status::WRITE_ONLY;
+    case kOamData:
+      // TODO: Support OAM reading.
       return Peripheral::Status::WRITE_ONLY;
     case kPpuStatus:
       // For now, we put a dummy value in to get past the Vblank checks at the
@@ -187,6 +192,9 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       break;
     case kOamAddr:
       oam_address_ = byte;
+      break;
+    case kOamData:
+      oam_[oam_address_++] = byte;
       break;
     case kPpuScroll:
       // The first byte written is the X-scroll and the second byte is Y-scroll.

@@ -10,6 +10,7 @@
 #include "src/event_logger_impl.h"
 #include "src/memory.h"
 #include "src/mmc1.h"
+#include "src/oamdma.h"
 #include "src/platform/posix.h"
 #include "src/ppu.h"
 #include "src/public/registers.h"
@@ -42,6 +43,7 @@ class Atlas {
   PlatformPosix platform_;
   BusImpl bus_;
   Registers reg_;
+  OAMDMA oamdma_;
   std::unique_ptr<Window> window_;
   std::unique_ptr<MemoryImpl> mem_;
   std::unique_ptr<MemoryImpl> mmc1_mem_;

@@ -7,6 +7,7 @@ cc_library(
         "event_logger_impl.h",
         "memory.h",
         "mmc1.h",
+        "oamdma.h",
         "ppu.h",
     ],
     srcs = [
@@ -16,6 +17,7 @@ cc_library(
         "event_logger_impl.cc",
         "memory.cc",
         "mmc1.cc",
+        "oamdma.cc",
         "ppu.cc",
     ],
     deps = [

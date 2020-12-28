@@ -63,6 +63,7 @@ class PpuImpl : public Ppu, public Peripheral {
   uint16_t data_address_;
 
   // Data
+  std::vector<uint8_t> oam_;
   std::vector<std::vector<uint8_t>> pattern_;
   std::vector<std::vector<uint8_t>> nametable_;
   std::vector<std::vector<uint8_t>> attribute_;

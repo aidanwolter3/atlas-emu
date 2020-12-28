@@ -23,7 +23,7 @@
 #include "src/memory.h"
 #include "src/ui/opengl/window.h"
 
-Atlas::Atlas(const std::string rom_file, bool headless) {
+Atlas::Atlas(const std::string rom_file, bool headless) : oamdma_(bus_) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
   rom_stream.unsetf(std::ios_base::skipws);
@@ -53,6 +53,7 @@ Atlas::Atlas(const std::string rom_file, bool headless) {
   mmc1_ = std::make_unique<MMC1Impl>(*ppu_, std::move(data));
   bus_.RegisterPeripheral(*mem_, 0);
   bus_.RegisterPeripheral(*ppu_, 0x2000);
+  bus_.RegisterPeripheral(oamdma_, 0x4014);
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
 
