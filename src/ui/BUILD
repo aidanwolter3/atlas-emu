@@ -3,6 +3,7 @@ cc_library(
     visibility = ["//visibility:public"],
     srcs = [
         "color.h",
+        "renderer.h",
         "window.h",
     ],
 )

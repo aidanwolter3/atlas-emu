@@ -14,7 +14,8 @@
 #include "src/platform/posix.h"
 #include "src/ppu.h"
 #include "src/public/registers.h"
-#include "src/ui/window.h"
+#include "src/ui/opengl/renderer.h"
+#include "src/ui/opengl/window.h"
 
 class Atlas {
  public:
@@ -43,8 +44,13 @@ class Atlas {
   PlatformPosix platform_;
   BusImpl bus_;
   Registers reg_;
+
+  // The window must be created before the renderer, so that the context is
+  // available.
+  OpenGLWindow window_;
+  OpenGLRenderer renderer_;
+
   OAMDMA oamdma_;
-  std::unique_ptr<Window> window_;
   std::unique_ptr<MemoryImpl> mem_;
   std::unique_ptr<MemoryImpl> mmc1_mem_;
   std::unique_ptr<MMC1Impl> mmc1_;

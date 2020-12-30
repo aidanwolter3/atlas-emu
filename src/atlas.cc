@@ -21,9 +21,9 @@
 #include "src/instruction/store.h"
 #include "src/instruction/transfer.h"
 #include "src/memory.h"
-#include "src/ui/opengl/window.h"
 
-Atlas::Atlas(const std::string rom_file, bool headless) : oamdma_(bus_) {
+Atlas::Atlas(const std::string rom_file, bool headless)
+    : window_(headless), oamdma_(bus_) {
   // Open the ROM file as an input stream.
   std::ifstream rom_stream;
   rom_stream.unsetf(std::ios_base::skipws);
@@ -38,17 +38,10 @@ Atlas::Atlas(const std::string rom_file, bool headless) : oamdma_(bus_) {
   std::copy(std::istream_iterator<uint8_t>(rom_stream),
             std::istream_iterator<uint8_t>(), std::back_inserter(data));
 
-  // Create the window if not headless.
-  if (headless) {
-    window_ = std::make_unique<FakeWindow>();
-  } else {
-    window_ = std::make_unique<OpenGLWindow>();
-  }
-
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
-  ppu_ = std::make_unique<PpuImpl>(*cpu_, *window_);
+  ppu_ = std::make_unique<PpuImpl>(*cpu_, renderer_);
   mmc1_mem_ = std::make_unique<MemoryImpl>(/*size=*/0x2000);
   mmc1_ = std::make_unique<MMC1Impl>(*ppu_, std::move(data));
   bus_.RegisterPeripheral(*mem_, 0);
@@ -150,7 +143,7 @@ bool Atlas::Run() {
   auto start_time = std::chrono::steady_clock::now();
   std::chrono::nanoseconds time_slept = std::chrono::nanoseconds{0};
   long long total_ticks = 0;
-  while (should_run && !window_->IsClosed()) {
+  while (should_run && !window_.IsClosed()) {
     // Pump the CPU.
     int ticks;
     for (ticks = 0; ticks < kCpuTicksPerFrame; ++ticks) {
@@ -199,7 +192,8 @@ bool Atlas::Run() {
     int idle = (100 * time_slept) / time_passed;
     title += " | clock-speed=" + std::to_string(clock_speed) + "%";
     title += " | idle-percentage=" + std::to_string(idle) + "%";
-    window_->SetTitle(title);
+    window_.SetTitle(title);
+    window_.Refresh();
   }
 
   if (has_error) {

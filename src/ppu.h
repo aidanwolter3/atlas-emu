@@ -6,7 +6,7 @@
 
 #include "src/cpu.h"
 #include "src/public/bus.h"
-#include "src/ui/window.h"
+#include "src/ui/renderer.h"
 
 class Ppu {
  public:
@@ -26,7 +26,7 @@ class Ppu {
 
 class PpuImpl : public Ppu, public Peripheral {
  public:
-  PpuImpl(Cpu& cpu, Window& window);
+  PpuImpl(Cpu& cpu, Renderer& renderer);
   ~PpuImpl() override;
 
   // Ppu implementation:
@@ -43,7 +43,7 @@ class PpuImpl : public Ppu, public Peripheral {
   void LoadNametable(int table_num);
 
   Cpu& cpu_;
-  Window& window_;
+  Renderer& renderer_;
   MirroringMode mirroring_mode_;
 
   // Store the last value written to a register, so that it can be returned in

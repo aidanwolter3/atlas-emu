@@ -1,5 +1,5 @@
-#ifndef SHADER_H_
-#define SHADER_H_
+#ifndef UI_OPENGL_SHADER_H_
+#define UI_OPENGL_SHADER_H_
 
 #include <string>
 
@@ -17,4 +17,4 @@ class Shader {
   unsigned int vbo_;
 };
 
-#endif  // SHADER_H_
+#endif  // UI_OPENGL_SHADER_H_

@@ -41,15 +41,15 @@ int AdjustTableNumForMirroring(int table_num, Ppu::MirroringMode mode) {
 
 }  // namespace
 
-PpuImpl::PpuImpl(Cpu& cpu, Window& window)
+PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
     : cpu_(cpu),
-      window_(window),
+      renderer_(renderer),
       oam_(0x100, 0),
       pattern_(2, std::vector<uint8_t>(0x1000, 0)),
       nametable_(2, std::vector<uint8_t>(0x3C0, 0)),
       attribute_(2, std::vector<uint8_t>(0x40, 0)),
       frame_palette_(0x20, 0) {
-  window_.SetPalette(kColorPalette);
+  renderer_.SetPalette(kColorPalette);
 }
 
 PpuImpl::~PpuImpl() = default;
@@ -68,19 +68,19 @@ void PpuImpl::Render() {
 
   if (attribute_dirty_) {
     attribute_dirty_ = false;
-    window_.SetAttributeTable(0, attribute_[0]);
-    window_.SetAttributeTable(1, attribute_[1]);
+    renderer_.SetAttributeTable(0, attribute_[0]);
+    renderer_.SetAttributeTable(1, attribute_[1]);
   }
 
   if (frame_palette_dirty_) {
     frame_palette_dirty_ = false;
-    window_.SetFramePalette(frame_palette_);
+    renderer_.SetFramePalette(frame_palette_);
   }
 
   int base_scroll_x = (ctrl_ & 0x01) * 0x100;
   int base_scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0;
-  window_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
-  window_.Update();
+  renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
+  renderer_.Render();
 }
 
 void PpuImpl::DumpRegisters() {
@@ -309,5 +309,5 @@ void PpuImpl::LoadNametable(int table_num) {
       tile_nametable_index++;
     }
   }
-  window_.SetNametable(table_num, nametable);
+  renderer_.SetNametable(table_num, nametable);
 }

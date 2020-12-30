@@ -1,10 +1,11 @@
-#ifndef PROGRAM_H_
-#define PROGRAM_H_
+#ifndef UI_OPENGL_PROGRAM_H_
+#define UI_OPENGL_PROGRAM_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
-class Shader;
+#include "src/ui/opengl/shader.h"
 
 class Program {
  public:
@@ -12,24 +13,23 @@ class Program {
   ~Program();
 
   // Run a single render refresh.
-  void Render();
-
-  const unsigned int vao() { return vao_; }
-  const unsigned int gl_program() { return program_; }
+  void Draw();
+  void Use();
+  unsigned int GetUniformLocation(std::string name);
+  void SetVertices(std::vector<float> vertices);
+  void SetElements(std::vector<unsigned int> elements);
+  void SetTextureCoords(std::vector<float> coords);
 
  private:
-  void DrawNametable();
-
   unsigned int program_;
   unsigned int vao_;
+
+  // Buffer objects.
   unsigned int vbo_;
   unsigned int ebo_;
   unsigned int tcbo_;
 
-  std::vector<float> vertices_;
-  std::vector<unsigned int> elements_;
-  // TODO: move this to opengl_window.h
-  std::vector<float> texture_coords_;
+  int element_count_ = 0;
 };
 
-#endif  // PROGRAM_H_
+#endif  // UI_OPENGL_PROGRAM_H_
