@@ -1,11 +1,12 @@
 #version 330 core
+
 in vec3 TexCoord;
 
 out vec4 FragColor;
 
-uniform usampler2DArray nametable;
-uniform usampler1DArray attribute_table;
-uniform usampler1D frame_palette;
+uniform usampler2DArray tiles;
+uniform usampler1DArray attributes;
+uniform usampler1D palettes;
 uniform sampler1D palette;
 
 void main() {
@@ -16,15 +17,15 @@ void main() {
   // Get the attribute for the block.
   int block_index = ((y / 4) * 8) + (x / 4);
   ivec2 block_coord = ivec2(block_index, TexCoord.z);
-  uint attribute = texelFetch(attribute_table, block_coord, 0).r;
+  uint attribute = texelFetch(attributes, block_coord, 0).r;
 
   // Find the palette/color numbers from the attribute.
   int quad_num_in_block = (((y / 2) % 2) * 2) + ((x / 2) % 2);
-  uint frame_palette_num = (attribute >> (quad_num_in_block * 2)) & 3u;
-  uint color_num = texture(nametable, TexCoord).r;
+  uint palette_offset = (attribute >> (quad_num_in_block * 2)) & 3u;
+  uint color_num = texture(tiles, TexCoord).r;
 
   // Grab the correct color from the palette.
-  uint frame_palette_index = (frame_palette_num * 4u) + color_num;
-  uint palette_index = texelFetch(frame_palette, int(frame_palette_index), 0).r;
+  uint palette_num = (palette_offset * 4u) + color_num;
+  uint palette_index = texelFetch(palettes, int(palette_num), 0).r;
   FragColor = texelFetch(palette, int(palette_index), 0);
 }

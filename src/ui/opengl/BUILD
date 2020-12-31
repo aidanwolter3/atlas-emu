@@ -6,6 +6,8 @@ cc_library(
         "window.h",
     ],
     srcs = [
+        "background.cc",
+        "background.h",
         "gl_init.cc",
         "gl_init.h",
         "program.cc",
@@ -23,8 +25,8 @@ cc_library(
         "//src/ui",
     ],
     data = [
-       "fragment.glsl",
-       "vertex.glsl",
+       "background.frag",
+       "background.vert",
     ],
     # Suppress Apple's annoying deprecation warnings.
     # OpenGL is not going away anytime soon.

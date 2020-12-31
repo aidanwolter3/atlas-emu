@@ -27,6 +27,7 @@ void InsertTileAtLocation(std::vector<uint8_t>& nametable,
 int main() {
   std::vector<uint8_t> frame_palette = {
       0, 33, 0, 0, 48, 21, 0, 0, 49, 41, 0, 0, 18, 49, 0, 0,
+      0, 0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0,
   };
   std::vector<uint8_t> attribute_table;
   uint8_t attributes[] = {

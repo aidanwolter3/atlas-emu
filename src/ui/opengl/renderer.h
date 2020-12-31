@@ -1,9 +1,7 @@
 #ifndef UI_OPENGL_RENDERER_H_
 #define UI_OPENGL_RENDERER_H_
 
-#include <memory>
-
-#include "src/ui/opengl/program.h"
+#include "src/ui/opengl/background.h"
 #include "src/ui/renderer.h"
 
 class OpenGLRenderer : public Renderer {
@@ -20,16 +18,14 @@ class OpenGLRenderer : public Renderer {
   void SetPalette(std::vector<uint8_t>& palette) override;
 
  private:
-  void PrepareUniforms();
+  void PrepareTextures();
   void LoadElements();
 
-  std::unique_ptr<Program> program_;
-
-  // Uniforms.
-  unsigned int nametable_;
-  unsigned int attribute_table_;
-  unsigned int frame_palette_;
+  // Textures.
   unsigned int palette_;
+
+  // TODO: move to optional
+  std::unique_ptr<Background> background_;
 };
 
 #endif  // UI_OPENGL_RENDERER_H_
