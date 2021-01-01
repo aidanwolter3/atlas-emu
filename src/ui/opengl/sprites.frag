@@ -6,23 +6,18 @@ out vec4 FragColor;
 
 uniform sampler1D palette;
 uniform usampler2DArray tiles;
-uniform usampler1DArray attributes;
+uniform usampler1D attributes;
 uniform usampler1D palettes;
 
 void main() {
-  // Get the tile's x/y coordinates.
-  int x = int(TexCoord.x * 32.0);
-  int y = int(TexCoord.y * 30.0);
-
-  // Get the attribute for the block.
-  int block_index = ((y / 4) * 8) + (x / 4);
-  ivec2 block_coord = ivec2(block_index, TexCoord.z);
-  uint attribute = texelFetch(attributes, block_coord, 0).r;
-
   // Find the palette/color numbers from the attribute.
-  int quad_num_in_block = (((y / 2) % 2) * 2) + ((x / 2) % 2);
-  uint palette_offset = (attribute >> (quad_num_in_block * 2)) & 3u;
+  uint palette_offset = texelFetch(attributes, int(TexCoord.z), 0).r;
   uint color_num = texture(tiles, TexCoord).r;
+
+  // The zeroth color in sprites is transparent.
+  if (color_num == 0u) {
+    discard;
+  }
 
   // Grab the correct color from the palette.
   uint palette_num = (palette_offset * 4u) + color_num;

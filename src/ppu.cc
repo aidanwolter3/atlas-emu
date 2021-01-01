@@ -77,9 +77,13 @@ void PpuImpl::Render() {
     renderer_.SetFramePalette(frame_palette_);
   }
 
+  // TODO: Only set when changed.
+  LoadSprites();
+
   int base_scroll_x = (ctrl_ & 0x01) * 0x100;
   int base_scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0;
   renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
+
   renderer_.Render();
 }
 
@@ -310,4 +314,54 @@ void PpuImpl::LoadNametable(int table_num) {
     }
   }
   renderer_.SetNametable(table_num, nametable);
+}
+
+void PpuImpl::LoadSprites() {
+  constexpr int kBytesPerSprite = 64;
+  constexpr int kNumberOfSprites = 64;
+  std::vector<uint8_t> sprite_tiles(kBytesPerSprite * kNumberOfSprites, 0);
+  std::vector<Sprite> sprites;
+
+  // For every sprite...
+  for (int sprite_num = 0; sprite_num < kNumberOfSprites; ++sprite_num) {
+    const int oam_offset = sprite_num * 4;
+    const int tile_num = oam_[oam_offset + 1] & 0xFE;
+    int pattern_table_num = (ctrl_ >> 3) & 0x01;
+
+    // 8x16 bit tiles are chosen from the pattern table indicated by bit-0 of
+    // the tile number in OAM.
+    if (ctrl_ & 0x20) {
+      pattern_table_num = oam_[oam_offset + 1] & 0x01;
+    }
+
+    // For every bit in the tile...
+    const int tile_offset = tile_num * 16;
+    for (int i = 0; i < 8; ++i) {
+      uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
+      uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
+      for (int j = 0; j < 8; ++j) {
+        // Calculate the bit color...
+        uint8_t color = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
+
+        // And insert the tile data into sprites tiles.
+        int index = (sprite_num * 64) + (i * 8) + (7 - j);
+        sprite_tiles[index] = color;
+
+        byte_1 = byte_1 >> 1;
+        byte_2 = byte_2 >> 1;
+      }
+    }
+
+    Sprite sprite{
+        .x = static_cast<uint8_t>(oam_[oam_offset + 3]),
+        // Sprites are all shifted down 1 row for some reason.
+        .y = static_cast<uint8_t>(oam_[oam_offset] + 1),
+        .tile_num = static_cast<uint8_t>(tile_num),
+        .palette = static_cast<uint8_t>(oam_[oam_offset + 2] & 0x03),
+    };
+    sprites.push_back(sprite);
+  }
+
+  renderer_.SetSpriteTiles(sprite_tiles);
+  renderer_.SetSprites(sprites);
 }

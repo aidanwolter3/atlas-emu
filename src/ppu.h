@@ -41,6 +41,7 @@ class PpuImpl : public Ppu, public Peripheral {
 
  private:
   void LoadNametable(int table_num);
+  void LoadSprites();
 
   Cpu& cpu_;
   Renderer& renderer_;

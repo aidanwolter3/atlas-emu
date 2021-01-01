@@ -2,6 +2,7 @@
 #define UI_OPENGL_RENDERER_H_
 
 #include "src/ui/opengl/background.h"
+#include "src/ui/opengl/sprites.h"
 #include "src/ui/renderer.h"
 
 class OpenGLRenderer : public Renderer {
@@ -16,6 +17,8 @@ class OpenGLRenderer : public Renderer {
   void SetAttributeTable(int num, std::vector<uint8_t>& table) override;
   void SetFramePalette(std::vector<uint8_t>& palette) override;
   void SetPalette(std::vector<uint8_t>& palette) override;
+  void SetSpriteTiles(std::vector<uint8_t>& tiles) override;
+  void SetSprites(std::vector<Sprite>& sprites) override;
 
  private:
   void PrepareTextures();
@@ -26,6 +29,7 @@ class OpenGLRenderer : public Renderer {
 
   // TODO: move to optional
   std::unique_ptr<Background> background_;
+  std::unique_ptr<Sprites> sprites_;
 };
 
 #endif  // UI_OPENGL_RENDERER_H_

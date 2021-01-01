@@ -2,6 +2,7 @@
 //
 // It uses the Window/Renderer abstractions to render each block with a
 // different palette, and an arrow in the top-left corner pointing down-right.
+// It also renders a "one" sprite in the center of the top-left block.
 
 #include <cstdint>
 #include <vector>
@@ -27,7 +28,7 @@ void InsertTileAtLocation(std::vector<uint8_t>& nametable,
 int main() {
   std::vector<uint8_t> frame_palette = {
       0, 33, 0, 0, 48, 21, 0, 0, 49, 41, 0, 0, 18, 49, 0, 0,
-      0, 0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0,
+      0, 33, 0, 0, 48, 21, 0, 0, 49, 41, 0, 0, 18, 49, 0, 0,
   };
   std::vector<uint8_t> attribute_table;
   uint8_t attributes[] = {
@@ -39,7 +40,7 @@ int main() {
     attribute_table.push_back(attributes[i % 16]);
   }
 
-  // Assemble the nametable
+  // Assemble the nametable.
   std::vector<uint8_t> nametable(30 * kRowSize, 0);
 
   // Insert an arrow in each block pointing down-to-the-right.
@@ -54,15 +55,43 @@ int main() {
     }
   }
 
+  // Assemble the sprites.
+  std::vector<uint8_t> sprite_tiles(64 * 64, 0);
+  std::vector<Sprite> sprites;
+  std::vector<uint8_t> one = {
+      0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0,
+  };
+  for (int i = 0; i < one.size(); ++i) {
+    sprite_tiles[i] = one[i];
+  }
+  Sprite null_sprite{.x = 0xFF, .y = 0xFF, .tile_num = 0x01, .palette = 0x00};
+  for (int i = 0; i < 64; ++i) {
+    sprites.push_back(null_sprite);
+  }
+  Sprite one_sprite{
+      .x = 0x0C,
+      .y = 0x0C,
+      .tile_num = 0x00,
+      .palette = 0x00,
+  };
+  sprites[0] = one_sprite;
+
+  // Create the window.
   auto window = OpenGLWindow(/*headless=*/false);
   window.SetTitle("Render Test");
 
+  // Create the renderer.
   auto renderer = OpenGLRenderer();
   renderer.SetPalette(kColorPalette);
   renderer.SetFramePalette(frame_palette);
   renderer.SetAttributeTable(0, attribute_table);
   renderer.SetNametable(0, nametable);
+  renderer.SetSpriteTiles(sprite_tiles);
+  renderer.SetSprites(sprites);
 
+  // Render until the window is closed.
   while (!window.IsClosed()) {
     window.Refresh();
     renderer.Render();

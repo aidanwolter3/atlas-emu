@@ -28,10 +28,18 @@ void Background::Draw() {
   program_->Use();
 
   // Assign texture units to the uniform locations.
-  glUniform1i(program_->GetUniformLocation("tiles"), 0);
-  glUniform1i(program_->GetUniformLocation("attributes"), 1);
-  glUniform1i(program_->GetUniformLocation("palettes"), 2);
-  glUniform1i(program_->GetUniformLocation("palette"), 3);
+  glUniform1i(program_->GetUniformLocation("palette"), 0);
+  glUniform1i(program_->GetUniformLocation("tiles"), 1);
+  glUniform1i(program_->GetUniformLocation("attributes"), 2);
+  glUniform1i(program_->GetUniformLocation("palettes"), 3);
+
+  // Bind the textures to the texture units.
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_1D_ARRAY, attributes_);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_1D, palettes_);
 
   // Set the scroll.
   glm::mat4 transform = glm::mat4(1.0f);
@@ -41,8 +49,6 @@ void Background::Draw() {
   auto transform_loc = program_->GetUniformLocation("transform");
   glUniformMatrix4fv(transform_loc, 1, false, &transform[0][0]);
 
-  // TODO: Do we need to re-bind the textures when we have multiple programs?
-
   program_->Draw();
 }
 
@@ -51,7 +57,7 @@ void Background::SetTiles(int num, std::vector<uint8_t>& tiles) {
     std::cout << "Invalid number of tiles" << std::endl;
     return;
   }
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
   glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0,
                   /*index=*/num,
@@ -65,7 +71,7 @@ void Background::SetAttributes(int num, std::vector<uint8_t>& attributes) {
     std::cout << "Invalid number of attributes" << std::endl;
     return;
   }
-  glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_1D_ARRAY, attributes_);
   glTexSubImage2D(GL_TEXTURE_1D_ARRAY, 0, 0,
                   /*index=*/num,
@@ -74,7 +80,7 @@ void Background::SetAttributes(int num, std::vector<uint8_t>& attributes) {
 }
 
 void Background::SetPalettes(std::vector<uint8_t>& palettes) {
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_1D, palettes_);
   glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, palettes.size(), 0, GL_RED_INTEGER,
                GL_UNSIGNED_BYTE, palettes.data());
@@ -87,7 +93,7 @@ void Background::SetScroll(int x, int y) {
 
 void Background::PrepareTextures() {
   // Declare the tiles.
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE1);
   glGenTextures(1, &tiles_);
   glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
   glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -100,7 +106,7 @@ void Background::PrepareTextures() {
                /*count=*/2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
 
   // Declare the attributes.
-  glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE2);
   glGenTextures(1, &attributes_);
   glBindTexture(GL_TEXTURE_1D_ARRAY, attributes_);
   glTexParameteri(GL_TEXTURE_1D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -112,7 +118,7 @@ void Background::PrepareTextures() {
                /*count=*/2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
 
   // Declare the palettes.
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE3);
   glGenTextures(1, &palettes_);
   glBindTexture(GL_TEXTURE_1D, palettes_);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

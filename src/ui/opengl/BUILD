@@ -15,6 +15,8 @@ cc_library(
         "renderer.cc",
         "shader.cc",
         "shader.h",
+        "sprites.cc",
+        "sprites.h",
         "window.cc",
     ],
     deps = [
@@ -27,6 +29,8 @@ cc_library(
     data = [
        "background.frag",
        "background.vert",
+       "sprites.frag",
+       "sprites.vert",
     ],
     # Suppress Apple's annoying deprecation warnings.
     # OpenGL is not going away anytime soon.
