@@ -63,6 +63,10 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
   glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
   for (int i = 0; i < sprites.size(); ++i) {
     auto& s = sprites[i];
+    if (s.tile.size() != 64 && s.tile.size() != 128) {
+      continue;
+    }
+
     const int height = (s.tile.size() == 128 ? 16 : 8);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                     /*xoffset=*/0,
@@ -80,6 +84,10 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
   std::vector<float> texture_coords;
   for (int i = 0; i < sprites.size(); ++i) {
     auto& s = sprites[i];
+    if (s.tile.size() != 64 && s.tile.size() != 128) {
+      continue;
+    }
+
     const int height = (s.tile.size() == 128 ? 16 : 8);
     const bool flipx = s.attribute & 0x40;
     const bool flipy = s.attribute & 0x80;
