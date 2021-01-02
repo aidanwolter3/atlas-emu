@@ -25,7 +25,6 @@ cc_test(
     ],
     data = [
         "//src/roms:branch_test",
-        "//src/roms:pretty_log_test",
         "//src/roms:ppu_test",
     ],
     linkstatic = True,
