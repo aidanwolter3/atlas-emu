@@ -1,6 +1,6 @@
 cc_library(
     name = "instruction",
-    visibility = ["//visibility:public"],
+    visibility = ["//src/engine:__pkg__"],
     hdrs = [
         "branch.h",
         "compare.h",
@@ -31,7 +31,7 @@ cc_library(
         "transfer.cc",
     ],
     deps = [
-        "//src/public",
+        "//src/engine/public",
     ]
 )
 

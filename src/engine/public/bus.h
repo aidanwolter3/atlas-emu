@@ -1,5 +1,5 @@
-#ifndef PUBLIC_BUS_H_
-#define PUBLIC_BUS_H_
+#ifndef ENGINE_PUBLIC_BUS_H_
+#define ENGINE_PUBLIC_BUS_H_
 
 #include <cstdint>
 
@@ -27,4 +27,4 @@ class Bus : public Peripheral {
   virtual void RegisterPeripheral(Peripheral& peripheral, uint16_t start) = 0;
 };
 
-#endif  // PUBLIC_BUS_H_
+#endif  // ENGINE_PUBLIC_BUS_H_

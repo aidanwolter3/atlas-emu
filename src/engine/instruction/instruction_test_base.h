@@ -3,8 +3,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "src/public/bus.h"
-#include "src/public/registers.h"
+#include "src/engine/public/bus.h"
+#include "src/engine/public/registers.h"
 
 class MockBus : public Bus {
  public:

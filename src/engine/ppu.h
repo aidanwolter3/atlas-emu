@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "src/engine/cpu.h"
-#include "src/public/bus.h"
+#include "src/engine/public/bus.h"
 #include "src/ui/renderer.h"
 
 class Ppu {

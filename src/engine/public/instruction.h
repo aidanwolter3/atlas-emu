@@ -1,11 +1,11 @@
-#ifndef PUBLIC_INSTRUCTION_H_
-#define PUBLIC_INSTRUCTION_H_
+#ifndef ENGINE_PUBLIC_INSTRUCTION_H_
+#define ENGINE_PUBLIC_INSTRUCTION_H_
 
 #include <cstdint>
 #include <vector>
 
-#include "src/public/bus.h"
-#include "src/public/registers.h"
+#include "src/engine/public/bus.h"
+#include "src/engine/public/registers.h"
 
 #define SET_LOG_NAME(n) \
   std::string GetLogName() override { return n; }
@@ -42,4 +42,4 @@ class Instruction {
   std::vector<std::string> log_elements_;
 };
 
-#endif  // PUBLIC_INSTRUCTION_H_
+#endif  // ENGINE_PUBLIC_INSTRUCTION_H_

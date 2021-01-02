@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_SHIFT_H_
 #define ENGINE_INSTRUCTION_SHIFT_H_
 
-#include "src/public/instruction.h"
+#include "src/engine/public/instruction.h"
 
 // Arithmetic Shift Left
 class ASL : public Instruction {

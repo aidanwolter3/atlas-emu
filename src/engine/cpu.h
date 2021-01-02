@@ -6,10 +6,10 @@
 #include <memory>
 #include <vector>
 
-#include "src/public/bus.h"
-#include "src/public/event_logger.h"
-#include "src/public/instruction.h"
-#include "src/public/registers.h"
+#include "src/engine/public/bus.h"
+#include "src/engine/public/event_logger.h"
+#include "src/engine/public/instruction.h"
+#include "src/engine/public/registers.h"
 
 class Cpu {
  public:

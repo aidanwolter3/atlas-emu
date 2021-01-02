@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_MATH_H_
 #define ENGINE_INSTRUCTION_MATH_H_
 
-#include "src/public/instruction.h"
+#include "src/engine/public/instruction.h"
 
 // Add with Carry
 class ADC : public Instruction {

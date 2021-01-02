@@ -1,7 +1,7 @@
 #ifndef ENGINE_OAMDMA_H_
 #define ENGINE_OAMDMA_H_
 
-#include "src/public/bus.h"
+#include "src/engine/public/bus.h"
 
 class OAMDMA : public Peripheral {
  public:

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "src/engine/ppu.h"
-#include "src/public/bus.h"
+#include "src/engine/public/bus.h"
 
 // An interface is helpful for mocking in tests.
 class MMC1 : public Peripheral {};

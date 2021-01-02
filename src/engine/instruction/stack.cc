@@ -1,6 +1,6 @@
 #include "src/engine/instruction/stack.h"
 
-#include "src/public/constants.h"
+#include "src/engine/public/constants.h"
 
 void PHA::ExecuteInternal(uint8_t) {
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.acc);

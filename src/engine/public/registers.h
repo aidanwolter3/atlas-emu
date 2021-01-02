@@ -1,5 +1,5 @@
-#ifndef PUBLIC_REGISTERS_H_
-#define PUBLIC_REGISTERS_H_
+#ifndef ENGINE_PUBLIC_REGISTERS_H_
+#define ENGINE_PUBLIC_REGISTERS_H_
 
 #include <bitset>
 #include <cstdint>
@@ -23,4 +23,4 @@ struct Registers {
   uint8_t y = 0;
 };
 
-#endif  // PUBLIC_REGISTERS_H_
+#endif  // ENGINE_PUBLIC_REGISTERS_H_

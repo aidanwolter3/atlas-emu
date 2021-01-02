@@ -1,6 +1,6 @@
 cc_library(
     name = "opengl",
-    visibility = ["//visibility:public"],
+    visibility = ["//src:__pkg__"],
     hdrs = [
         "renderer.h",
         "window.h",
@@ -23,7 +23,6 @@ cc_library(
         "@glad",
         "@glfw",
         "@glm",
-        "//src/public",
         "//src/ui",
     ],
     data = [

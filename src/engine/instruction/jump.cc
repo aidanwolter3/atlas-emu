@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "src/public/constants.h"
+#include "src/engine/public/constants.h"
 
 void JMP::ExecuteInternal(uint8_t opcode) {
   uint16_t address;

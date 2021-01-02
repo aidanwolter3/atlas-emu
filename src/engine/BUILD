@@ -20,19 +20,19 @@ cc_library(
     ],
     deps = [
         "//src/engine/instruction",
-        "//src/public",
+        "//src/engine/public",
         "//src/ui",
     ],
 )
 
 cc_library(
     name = "engine",
-    visibility = ["//visibility:public"],
+    visibility = ["//src:__pkg__"],
     hdrs = ["engine.h"],
     srcs = ["engine.cc"],
     deps = [
         ":engine_core",
-        "//src/public",
+        "//src/engine/public",
         "//src/ui",
     ],
 )

@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_LOGIC_H_
 #define ENGINE_INSTRUCTION_LOGIC_H_
 
-#include "src/public/instruction.h"
+#include "src/engine/public/instruction.h"
 
 // AND Accumulator
 class AND : public Instruction {

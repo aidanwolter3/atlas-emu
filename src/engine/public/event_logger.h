@@ -1,5 +1,5 @@
-#ifndef EVENT_LOGGER_H_
-#define EVENT_LOGGER_H_
+#ifndef ENGINE_PUBLIC_EVENT_LOGGER_H_
+#define ENGINE_PUBLIC_EVENT_LOGGER_H_
 
 #include <string>
 
@@ -23,4 +23,4 @@ class EventLogger {
   virtual void PrintLogs() = 0;
 };
 
-#endif  // EVENT_LOGGER_H_
+#endif  // ENGINE_PUBLIC_EVENT_LOGGER_H_

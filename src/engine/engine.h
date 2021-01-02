@@ -12,7 +12,7 @@
 #include "src/engine/mmc1.h"
 #include "src/engine/oamdma.h"
 #include "src/engine/ppu.h"
-#include "src/public/registers.h"
+#include "src/engine/public/registers.h"
 #include "src/ui/renderer.h"
 
 class Engine {
