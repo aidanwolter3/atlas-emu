@@ -17,11 +17,11 @@ void main() {
   // Get the attribute for the block.
   int block_index = ((y / 4) * 8) + (x / 4);
   ivec2 block_coord = ivec2(block_index, TexCoord.z);
-  uint attribute = texelFetch(attributes, block_coord, 0).r;
+  uint attr = texelFetch(attributes, block_coord, 0).r;
 
   // Find the palette/color numbers from the attribute.
   int quad_num_in_block = (((y / 2) % 2) * 2) + ((x / 2) % 2);
-  uint palette_offset = (attribute >> (quad_num_in_block * 2)) & 3u;
+  uint palette_offset = (attr >> (quad_num_in_block * 2)) & 3u;
   uint color_num = texture(tiles, TexCoord).r;
 
   // Grab the correct color from the palette.
