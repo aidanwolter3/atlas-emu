@@ -1,61 +1,32 @@
 #ifndef ATLAS_H_
 #define ATLAS_H_
 
-#include <cstdint>
-#include <memory>
 #include <string>
 
-#include "src/bus_impl.h"
-#include "src/cpu.h"
-#include "src/event_logger_impl.h"
-#include "src/memory.h"
-#include "src/mmc1.h"
-#include "src/oamdma.h"
+#include "src/engine/engine.h"
 #include "src/platform/posix.h"
-#include "src/ppu.h"
-#include "src/public/registers.h"
 #include "src/ui/opengl/renderer.h"
 #include "src/ui/opengl/window.h"
 
 class Atlas {
  public:
   Atlas(const std::string rom_file, bool headless = false);
-  ~Atlas();
 
-  // Run the CPU until an error occurs, and returns true for success, or false
-  // for error.
+  // Run until an error occurs, and returns true for success, or false for
+  // error.
   bool Run();
 
-  // Reset the CPU, so that it can be run again. Useful for benchmarking, as we
-  // run Atlas mutliple times.
+  // Reset the state, so that it can be run again from the start as if it was
+  // powered off, then on again.
   void Reset();
 
  private:
-  // Construct and register an instruction with the classname INS that will get
-  // executed when |opcode| is fetched.
-  template <class INS>
-  void RegisterInstruction(uint8_t opcode);
-  // Construct and register an instruction with the classname INS that will get
-  // executed when one of the |opcodes| are fetched.
-  template <class INS>
-  void RegisterInstruction(std::vector<uint8_t> opcodes);
-
-  EventLoggerImpl event_logger_;
-  PlatformPosix platform_;
-  BusImpl bus_;
-  Registers reg_;
-
   // The window must be created before the renderer, so that the context is
   // available.
   OpenGLWindow window_;
   OpenGLRenderer renderer_;
-
-  OAMDMA oamdma_;
-  std::unique_ptr<MemoryImpl> mem_;
-  std::unique_ptr<MemoryImpl> mmc1_mem_;
-  std::unique_ptr<MMC1Impl> mmc1_;
-  std::unique_ptr<Cpu> cpu_;
-  std::unique_ptr<PpuImpl> ppu_;
+  PlatformPosix platform_;
+  Engine engine_;
 };
 
 #endif  // ATLAS_H_
