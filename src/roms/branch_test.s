@@ -9,7 +9,8 @@
     nop
     nop
     nop
-    lda #$00
+    lda #$01
+    ldx #$00
     beq pass
   fail:
     lda #01
