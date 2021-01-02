@@ -79,7 +79,7 @@ int main() {
   sprites[0] = one_sprite;
 
   // Create the window.
-  auto window = OpenGLWindow(/*headless=*/false);
+  auto window = OpenGLWindow();
   window.SetTitle("Render Test");
 
   // Create the renderer.

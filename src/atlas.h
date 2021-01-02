@@ -1,12 +1,13 @@
 #ifndef ATLAS_H_
 #define ATLAS_H_
 
+#include <memory>
 #include <string>
 
 #include "src/engine/engine.h"
 #include "src/platform/posix.h"
-#include "src/ui/opengl/renderer.h"
-#include "src/ui/opengl/window.h"
+#include "src/ui/renderer.h"
+#include "src/ui/window.h"
 
 class Atlas {
  public:
@@ -21,10 +22,15 @@ class Atlas {
   void Reset();
 
  private:
-  // The window must be created before the renderer, so that the context is
-  // available.
-  OpenGLWindow window_;
-  OpenGLRenderer renderer_;
+  // Note 1: The window must be created before the renderer, so that the context
+  // is available.
+  //
+  // Note 2: Even though these members do not have a transfer of ownership,
+  // We must wrap them in unique_ptr, so that we can dynamically choose which
+  // derived class to use.
+  std::unique_ptr<Window> window_;
+  std::unique_ptr<Renderer> renderer_;
+
   PlatformPosix platform_;
   Engine engine_;
 };

@@ -16,7 +16,7 @@ thread_local bool window_created_ = false;
 
 };  // namespace
 
-OpenGLWindow::OpenGLWindow(bool headless) {
+OpenGLWindow::OpenGLWindow() {
   if (window_created_) {
     assert("Cannot create multiple windows on the same thread.");
   }
@@ -28,9 +28,6 @@ OpenGLWindow::OpenGLWindow(bool headless) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  if (headless) {
-    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-  }
 
   // Create a window.
   glfw_window_ = glfwCreateWindow(kInitialWindowWidth, kInitialWindowHeight,

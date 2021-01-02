@@ -6,6 +6,9 @@
 #include <iterator>
 #include <vector>
 
+#include "src/ui/opengl/renderer.h"
+#include "src/ui/opengl/window.h"
+
 namespace {
 
 constexpr int kCpuTicksPerFrame = 1790000 / 60;
@@ -28,16 +31,32 @@ std::vector<uint8_t> ReadRomFile(const std::string rom_file) {
   return rom;
 }
 
+std::unique_ptr<Window> CreateWindow(bool headless) {
+  if (headless) {
+    return std::make_unique<FakeWindow>();
+  }
+  return std::make_unique<OpenGLWindow>();
+}
+
+std::unique_ptr<Renderer> CreateRenderer(bool headless) {
+  if (headless) {
+    return std::make_unique<FakeRenderer>();
+  }
+  return std::make_unique<OpenGLRenderer>();
+}
+
 }  // namespace
 
 Atlas::Atlas(const std::string rom_file, bool headless)
-    : window_(headless), engine_(renderer_, ReadRomFile(rom_file)) {}
+    : window_(CreateWindow(headless)),
+      renderer_(CreateRenderer(headless)),
+      engine_(*renderer_, ReadRomFile(rom_file)) {}
 
 bool Atlas::Run() {
   auto start_time = std::chrono::steady_clock::now();
   std::chrono::nanoseconds time_slept = std::chrono::nanoseconds{0};
   long long total_ticks = 0;
-  while (!window_.IsClosed()) {
+  while (!window_->IsClosed()) {
     Engine::RunResult run_result = engine_.Run(kCpuTicksPerFrame);
     total_ticks += run_result.num_ticks_ran;
 
@@ -62,10 +81,10 @@ bool Atlas::Run() {
     int idle = (100 * time_slept) / time_passed;
     title += " | clock-speed=" + std::to_string(clock_speed) + "%";
     title += " | idle-percentage=" + std::to_string(idle) + "%";
-    window_.SetTitle(title);
+    window_->SetTitle(title);
 
     // Refresh at the frame-rate.
-    window_.Refresh();
+    window_->Refresh();
 
     // Exit if needed.
     if (run_result.has_error) return false;

@@ -10,7 +10,7 @@
 
 class OpenGLWindow : public Window {
  public:
-  OpenGLWindow(bool headless);
+  OpenGLWindow();
   ~OpenGLWindow();
 
   // Window implementation:

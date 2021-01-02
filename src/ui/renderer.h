@@ -24,4 +24,17 @@ class Renderer {
   virtual void SetSprites(std::vector<Sprite>& sprites) = 0;
 };
 
+class FakeRenderer : public Renderer {
+ public:
+  void Render() override {}
+  void SetScroll(int x, int y) override {}
+  void SetNametable(int num, std::vector<uint8_t>& nametable) override {}
+  void SetAttributeTable(int num,
+                         std::vector<uint8_t>& attribute_table) override {}
+  void SetFramePalette(std::vector<uint8_t>& frame_palette) override {}
+  void SetPalette(std::vector<uint8_t>& palette) override {}
+  void SetSpriteTiles(std::vector<uint8_t>& tiles) override {}
+  void SetSprites(std::vector<Sprite>& sprites) override {}
+};
+
 #endif  // UI_RENDERER_H_
