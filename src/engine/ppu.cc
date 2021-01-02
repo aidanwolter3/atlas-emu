@@ -77,8 +77,10 @@ void PpuImpl::Render() {
     renderer_.SetFramePalette(frame_palette_);
   }
 
-  // TODO: Only set when changed.
-  LoadSprites();
+  if (oam_dirty_) {
+    oam_dirty_ = false;
+    LoadSprites();
+  }
 
   int base_scroll_x = (ctrl_ & 0x01) * 0x100;
   int base_scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0;
@@ -199,6 +201,7 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       break;
     case kOamData:
       oam_[oam_address_++] = byte;
+      oam_dirty_ = true;
       break;
     case kPpuScroll:
       // The first byte written is the X-scroll and the second byte is Y-scroll.
