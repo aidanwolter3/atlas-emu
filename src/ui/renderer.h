@@ -6,7 +6,7 @@
 
 struct Sprite {
   uint8_t x, y;
-  uint8_t palette;
+  uint8_t attribute;
   std::vector<uint8_t> tile;
 };
 

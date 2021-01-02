@@ -363,10 +363,10 @@ void PpuImpl::LoadSprites() {
     }
 
     Sprite sprite{
-        .x = static_cast<uint8_t>(oam_[oam_offset + 3]),
+        .x = oam_[oam_offset + 3],
         // Sprites are all shifted down 1 row for some reason.
         .y = static_cast<uint8_t>(oam_[oam_offset] + 1),
-        .palette = static_cast<uint8_t>(oam_[oam_offset + 2] & 0x03),
+        .attribute = oam_[oam_offset + 2],
         // TODO: this may cause a copy of the sprite_tile.
         // Maybe we should have a move ctor for Sprite.
         .tile = sprite_tile,

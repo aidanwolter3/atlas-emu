@@ -57,7 +57,7 @@ int main() {
 
   // Assemble the sprites.
   std::vector<Sprite> sprites;
-  Sprite null_sprite{.x = 0xFF, .y = 0xFF, .palette = 0x00};
+  Sprite null_sprite{.x = 0xFF, .y = 0xFF, .attribute = 0x00};
   for (int i = 0; i < 64; ++i) {
     sprites.push_back(null_sprite);
   }
@@ -78,17 +78,60 @@ int main() {
   Sprite one_sprite{
       .x = 0x0C,
       .y = 0x0C,
-      .palette = 0x00,
+      .attribute = 0b00000000,
+      .tile = one,
+  };
+  Sprite one_sprite_flipx{
+      .x = 0x0C,
+      .y = 0x2C,
+      .attribute = 0b01000000,
+      .tile = one,
+  };
+  Sprite one_sprite_flipy{
+      .x = 0x0C,
+      .y = 0x4C,
+      .attribute = 0b10000000,
+      .tile = one,
+  };
+  Sprite one_sprite_flipxy{
+      .x = 0x0C,
+      .y = 0x6C,
+      .attribute = 0b11000000,
       .tile = one,
   };
   Sprite two_sprite{
       .x = 0x2C,
       .y = 0x0C,
-      .palette = 0x00,
+      .attribute = 0b00000000,
       .tile = two,
   };
+  Sprite two_sprite_flipx{
+      .x = 0x2C,
+      .y = 0x2C,
+      .attribute = 0b01000000,
+      .tile = two,
+  };
+  Sprite two_sprite_flipy{
+      .x = 0x2C,
+      .y = 0x4C,
+      .attribute = 0b10000000,
+      .tile = two,
+  };
+  Sprite two_sprite_flipxy{
+      .x = 0x2C,
+      .y = 0x6C,
+      .attribute = 0b11000000,
+      .tile = two,
+  };
+
   sprites[0] = one_sprite;
-  sprites[1] = two_sprite;
+  sprites[1] = one_sprite_flipx;
+  sprites[2] = one_sprite_flipy;
+  sprites[3] = one_sprite_flipxy;
+  sprites[4] = two_sprite;
+  sprites[5] = two_sprite_flipx;
+  sprites[6] = two_sprite_flipy;
+  sprites[7] = two_sprite_flipxy;
 
   // Create the window.
   auto window = OpenGLWindow();

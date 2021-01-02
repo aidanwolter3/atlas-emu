@@ -1,6 +1,7 @@
 #include "src/ui/opengl/sprites.h"
 
 #include <iostream>
+#include <utility>
 
 Sprites::Sprites() {
   // Create the Shaders and Program.
@@ -50,7 +51,7 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
   // Set the attributes.
   std::vector<uint8_t> attributes;
   for (auto& s : sprites) {
-    attributes.push_back(s.palette);
+    attributes.push_back(s.attribute);
   }
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_1D, attributes_);
@@ -80,6 +81,8 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
   for (int i = 0; i < sprites.size(); ++i) {
     auto& s = sprites[i];
     const int height = (s.tile.size() == 128 ? 16 : 8);
+    const bool flipx = s.attribute & 0x40;
+    const bool flipy = s.attribute & 0x80;
 
     float unit_x = 2.0 * 8 / 0x100;
     float unit_y = 2.0 * height / 0xF0;
@@ -105,18 +108,28 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
                                         start_element + 3,
                                         start_element,
                                     });
-    // TODO: Modify depending on vertical/horizontal flip? Or do this in the
-    // fragment shader?
-    float top_y = 0.5;
-    if (height == 16) {
-      top_y = 1.0;
+
+    // Flip the texture coordinates according to the attributes.
+    float left_x = 0.0;
+    float bottom_y = 0.0;
+    float right_x = 1.0;
+    float top_y = 1.0;
+    if (height == 8) {
+      top_y = 0.5;
     }
+    if (flipy) {
+      std::swap(bottom_y, top_y);
+    }
+    if (flipx) {
+      std::swap(left_x, right_x);
+    }
+
     texture_coords.insert(texture_coords.begin(),
                           {
-                              0.0, 0.0, (float)i,    // bottom-left
-                              1.0, 0.0, (float)i,    // bottom-right
-                              1.0, top_y, (float)i,  // top-right
-                              0.0, top_y, (float)i,  // top-left
+                              left_x, bottom_y, (float)i,   // bottom-left
+                              right_x, bottom_y, (float)i,  // bottom-right
+                              right_x, top_y, (float)i,     // top-right
+                              left_x, top_y, (float)i,      // top-left
                           });
   }
 
