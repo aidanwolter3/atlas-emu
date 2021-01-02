@@ -18,8 +18,7 @@
 #include "src/engine/instruction/transfer.h"
 #include "src/engine/memory.h"
 
-Engine::Engine(Renderer& renderer, const std::vector<uint8_t> rom)
-    : oamdma_(bus_) {
+Engine::Engine(Renderer& renderer, std::vector<uint8_t> rom) : oamdma_(bus_) {
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
@@ -55,6 +54,7 @@ Engine::RunResult Engine::Run(int num_ticks) {
     if (error) {
       result.can_run = false;
       result.has_error = true;
+      break;
     }
 
     // Check for test results.
@@ -65,6 +65,7 @@ Engine::RunResult Engine::Run(int num_ticks) {
         result.has_error = true;
       }
       result.can_run = false;
+      break;
     }
   }
   result.num_ticks_ran = ticks;

@@ -17,7 +17,7 @@
 
 class Engine {
  public:
-  Engine(Renderer& renderer, const std::vector<uint8_t> rom);
+  Engine(Renderer& renderer, std::vector<uint8_t> rom);
 
   // Result of Run(), which returns the number of ticks was actually run, if the
   // engine can continue running, and whether an error has occurred.
