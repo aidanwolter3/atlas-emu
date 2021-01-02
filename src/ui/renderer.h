@@ -6,8 +6,8 @@
 
 struct Sprite {
   uint8_t x, y;
-  uint8_t tile_num;
   uint8_t palette;
+  std::vector<uint8_t> tile;
 };
 
 class Renderer {
@@ -20,7 +20,6 @@ class Renderer {
                                  std::vector<uint8_t>& attribute_table) = 0;
   virtual void SetFramePalette(std::vector<uint8_t>& frame_palette) = 0;
   virtual void SetPalette(std::vector<uint8_t>& palette) = 0;
-  virtual void SetSpriteTiles(std::vector<uint8_t>& tiles) = 0;
   virtual void SetSprites(std::vector<Sprite>& sprites) = 0;
 };
 
@@ -33,7 +32,6 @@ class FakeRenderer : public Renderer {
                          std::vector<uint8_t>& attribute_table) override {}
   void SetFramePalette(std::vector<uint8_t>& frame_palette) override {}
   void SetPalette(std::vector<uint8_t>& palette) override {}
-  void SetSpriteTiles(std::vector<uint8_t>& tiles) override {}
   void SetSprites(std::vector<Sprite>& sprites) override {}
 };
 

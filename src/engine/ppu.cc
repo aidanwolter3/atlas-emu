@@ -317,35 +317,42 @@ void PpuImpl::LoadNametable(int table_num) {
 }
 
 void PpuImpl::LoadSprites() {
-  constexpr int kBytesPerSprite = 64;
   constexpr int kNumberOfSprites = 64;
-  std::vector<uint8_t> sprite_tiles(kBytesPerSprite * kNumberOfSprites, 0);
   std::vector<Sprite> sprites;
 
   // For every sprite...
   for (int sprite_num = 0; sprite_num < kNumberOfSprites; ++sprite_num) {
     const int oam_offset = sprite_num * 4;
-    const int tile_num = oam_[oam_offset + 1] & 0xFE;
     int pattern_table_num = (ctrl_ >> 3) & 0x01;
+    int tile_num = oam_[oam_offset + 1];
+    int height = (ctrl_ & 0x20) ? 16 : 8;
 
     // 8x16 bit tiles are chosen from the pattern table indicated by bit-0 of
     // the tile number in OAM.
-    if (ctrl_ & 0x20) {
+    if (height == 16) {
       pattern_table_num = oam_[oam_offset + 1] & 0x01;
+      tile_num &= 0xFE;
     }
 
     // For every bit in the tile...
-    const int tile_offset = tile_num * 16;
-    for (int i = 0; i < 8; ++i) {
-      uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
-      uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
+    std::vector<uint8_t> sprite_tile(8 * height, 0);
+    for (int i = 0; i < height; ++i) {
+      int tile_index = 0;
+      if (i < 8) {
+        tile_index = (tile_num * 16) + i;
+      } else {
+        tile_index = (tile_num * 16) + i + 8;
+      }
+
+      uint8_t byte_1 = pattern_[pattern_table_num][tile_index];
+      uint8_t byte_2 = pattern_[pattern_table_num][tile_index + 8];
       for (int j = 0; j < 8; ++j) {
         // Calculate the bit color...
         uint8_t color = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
 
         // And insert the tile data into sprites tiles.
-        int index = (sprite_num * 64) + (i * 8) + (7 - j);
-        sprite_tiles[index] = color;
+        int index = (i * 8) + (7 - j);
+        sprite_tile[index] = color;
 
         byte_1 = byte_1 >> 1;
         byte_2 = byte_2 >> 1;
@@ -356,12 +363,13 @@ void PpuImpl::LoadSprites() {
         .x = static_cast<uint8_t>(oam_[oam_offset + 3]),
         // Sprites are all shifted down 1 row for some reason.
         .y = static_cast<uint8_t>(oam_[oam_offset] + 1),
-        .tile_num = static_cast<uint8_t>(tile_num),
         .palette = static_cast<uint8_t>(oam_[oam_offset + 2] & 0x03),
+        // TODO: this may cause a copy of the sprite_tile.
+        // Maybe we should have a move ctor for Sprite.
+        .tile = sprite_tile,
     };
     sprites.push_back(sprite);
   }
 
-  renderer_.SetSpriteTiles(sprite_tiles);
   renderer_.SetSprites(sprites);
 }

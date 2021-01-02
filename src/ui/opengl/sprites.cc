@@ -34,19 +34,6 @@ void Sprites::Draw() {
   program_->Draw();
 }
 
-void Sprites::SetTiles(std::vector<uint8_t>& tiles) {
-  if (tiles.size() != (64 * 64)) {
-    std::cout << "Invalid number of sprite tiles" << std::endl;
-    return;
-  }
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
-  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0,
-                  /*width=*/8,
-                  /*height=*/8,
-                  /*depth=*/64, GL_RED_INTEGER, GL_UNSIGNED_BYTE, tiles.data());
-}
-
 void Sprites::SetPalettes(std::vector<uint8_t>& palettes) {
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_1D, palettes_);
@@ -70,15 +57,32 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
   glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, attributes.size(), 0, GL_RED_INTEGER,
                GL_UNSIGNED_BYTE, attributes.data());
 
+  // Set the tiles.
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
+  for (int i = 0; i < sprites.size(); ++i) {
+    auto& s = sprites[i];
+    const int height = (s.tile.size() == 128 ? 16 : 8);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                    /*xoffset=*/0,
+                    /*yoffset=*/0,
+                    /*zoffset=*/i,
+                    /*width=*/8,
+                    /*height=*/height,
+                    /*depth=*/1, GL_RED_INTEGER, GL_UNSIGNED_BYTE,
+                    s.tile.data());
+  }
+
   // Set the vertices/elements/texture coords.
   std::vector<float> vertices;
   std::vector<unsigned int> elements;
   std::vector<float> texture_coords;
   for (int i = 0; i < sprites.size(); ++i) {
     auto& s = sprites[i];
+    const int height = (s.tile.size() == 128 ? 16 : 8);
 
     float unit_x = 2.0 * 8 / 0x100;
-    float unit_y = 2.0 * 8 / 0xF0;
+    float unit_y = 2.0 * height / 0xF0;
     float top_left_x = ((float)s.x * 2.0 / 0x100) - 1.0;
     float top_left_y = ((float)(0xF0 - s.y) * 2.0 / 0xF0) - 1.0;
 
@@ -101,12 +105,18 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
                                         start_element + 3,
                                         start_element,
                                     });
+    // TODO: Modify depending on vertical/horizontal flip? Or do this in the
+    // fragment shader?
+    float top_y = 0.5;
+    if (height == 16) {
+      top_y = 1.0;
+    }
     texture_coords.insert(texture_coords.begin(),
                           {
-                              0.0, 0.0, (float)i,  // bottom-left
-                              1.0, 0.0, (float)i,  // bottom-right
-                              1.0, 1.0, (float)i,  // top-right
-                              0.0, 1.0, (float)i,  // top-left
+                              0.0, 0.0, (float)i,    // bottom-left
+                              1.0, 0.0, (float)i,    // bottom-right
+                              1.0, top_y, (float)i,  // top-right
+                              0.0, top_y, (float)i,  // top-left
                           });
   }
 
@@ -118,6 +128,8 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
 
 void Sprites::PrepareTextures() {
   // Declare the tiles.
+  // Note: Use a size of 8x16, so that it works for both 8x8 and 8x16 mode. In
+  // 8x8 mode, the bottom half will not be used.
   glGenTextures(1, &tiles_);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D_ARRAY, tiles_);
@@ -127,7 +139,7 @@ void Sprites::PrepareTextures() {
   glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8UI,
                /*width=*/8,
-               /*height=*/8,
+               /*height=*/16,
                /*count=*/64, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, nullptr);
 
   // Declare the attributes.

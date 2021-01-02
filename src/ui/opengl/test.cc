@@ -56,27 +56,39 @@ int main() {
   }
 
   // Assemble the sprites.
-  std::vector<uint8_t> sprite_tiles(64 * 64, 0);
   std::vector<Sprite> sprites;
+  Sprite null_sprite{.x = 0xFF, .y = 0xFF, .palette = 0x00};
+  for (int i = 0; i < 64; ++i) {
+    sprites.push_back(null_sprite);
+  }
+
   std::vector<uint8_t> one = {
       0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0,
       0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
       1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0,
   };
-  for (int i = 0; i < one.size(); ++i) {
-    sprite_tiles[i] = one[i];
-  }
-  Sprite null_sprite{.x = 0xFF, .y = 0xFF, .tile_num = 0x01, .palette = 0x00};
-  for (int i = 0; i < 64; ++i) {
-    sprites.push_back(null_sprite);
-  }
+  std::vector<uint8_t> two = {
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1,
+      1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
+      1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
+      1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
   Sprite one_sprite{
       .x = 0x0C,
       .y = 0x0C,
-      .tile_num = 0x00,
       .palette = 0x00,
+      .tile = one,
+  };
+  Sprite two_sprite{
+      .x = 0x2C,
+      .y = 0x0C,
+      .palette = 0x00,
+      .tile = two,
   };
   sprites[0] = one_sprite;
+  sprites[1] = two_sprite;
 
   // Create the window.
   auto window = OpenGLWindow();
@@ -88,7 +100,6 @@ int main() {
   renderer.SetFramePalette(frame_palette);
   renderer.SetAttributeTable(0, attribute_table);
   renderer.SetNametable(0, nametable);
-  renderer.SetSpriteTiles(sprite_tiles);
   renderer.SetSprites(sprites);
 
   // Render until the window is closed.

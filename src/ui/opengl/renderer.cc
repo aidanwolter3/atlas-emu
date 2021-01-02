@@ -60,10 +60,6 @@ void OpenGLRenderer::SetPalette(std::vector<uint8_t>& palette) {
                GL_UNSIGNED_BYTE, palette.data());
 }
 
-void OpenGLRenderer::SetSpriteTiles(std::vector<uint8_t>& tiles) {
-  sprites_->SetTiles(tiles);
-}
-
 void OpenGLRenderer::SetSprites(std::vector<Sprite>& sprites) {
   sprites_->SetSprites(sprites);
 }

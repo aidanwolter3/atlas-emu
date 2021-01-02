@@ -17,7 +17,6 @@ class OpenGLRenderer : public Renderer {
   void SetAttributeTable(int num, std::vector<uint8_t>& table) override;
   void SetFramePalette(std::vector<uint8_t>& palette) override;
   void SetPalette(std::vector<uint8_t>& palette) override;
-  void SetSpriteTiles(std::vector<uint8_t>& tiles) override;
   void SetSprites(std::vector<Sprite>& sprites) override;
 
  private:
