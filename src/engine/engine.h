@@ -8,16 +8,18 @@
 #include "src/engine/bus_impl.h"
 #include "src/engine/cpu.h"
 #include "src/engine/event_logger_impl.h"
+#include "src/engine/joystick.h"
 #include "src/engine/memory.h"
 #include "src/engine/mmc1.h"
 #include "src/engine/oamdma.h"
 #include "src/engine/ppu.h"
 #include "src/engine/public/registers.h"
+#include "src/input/input.h"
 #include "src/ui/renderer.h"
 
 class Engine {
  public:
-  Engine(Renderer& renderer, std::vector<uint8_t> rom);
+  Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom);
 
   // Result of Run(), which returns the number of ticks was actually run, if the
   // engine can continue running, and whether an error has occurred.
@@ -50,6 +52,7 @@ class Engine {
   BusImpl bus_;
   Registers reg_;
   OAMDMA oamdma_;
+  Joystick joystick_;
   std::unique_ptr<MemoryImpl> mem_;
   std::unique_ptr<MemoryImpl> mmc1_mem_;
   std::unique_ptr<MMC1Impl> mmc1_;

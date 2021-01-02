@@ -25,6 +25,7 @@ class Renderer {
 
 class FakeRenderer : public Renderer {
  public:
+  // Renderer implementation:
   void Render() override {}
   void SetScroll(int x, int y) override {}
   void SetNametable(int num, std::vector<uint8_t>& nametable) override {}

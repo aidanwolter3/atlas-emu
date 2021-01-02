@@ -13,6 +13,8 @@ class OpenGLWindow : public Window {
   OpenGLWindow();
   ~OpenGLWindow();
 
+  GLFWwindow* window();
+
   // Window implementation:
   void Refresh() override;
   bool IsClosed() override { return is_closed_; }
@@ -21,7 +23,6 @@ class OpenGLWindow : public Window {
  private:
   void CloseWindow();
 
-  GLFWwindow* glfw_window_;
   bool is_closed_ = false;
 };
 

@@ -18,7 +18,8 @@
 #include "src/engine/instruction/transfer.h"
 #include "src/engine/memory.h"
 
-Engine::Engine(Renderer& renderer, std::vector<uint8_t> rom) : oamdma_(bus_) {
+Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
+    : oamdma_(bus_), joystick_(input) {
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
@@ -28,6 +29,7 @@ Engine::Engine(Renderer& renderer, std::vector<uint8_t> rom) : oamdma_(bus_) {
   bus_.RegisterPeripheral(*mem_, 0);
   bus_.RegisterPeripheral(*ppu_, 0x2000);
   bus_.RegisterPeripheral(oamdma_, 0x4014);
+  bus_.RegisterPeripheral(joystick_, 0x4016);
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
 

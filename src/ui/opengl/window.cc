@@ -13,6 +13,7 @@ const int kInitialWindowHeight = 600;
 // Ensure that only a single Window was created on this thread, because GLFW
 // and Window uses thread-local storage.
 thread_local bool window_created_ = false;
+thread_local GLFWwindow* glfw_window_;
 
 };  // namespace
 
@@ -54,6 +55,8 @@ OpenGLWindow::OpenGLWindow() {
 }
 
 OpenGLWindow::~OpenGLWindow() { CloseWindow(); }
+
+GLFWwindow* OpenGLWindow::window() { return glfw_window_; }
 
 void OpenGLWindow::Refresh() {
   glfwSwapBuffers(glfw_window_);

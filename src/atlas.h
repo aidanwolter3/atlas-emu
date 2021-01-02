@@ -5,6 +5,7 @@
 #include <string>
 
 #include "src/engine/engine.h"
+#include "src/input/input.h"
 #include "src/platform/posix.h"
 #include "src/ui/renderer.h"
 #include "src/ui/window.h"
@@ -22,6 +23,7 @@ class Atlas {
   void Reset();
 
  private:
+  PlatformPosix platform_;
   // Note 1: The window must be created before the renderer, so that the context
   // is available.
   //
@@ -30,9 +32,8 @@ class Atlas {
   // derived class to use.
   std::unique_ptr<Window> window_;
   std::unique_ptr<Renderer> renderer_;
-
-  PlatformPosix platform_;
-  Engine engine_;
+  std::unique_ptr<Input> input_;
+  std::unique_ptr<Engine> engine_;
 };
 
 #endif  // ATLAS_H_

@@ -6,6 +6,7 @@
 #include <iterator>
 #include <vector>
 
+#include "src/input/opengl/input.h"
 #include "src/ui/opengl/renderer.h"
 #include "src/ui/opengl/window.h"
 
@@ -31,33 +32,29 @@ std::vector<uint8_t> ReadRomFile(const std::string rom_file) {
   return rom;
 }
 
-std::unique_ptr<Window> CreateWindow(bool headless) {
-  if (headless) {
-    return std::make_unique<FakeWindow>();
-  }
-  return std::make_unique<OpenGLWindow>();
-}
-
-std::unique_ptr<Renderer> CreateRenderer(bool headless) {
-  if (headless) {
-    return std::make_unique<FakeRenderer>();
-  }
-  return std::make_unique<OpenGLRenderer>();
-}
-
 }  // namespace
 
-Atlas::Atlas(const std::string rom_file, bool headless)
-    : window_(CreateWindow(headless)),
-      renderer_(CreateRenderer(headless)),
-      engine_(*renderer_, ReadRomFile(rom_file)) {}
+Atlas::Atlas(const std::string rom_file, bool headless) {
+  if (headless) {
+    window_ = std::make_unique<FakeWindow>();
+    renderer_ = std::make_unique<FakeRenderer>();
+    input_ = std::make_unique<FakeInput>();
+  } else {
+    auto window = std::make_unique<OpenGLWindow>();
+    renderer_ = std::make_unique<OpenGLRenderer>();
+    input_ = std::make_unique<OpenGLInput>(window->window());
+    window_ = std::move(window);
+  }
+  engine_ =
+      std::make_unique<Engine>(*input_, *renderer_, ReadRomFile(rom_file));
+}
 
 bool Atlas::Run() {
   auto start_time = std::chrono::steady_clock::now();
   std::chrono::nanoseconds time_slept = std::chrono::nanoseconds{0};
   long long total_ticks = 0;
   while (!window_->IsClosed()) {
-    Engine::RunResult run_result = engine_.Run(kCpuTicksPerFrame);
+    Engine::RunResult run_result = engine_->Run(kCpuTicksPerFrame);
     total_ticks += run_result.num_ticks_ran;
 
     // Sleep for the expected amount of time to "sync up" with the correct clock
@@ -93,4 +90,4 @@ bool Atlas::Run() {
   return true;
 }
 
-void Atlas::Reset() { engine_.Reset(); }
+void Atlas::Reset() { engine_->Reset(); }

@@ -4,6 +4,7 @@ cc_library(
     srcs = ["atlas.cc"],
     deps = [
         "//src/engine",
+        "//src/input/opengl",
         "//src/platform",
         "//src/ui/opengl",
     ],
