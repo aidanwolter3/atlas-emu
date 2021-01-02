@@ -12,6 +12,7 @@ class Ppu {
  public:
   virtual ~Ppu() {}
 
+  virtual void Scanline() = 0;
   virtual void Render() = 0;
   virtual void DumpRegisters() {}
 
@@ -30,6 +31,7 @@ class PpuImpl : public Ppu, public Peripheral {
   ~PpuImpl() override;
 
   // Ppu implementation:
+  void Scanline() override;
   void Render() override;
   void DumpRegisters() override;
   void SetMirroringMode(MirroringMode mode) override;
@@ -46,6 +48,10 @@ class PpuImpl : public Ppu, public Peripheral {
   Cpu& cpu_;
   Renderer& renderer_;
   MirroringMode mirroring_mode_;
+
+  int scan_line_ = 0;
+  bool vblank_ = false;
+  bool sprite_0_hit_ = false;
 
   // Store the last value written to a register, so that it can be returned in
   // the lowest bits of a read from the PPU status register.

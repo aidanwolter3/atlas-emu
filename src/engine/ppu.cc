@@ -54,12 +54,28 @@ PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
 
 PpuImpl::~PpuImpl() = default;
 
-void PpuImpl::Render() {
-  // Trigger the NMI if the control bit is set.
-  if (ctrl_ & 0x80) {
-    cpu_.NMI();
+void PpuImpl::Scanline() {
+  // VBlank.
+  if (scan_line_ == 241) {
+    vblank_ = true;
+
+    // Trigger the NMI if the control bit is set.
+    if (ctrl_ & 0x80) {
+      cpu_.NMI();
+    }
   }
 
+  // Pre-render
+  else if (scan_line_ == 261) {
+    vblank_ = false;
+    sprite_0_hit_ = false;
+    scan_line_ = -1;
+  }
+
+  scan_line_++;
+}
+
+void PpuImpl::Render() {
   if (pattern_dirty_ || nametable_dirty_) {
     pattern_dirty_ = nametable_dirty_ = false;
     LoadNametable(0);
@@ -105,6 +121,7 @@ void PpuImpl::SetMirroringMode(MirroringMode mode) { mirroring_mode_ = mode; }
 Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
   address = address % 0x08;
 
+  uint8_t status = last_write_value_ & 0x1F;
   switch (address) {
     case kPpuCtrl:
     case kPpuMask:
@@ -114,9 +131,14 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
       // TODO: Support OAM reading.
       return Peripheral::Status::WRITE_ONLY;
     case kPpuStatus:
-      // For now, we put a dummy value in to get past the Vblank checks at the
-      // start of ROMs.
-      *byte = 0x80 | (last_write_value_ & 0x1F);
+      if (vblank_) {
+        status |= 0x80;
+        vblank_ = false;
+      }
+      if (sprite_0_hit_) {
+        status |= 0x40;
+      }
+      *byte = status;
       break;
     case kPpuData:
       if (data_address_ >= 0x4000) {

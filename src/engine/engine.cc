@@ -69,6 +69,11 @@ Engine::RunResult Engine::Run(int num_ticks) {
       result.can_run = false;
       break;
     }
+
+    // The PPU renders a scanline every 114 CPU ticks.
+    if ((ticks % 114) == 0) {
+      ppu_->Scanline();
+    }
   }
   result.num_ticks_ran = ticks;
 
