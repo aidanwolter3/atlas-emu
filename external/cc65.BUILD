@@ -20,3 +20,9 @@ cc_binary(
     includes = ["src/common"],
     data = [":ld_data"],
 )
+
+cc_binary(
+    name = "da65",
+    srcs = glob(["src/da65/*", "src/common/*"]),
+    includes = ["src/common"],
+)
