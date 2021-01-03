@@ -102,6 +102,7 @@ void PpuImpl::Render() {
   int base_scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0;
   renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
 
+  renderer_.SetMask(mask_);
   renderer_.Render();
 }
 

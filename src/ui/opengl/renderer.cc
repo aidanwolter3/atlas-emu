@@ -12,7 +12,7 @@ OpenGLRenderer::OpenGLRenderer() {
   glEnable(GL_DEPTH_TEST);
   glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
   background_ = std::make_unique<Background>();
   sprites_ = std::make_unique<Sprites>();
@@ -24,12 +24,21 @@ OpenGLRenderer::~OpenGLRenderer() = default;
 void OpenGLRenderer::Render() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  background_->Draw();
-  sprites_->Draw();
+  if (show_background) {
+    background_->Draw();
+  }
+  if (show_sprites) {
+    sprites_->Draw();
+  }
 
   // Bind the shared palette to the correct texture unit.
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_1D, palette_);
+}
+
+void OpenGLRenderer::SetMask(uint8_t mask) {
+  show_background = (mask & 0x08);
+  show_sprites = (mask & 0x10);
 }
 
 void OpenGLRenderer::SetScroll(int x, int y) { background_->SetScroll(x, y); }

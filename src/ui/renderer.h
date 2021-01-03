@@ -14,6 +14,7 @@ class Renderer {
  public:
   virtual ~Renderer() {}
   virtual void Render() = 0;
+  virtual void SetMask(uint8_t mask) = 0;
   virtual void SetScroll(int x, int y) = 0;
   virtual void SetNametable(int num, std::vector<uint8_t>& nametable) = 0;
   virtual void SetAttributeTable(int num,
@@ -27,6 +28,7 @@ class FakeRenderer : public Renderer {
  public:
   // Renderer implementation:
   void Render() override {}
+  void SetMask(uint8_t mask) override {}
   void SetScroll(int x, int y) override {}
   void SetNametable(int num, std::vector<uint8_t>& nametable) override {}
   void SetAttributeTable(int num,
