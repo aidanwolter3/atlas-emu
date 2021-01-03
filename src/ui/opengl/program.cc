@@ -77,10 +77,10 @@ void Program::SetVertices(std::vector<float> vertices) {
 
   // Specify the location of the vertices in the VAO.
   glVertexAttribPointer(/*index=*/0,
-                        /*size=*/2,
+                        /*size=*/3,
                         /*type=*/GL_FLOAT,
                         /*normalized=*/GL_FALSE,
-                        /*stride=*/2 * sizeof(float),
+                        /*stride=*/3 * sizeof(float),
                         /*offset=*/(void*)(0 * sizeof(float)));
   glEnableVertexAttribArray(0);
 }

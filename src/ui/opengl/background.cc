@@ -132,22 +132,22 @@ void Background::PrepareTextures() {
 void Background::LoadElements() {
   program_->SetVertices({
       // nametable 1
-      -1.0, 1.0,   // top-left
-      1.0, 1.0,    // top-right
-      1.0, -1.0,   // bottom-right
-      -1.0, -1.0,  // bottom-left
+      -1.0, 1.0, 0.0,   // top-left
+      1.0, 1.0, 0.0,    // top-right
+      1.0, -1.0, 0.0,   // bottom-right
+      -1.0, -1.0, 0.0,  // bottom-left
 
       // nametable 2
-      -1.0, -1.0,  // top-left
-      1.0, -1.0,   // top-right
-      1.0, -3.0,   // bottom-right
-      -1.0, -3.0,  // bottom-left
+      -1.0, -1.0, 0.0,  // top-left
+      1.0, -1.0, 0.0,   // top-right
+      1.0, -3.0, 0.0,   // bottom-right
+      -1.0, -3.0, 0.0,  // bottom-left
 
       // nametable 1
-      -1.0, -3.0,  // top-left
-      1.0, -3.0,   // top-right
-      1.0, -5.0,   // bottom-right
-      -1.0, -5.0,  // bottom-left
+      -1.0, -3.0, 0.0,  // top-left
+      1.0, -3.0, 0.0,   // top-right
+      1.0, -5.0, 0.0,   // bottom-right
+      -1.0, -5.0, 0.0,  // bottom-left
   });
   program_->SetElements({
       // nametable 1
