@@ -9,19 +9,20 @@
 
 OpenGLRenderer::OpenGLRenderer() {
   InitGLIfNeeded();
+  glEnable(GL_DEPTH_TEST);
+  glClearDepth(1.0f);
+  glDepthFunc(GL_LEQUAL);
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
   background_ = std::make_unique<Background>();
   sprites_ = std::make_unique<Sprites>();
   PrepareTextures();
-
-  // Prepare depth, so that sprites can go behind the background.
-  glEnable(GL_DEPTH_TEST);
 }
 
 OpenGLRenderer::~OpenGLRenderer() = default;
 
 void OpenGLRenderer::Render() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
   background_->Draw();
   sprites_->Draw();

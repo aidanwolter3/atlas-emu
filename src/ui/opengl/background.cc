@@ -10,6 +10,46 @@
 
 #include "src/ui/opengl/shader.h"
 
+namespace {
+
+// Inserts all the elements of |src| to the end of |dest|.
+template <class T>
+void AppendVectorTo(std::vector<T>& dest, std::vector<T> src) {
+  dest.insert(dest.end(), src.begin(), src.end());
+}
+
+std::vector<unsigned int> CreateElements(unsigned int first_vertex) {
+  std::vector<unsigned int> elements = {
+      first_vertex,     first_vertex + 1, first_vertex + 2,
+      first_vertex + 2, first_vertex + 3, first_vertex,
+  };
+  return elements;
+}
+
+std::vector<float> CreateBgVertices(int x, int y, float depth) {
+  float x_offset = 2.0f * x;
+  float y_offset = -2.0f * y;
+  std::vector<float> vertices = {
+      x_offset - 1.0f, y_offset + 1.0f, depth,  // top-left
+      x_offset + 1.0f, y_offset + 1.0f, depth,  // top-right
+      x_offset + 1.0f, y_offset - 1.0f, depth,  // bottom-right
+      x_offset - 1.0f, y_offset - 1.0f, depth,  // bottom-left
+  };
+  return vertices;
+}
+
+std::vector<float> CreateBgTextureCoords(int table_num) {
+  std::vector<float> texture_coords = {
+      0.0, 0.0, (float)table_num,  // bottom-left
+      1.0, 0.0, (float)table_num,  // bottom-right
+      1.0, 1.0, (float)table_num,  // top-right
+      0.0, 1.0, (float)table_num,  // top-left
+  };
+  return texture_coords;
+}
+
+}  // namespace
+
 Background::Background() {
   // Create the Shaders and Program.
   std::vector<std::unique_ptr<Shader>> shaders;
@@ -130,55 +170,35 @@ void Background::PrepareTextures() {
 }
 
 void Background::LoadElements() {
-  program_->SetVertices({
-      // nametable 1
-      -1.0, 1.0, 0.0,   // top-left
-      1.0, 1.0, 0.0,    // top-right
-      1.0, -1.0, 0.0,   // bottom-right
-      -1.0, -1.0, 0.0,  // bottom-left
+  std::vector<unsigned int> elements;
+  std::vector<float> vertices;
+  std::vector<float> texture_coords;
 
-      // nametable 2
-      -1.0, -1.0, 0.0,  // top-left
-      1.0, -1.0, 0.0,   // top-right
-      1.0, -3.0, 0.0,   // bottom-right
-      -1.0, -3.0, 0.0,  // bottom-left
+  // Table 1: (0, 0)
+  AppendVectorTo(elements, CreateElements(0));
+  AppendVectorTo(vertices, CreateBgVertices(0, 0, 1.0));  // Zero color
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
+  AppendVectorTo(elements, CreateElements(4));
+  AppendVectorTo(vertices, CreateBgVertices(0, 0, 0.0));  // Non-zero color
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
 
-      // nametable 1
-      -1.0, -3.0, 0.0,  // top-left
-      1.0, -3.0, 0.0,   // top-right
-      1.0, -5.0, 0.0,   // bottom-right
-      -1.0, -5.0, 0.0,  // bottom-left
-  });
-  program_->SetElements({
-      // nametable 1
-      0, 1, 2,  // triangle in top-right
-      2, 3, 0,  // triangle in bottom-left
+  // Table 2: (0, 1)
+  AppendVectorTo(elements, CreateElements(8));
+  AppendVectorTo(vertices, CreateBgVertices(0, 1, 1.0));  // Zero color
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(1));
+  AppendVectorTo(elements, CreateElements(12));
+  AppendVectorTo(vertices, CreateBgVertices(0, 1, 0.0));  // Non-zero color
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(1));
 
-      // nametable 2
-      4, 5, 6,  // triangle in top-right
-      6, 7, 4,  // triangle in bottom-left
+  // Table 1: (0, 2)
+  AppendVectorTo(elements, CreateElements(16));
+  AppendVectorTo(vertices, CreateBgVertices(0, 2, 1.0));  // Zero color
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
+  AppendVectorTo(elements, CreateElements(20));
+  AppendVectorTo(vertices, CreateBgVertices(0, 2, 0.0));  // Non-zero color
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
 
-      // nametable 1
-      8, 9, 10,   // triangle in top-right
-      10, 11, 8,  // triangle in bottom-left
-  });
-  program_->SetTextureCoords({
-      // nametable 1
-      0.0, 0.0, 0.0,  // bottom-left = tile#0
-      1.0, 0.0, 0.0,  // bottom-right
-      1.0, 1.0, 0.0,  // top-right
-      0.0, 1.0, 0.0,  // top-left
-
-      // nametable 2
-      0.0, 0.0, 1.0,  // bottom-left = tile#0
-      1.0, 0.0, 1.0,  // bottom-right
-      1.0, 1.0, 1.0,  // top-right
-      0.0, 1.0, 1.0,  // top-left
-
-      // nametable 1
-      0.0, 0.0, 0.0,  // bottom-left = tile#0
-      1.0, 0.0, 0.0,  // bottom-right
-      1.0, 1.0, 0.0,  // top-right
-      0.0, 1.0, 0.0,  // top-left
-  });
+  program_->SetElements(elements);
+  program_->SetVertices(vertices);
+  program_->SetTextureCoords(texture_coords);
 }

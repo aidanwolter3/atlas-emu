@@ -26,17 +26,30 @@ std::vector<float> CreateSpriteVertices(Sprite& s, int sprite_num) {
   float top_left_x = ((float)s.x * 2.0 / 0x100) - 1.0;
   float top_left_y = ((float)(0xF0 - s.y) * 2.0 / 0xF0) - 1.0;
 
-  // Negative is closer to the camera, thus is "on top".
-  // Sprites with lower numbers have higher priority, and should end up "on top"
-  // of sprites with lower priorities.
-  float z_index = (((float)sprite_num - 64.0) / 64.0) +  // default z_index
-                  ((s.attribute & 0x20) ? 1.0 : 0.0);    // behind background?
+  // Calculate the depth on the z axis.
+  // Result is:
+  //  -0.75 .. -0.25 for above background
+  //   0.25 ..  0.75 for below background
+  //
+  // The background is either 0.0f (non-zero pixels) or 1.0f (zero pixels).
+  //
+  // Negative is closer to the camera, thus is "on top". Sprites with lower
+  // numbers have higher priority, and should end up "on top" of sprites with
+  // lower priorities.
+  // First, calculate the depth from -1.0f .. 0.0f
+  float z = (((float)sprite_num - 63.0) / 63.0);
+  // Second, convert this to -0.75f .. -0.25f.
+  z = (z / 2.0) - 0.25;
+  // Third, add 1.0f if necessary to move it behind the non-zero background.
+  if (s.attribute & 0x20) {
+    z += 1.0;
+  }
 
   std::vector<float> vertices = {
-      top_left_x,          top_left_y,          z_index,
-      top_left_x + unit_x, top_left_y,          z_index,
-      top_left_x + unit_x, top_left_y - unit_y, z_index,
-      top_left_x,          top_left_y - unit_y, z_index,
+      top_left_x,          top_left_y,          z,
+      top_left_x + unit_x, top_left_y,          z,
+      top_left_x + unit_x, top_left_y - unit_y, z,
+      top_left_x,          top_left_y - unit_y, z,
   };
   return vertices;
 }
@@ -161,8 +174,8 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
                GL_UNSIGNED_BYTE, attributes.data());
 
   // Send the vectors to the program.
-  program_->SetVertices(vertices);
   program_->SetElements(elements);
+  program_->SetVertices(vertices);
   program_->SetTextureCoords(texture_coords);
 }
 
