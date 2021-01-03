@@ -128,8 +128,8 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
     case kOamAddr:
       return Peripheral::Status::WRITE_ONLY;
     case kOamData:
-      // TODO: Support OAM reading.
-      return Peripheral::Status::WRITE_ONLY;
+      *byte = oam_[oam_address_++];
+      return Peripheral::Status::OK;
     case kPpuStatus:
       if (vblank_) {
         status |= 0x80;
