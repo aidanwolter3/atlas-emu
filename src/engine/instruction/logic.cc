@@ -129,7 +129,7 @@ void BIT::ExecuteInternal(uint8_t opcode) {
       std::cout << "Unsupported BIT variant: " << opcode << std::endl;
       return;
   }
-  reg_.status.set(Status::kZero, value & reg_.acc);
+  reg_.status.set(Status::kZero, (value & reg_.acc) == 0);
   reg_.status.set(Status::kSign, value & 0x80);
   reg_.status.set(Status::kOverflow, value & 0x40);
 }

@@ -22,7 +22,7 @@ TEST_F(LogicTest, BIT_ZeroPage) {
   BIT bit(bus_, reg_);
   bit.Execute(0x24);
 
-  EXPECT_TRUE(reg_.status.test(Status::kZero));
+  EXPECT_FALSE(reg_.status.test(Status::kZero));
   EXPECT_TRUE(reg_.status.test(Status::kSign));
   EXPECT_TRUE(reg_.status.test(Status::kOverflow));
 
@@ -34,7 +34,7 @@ TEST_F(LogicTest, BIT_ZeroPage) {
 
   bit.Execute(0x24);
 
-  EXPECT_FALSE(reg_.status.test(Status::kZero));
+  EXPECT_TRUE(reg_.status.test(Status::kZero));
   EXPECT_FALSE(reg_.status.test(Status::kSign));
   EXPECT_TRUE(reg_.status.test(Status::kOverflow));
 
@@ -46,7 +46,7 @@ TEST_F(LogicTest, BIT_ZeroPage) {
 
   bit.Execute(0x24);
 
-  EXPECT_FALSE(reg_.status.test(Status::kZero));
+  EXPECT_TRUE(reg_.status.test(Status::kZero));
   EXPECT_FALSE(reg_.status.test(Status::kSign));
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
 }
