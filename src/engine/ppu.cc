@@ -48,7 +48,8 @@ PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
       pattern_(2, std::vector<uint8_t>(0x1000, 0)),
       nametable_(2, std::vector<uint8_t>(0x3C0, 0)),
       attribute_(2, std::vector<uint8_t>(0x40, 0)),
-      frame_palette_(0x20, 0) {
+      frame_palette_(0x20, 0),
+      background_(2, std::vector<uint8_t>(64 * 32 * 30, 0)) {
   renderer_.SetPalette(kColorPalette);
 }
 
@@ -78,8 +79,7 @@ void PpuImpl::Scanline() {
 void PpuImpl::Render() {
   if (pattern_dirty_ || nametable_dirty_) {
     pattern_dirty_ = nametable_dirty_ = false;
-    LoadNametable(0);
-    LoadNametable(1);
+    LoadBackground();
   }
 
   if (attribute_dirty_) {
@@ -302,43 +302,43 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
 
 uint16_t PpuImpl::GetAddressLength() { return kPpuSize; }
 
-void PpuImpl::LoadNametable(int table_num) {
+void PpuImpl::LoadBackground() {
   constexpr int kBytesPerTile = 64;
   constexpr int kBytesPerRow = kBytesPerTile * 32;
-  constexpr int kNametableSize = kBytesPerRow * 30;
-  std::vector<uint8_t> nametable(kNametableSize, 0);
+  for (int table_num = 0; table_num < 2; ++table_num) {
+    // For every tile...
+    int tile_nametable_index = 0;
+    for (int row = 0; row < 30; ++row) {
+      for (int col = 0; col < 32; ++col) {
+        // Grab the tile number from memory...
+        int tile_num = nametable_[table_num][tile_nametable_index];
 
-  // For every tile...
-  int tile_nametable_index = 0;
-  for (int row = 0; row < 30; ++row) {
-    for (int col = 0; col < 32; ++col) {
-      // Grab the tile number from memory...
-      int tile_num = nametable_[table_num][tile_nametable_index];
+        // For every bit in the tile...
+        const int pattern_table_num = (ctrl_ >> 4) & 0x01;
+        const int tile_offset = tile_num * 16;
+        for (int i = 0; i < 8; ++i) {
+          uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
+          uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
+          for (int j = 0; j < 8; ++j) {
+            // Calculate the bit color...
+            uint8_t color = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
 
-      // For every bit in the tile...
-      const int pattern_table_num = (ctrl_ >> 4) & 0x01;
-      const int tile_offset = tile_num * 16;
-      for (int i = 0; i < 8; ++i) {
-        uint8_t byte_1 = pattern_[pattern_table_num][tile_offset + i];
-        uint8_t byte_2 = pattern_[pattern_table_num][tile_offset + i + 8];
-        for (int j = 0; j < 8; ++j) {
-          // Calculate the bit color...
-          uint8_t color = (byte_1 & 0x01) | ((byte_2 & 0x01) << 1);
+            // And insert the tile data into the nametable.
+            int background_index =
+                (row * kBytesPerRow) + (i * 32 * 8) + (col * 8) + (7 - j);
+            background_[table_num][background_index] = color;
 
-          // And insert the tile data into the nametable.
-          int nametable_index =
-              (row * kBytesPerRow) + (i * 32 * 8) + (col * 8) + (7 - j);
-          nametable[nametable_index] = color;
-
-          byte_1 = byte_1 >> 1;
-          byte_2 = byte_2 >> 1;
+            byte_1 = byte_1 >> 1;
+            byte_2 = byte_2 >> 1;
+          }
         }
-      }
 
-      tile_nametable_index++;
+        tile_nametable_index++;
+      }
     }
+    renderer_.SetNametable(table_num, background_[table_num]);
   }
-  renderer_.SetNametable(table_num, nametable);
+  DetectSprite0Hit();
 }
 
 void PpuImpl::LoadSprites() {
@@ -394,7 +394,63 @@ void PpuImpl::LoadSprites() {
         .tile = sprite_tile,
     };
     sprites.push_back(sprite);
+
+    // Save the first sprite for hit detection.
+    if (sprite_num == 0) {
+      sprite_0_ = sprite;
+    }
   }
 
   renderer_.SetSprites(sprites);
+  DetectSprite0Hit();
+}
+
+void PpuImpl::DetectSprite0Hit() {
+  if (!sprite_0_ || sprite_0_->y >= 0xF0) {
+    return;
+  }
+
+  // TODO: Support scrolls other than 0, 0.
+  int scroll_x = (ctrl_ & 0x01) * 0x100 + scroll_x_;
+  int scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0 + scroll_y_;
+  if (scroll_x != 0 || scroll_y != 0) {
+    std::cout << "Cannot detect sprite 0 hit for scroll != 0" << std::endl;
+    return;
+  }
+
+  // TODO: Support splits.
+  int origin_x = sprite_0_->x;
+  int origin_y = sprite_0_->y;
+  int height = sprite_0_->tile.size() / 8;
+  for (int i = 0; i < height; ++i) {
+    int real_y = origin_y + i;
+
+    // Off-screen.
+    if (real_y >= 0xF0) {
+      break;
+    }
+
+    for (int j = 0; j < 8; ++j) {
+      int real_x = origin_x + j;
+
+      // Off-screen.
+      if (real_x >= 0xFF) {
+        break;
+      }
+
+      // Find the colors of the background and the sprite at the specific
+      // location.
+      // TODO: Support nametables other than 0.
+      int background_index = (real_y * 0xFF) + real_x;
+      int tile_index = (i * 8) + j;
+      uint8_t background_color = background_[0][background_index];
+      uint8_t sprite_color = sprite_0_->tile[tile_index];
+
+      // Hit.
+      if (background_color && sprite_color) {
+        sprite_0_hit_ = true;
+        return;
+      }
+    }
+  }
 }

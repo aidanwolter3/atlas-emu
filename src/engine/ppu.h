@@ -1,6 +1,7 @@
 #ifndef ENGINE_PPU_H_
 #define ENGINE_PPU_H_
 
+#include <optional>
 #include <unordered_set>
 #include <vector>
 
@@ -42,8 +43,9 @@ class PpuImpl : public Ppu, public Peripheral {
   uint16_t GetAddressLength() override;
 
  private:
-  void LoadNametable(int table_num);
+  void LoadBackground();
   void LoadSprites();
+  void DetectSprite0Hit();
 
   Cpu& cpu_;
   Renderer& renderer_;
@@ -80,6 +82,10 @@ class PpuImpl : public Ppu, public Peripheral {
   bool nametable_dirty_ = true;
   bool attribute_dirty_ = true;
   bool frame_palette_dirty_ = true;
+
+  // Computed data used for sprite 0 hit dectection.
+  std::optional<Sprite> sprite_0_;
+  std::vector<std::vector<uint8_t>> background_;
 };
 
 #endif  // ENGINE_PPU_H_
