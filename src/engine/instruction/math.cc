@@ -84,15 +84,15 @@ void SBC::ExecuteInternal(uint8_t opcode) {
       b = ONES_COMPLIMENT(b);
       break;
     case 0xED:
-      bus_.Read(IndexedZeroPage(reg_.y), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xFD:
       bus_.Read(Absolute(), &b);
       b = ONES_COMPLIMENT(b);
       break;
-    case 0xF9:
+    case 0xFD:
       bus_.Read(IndexedAbsolute(reg_.x), &b);
+      b = ONES_COMPLIMENT(b);
+      break;
+    case 0xF9:
+      bus_.Read(IndexedAbsolute(reg_.y), &b);
       b = ONES_COMPLIMENT(b);
       break;
     case 0xE1:
