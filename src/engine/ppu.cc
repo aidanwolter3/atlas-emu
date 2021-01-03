@@ -410,40 +410,43 @@ void PpuImpl::DetectSprite0Hit() {
     return;
   }
 
-  // TODO: Support scrolls other than 0, 0.
   int scroll_x = (ctrl_ & 0x01) * 0x100 + scroll_x_;
   int scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0 + scroll_y_;
-  if (scroll_x != 0 || scroll_y != 0) {
-    std::cout << "Cannot detect sprite 0 hit for scroll != 0" << std::endl;
-    return;
-  }
 
   // TODO: Support splits.
-  int origin_x = sprite_0_->x;
-  int origin_y = sprite_0_->y;
   int height = sprite_0_->tile.size() / 8;
   for (int i = 0; i < height; ++i) {
-    int real_y = origin_y + i;
+    int bg_offset_y = scroll_y + sprite_0_->y + i;
 
-    // Off-screen.
-    if (real_y >= 0xF0) {
+    // Skip because we are off-screen.
+    if ((sprite_0_->y + i) > 0xF0) {
       break;
     }
 
-    for (int j = 0; j < 8; ++j) {
-      int real_x = origin_x + j;
+    // Bump to the next background if needed.
+    if (bg_offset_y >= 0xF0) {
+      // TODO: implement
+    }
 
-      // Off-screen.
-      if (real_x >= 0xFF) {
+    for (int j = 0; j < 8; ++j) {
+      int bg_offset_x = scroll_x + sprite_0_->x + j;
+
+      // Skip because we are ff-screen.
+      if ((sprite_0_->x + j) > 0xFF) {
         break;
+      }
+
+      // Bump to the next background if needed.
+      if (bg_offset_x >= 0xFF) {
+        // TODO: implement
       }
 
       // Find the colors of the background and the sprite at the specific
       // location.
       // TODO: Support nametables other than 0.
-      int background_index = (real_y * 0xFF) + real_x;
-      int tile_index = (i * 8) + j;
+      int background_index = (bg_offset_y * 0xFF) + bg_offset_x;
       uint8_t background_color = background_[0][background_index];
+      int tile_index = (i * 8) + j;
       uint8_t sprite_color = sprite_0_->tile[tile_index];
 
       // Hit.
