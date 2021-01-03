@@ -12,6 +12,9 @@ OpenGLRenderer::OpenGLRenderer() {
   background_ = std::make_unique<Background>();
   sprites_ = std::make_unique<Sprites>();
   PrepareTextures();
+
+  // Prepare depth, so that sprites can go behind the background.
+  glEnable(GL_DEPTH_TEST);
 }
 
 OpenGLRenderer::~OpenGLRenderer() = default;

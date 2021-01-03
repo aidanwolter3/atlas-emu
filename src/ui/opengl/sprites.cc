@@ -19,18 +19,24 @@ std::vector<unsigned int> CreateSpriteElements(unsigned int first_vertex) {
   return elements;
 }
 
-std::vector<float> CreateSpriteVertices(Sprite& s) {
+std::vector<float> CreateSpriteVertices(Sprite& s, int sprite_num) {
   const int height = (s.tile.size() == 128 ? 16 : 8);
   float unit_x = 2.0 * 8 / 0x100;
   float unit_y = 2.0 * height / 0xF0;
   float top_left_x = ((float)s.x * 2.0 / 0x100) - 1.0;
   float top_left_y = ((float)(0xF0 - s.y) * 2.0 / 0xF0) - 1.0;
 
+  // Negative is closer to the camera, thus is "on top".
+  // Sprites with lower numbers have higher priority, and should end up "on top"
+  // of sprites with lower priorities.
+  float z_index = (((float)sprite_num - 64.0) / 64.0) +  // default z_index
+                  ((s.attribute & 0x20) ? 1.0 : 0.0);    // behind background?
+
   std::vector<float> vertices = {
-      top_left_x,          top_left_y,          1.0,
-      top_left_x + unit_x, top_left_y,          1.0,
-      top_left_x + unit_x, top_left_y - unit_y, 1.0,
-      top_left_x,          top_left_y - unit_y, 1.0,
+      top_left_x,          top_left_y,          z_index,
+      top_left_x + unit_x, top_left_y,          z_index,
+      top_left_x + unit_x, top_left_y - unit_y, z_index,
+      top_left_x,          top_left_y - unit_y, z_index,
   };
   return vertices;
 }
@@ -144,7 +150,7 @@ void Sprites::SetSprites(std::vector<Sprite>& sprites) {
 
     // Set the vertices/elements/texture coords.
     AppendVectorTo(elements, CreateSpriteElements(/*first_vertex=*/i * 4));
-    AppendVectorTo(vertices, CreateSpriteVertices(s));
+    AppendVectorTo(vertices, CreateSpriteVertices(s, i));
     AppendVectorTo(texture_coords, CreateSpriteTextureCoords(s, i));
   }
 
