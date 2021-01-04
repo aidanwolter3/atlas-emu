@@ -5,12 +5,12 @@
 
 namespace {
 
-#define IS_POSITIVE(n) (n & 0x80 ? true : false)
+#define IS_POSITIVE(n) (n & 0x80 ? false : true)
 #define ONES_COMPLIMENT(n) (0xFF - n)
 
 void SetZeroSignStatus(Registers& reg, uint8_t data) {
   reg.status.set(Status::kZero, data == 0);
-  reg.status.set(Status::kSign, static_cast<int8_t>(data) < 0);
+  reg.status.set(Status::kSign, !IS_POSITIVE(data));
 }
 
 void SetStatusFromSummation(Registers& reg, uint16_t a, uint16_t b,
