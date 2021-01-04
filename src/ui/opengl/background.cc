@@ -26,24 +26,41 @@ std::vector<unsigned int> CreateElements(unsigned int first_vertex) {
   return elements;
 }
 
-std::vector<float> CreateBgVertices(int x, int y, float depth) {
-  float x_offset = 2.0f * x;
-  float y_offset = -2.0f * y;
+// Create the vertices for the background.
+// |depth| = 1.0 means zero color.
+// |depth| = 0.0 means non-zero color.
+std::vector<float> CreateBgVertices(int offset_y, int height, float depth) {
+  float y_top = 1.0 - (offset_y * 2.0 / 0xF0);
+  float y_bottom = y_top - (height * 2.0 / 0xF0);
   std::vector<float> vertices = {
-      x_offset - 1.0f, y_offset + 1.0f, depth,  // top-left
-      x_offset + 1.0f, y_offset + 1.0f, depth,  // top-right
-      x_offset + 1.0f, y_offset - 1.0f, depth,  // bottom-right
-      x_offset - 1.0f, y_offset - 1.0f, depth,  // bottom-left
+      -1.0f, y_top,    depth,  // top-left
+      +1.0f, y_top,    depth,  // top-right
+      +1.0f, y_bottom, depth,  // bottom-right
+      -1.0f, y_bottom, depth,  // bottom-left
   };
   return vertices;
 }
 
-std::vector<float> CreateBgTextureCoords(int table_num) {
+// Create the texture coordinates for a pane with height |h| pixels starting at
+// the texture origin |x| * |y| in pixels from the top-left.
+std::vector<float> CreateBgTextureCoords(int x, int y, int h) {
+  if (h > 0xF0) {
+    std::cout << "Background cannot be larger than the screen size"
+              << std::endl;
+  }
+
+  float origin_x = (float)(x % 0x300) / 0x100;
+  float origin_y = (float)(y % 0x2D0) / 0xF0;
+  float width = 1.0;
+  float height = (float)h / 0xF0;
+
+  // Note: The 0.0 at the end of each coordinate is unused, but since we share
+  // the Program code with the sprites, we use a width of 3 floats.
   std::vector<float> texture_coords = {
-      0.0, 0.0, (float)table_num,  // bottom-left
-      1.0, 0.0, (float)table_num,  // bottom-right
-      1.0, 1.0, (float)table_num,  // top-right
-      0.0, 1.0, (float)table_num,  // top-left
+      origin_x,         origin_y,          0.0,  // bottom-left
+      origin_x + width, origin_y,          0.0,  // bottom-right
+      origin_x + width, origin_y + height, 0.0,  // top-right
+      origin_x,         origin_y + height, 0.0,  // top-left
   };
   return texture_coords;
 }
@@ -60,8 +77,9 @@ Background::Background() {
   program_ = std::make_unique<Program>(std::move(shaders));
 
   PrepareTextures();
-  LoadElements();
-  SetScroll(0, 0);
+
+  // Start with scroll = (0, 0).
+  LoadElements(0, 0);
 }
 
 void Background::Draw() {
@@ -80,14 +98,6 @@ void Background::Draw() {
   glBindTexture(GL_TEXTURE_1D_ARRAY, attributes_);
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_1D, palettes_);
-
-  // Set the scroll.
-  glm::mat4 transform = glm::mat4(1.0f);
-  float x = 2.0f * scroll_x_ / float(0x100);
-  float y = 2.0f * scroll_y_ / float(0xF0);
-  transform = glm::translate(transform, glm::vec3(-x, y, 0.0f));
-  auto transform_loc = program_->GetUniformLocation("transform");
-  glUniformMatrix4fv(transform_loc, 1, false, &transform[0][0]);
 
   program_->Draw();
 }
@@ -126,10 +136,7 @@ void Background::SetPalettes(std::vector<uint8_t>& palettes) {
                GL_UNSIGNED_BYTE, palettes.data());
 }
 
-void Background::SetScroll(int x, int y) {
-  scroll_x_ = x % 0x200;
-  scroll_y_ = y % 0x200;
-}
+void Background::SetScroll(int x, int y) { LoadElements(x, y); }
 
 void Background::PrepareTextures() {
   // Declare the tiles.
@@ -169,34 +176,18 @@ void Background::PrepareTextures() {
   glActiveTexture(0);
 }
 
-void Background::LoadElements() {
+void Background::LoadElements(int x, int y) {
   std::vector<unsigned int> elements;
   std::vector<float> vertices;
   std::vector<float> texture_coords;
 
-  // Table 1: (0, 0)
+  int height = 0xF0;
   AppendVectorTo(elements, CreateElements(0));
-  AppendVectorTo(vertices, CreateBgVertices(0, 0, 1.0));  // Zero color
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
+  AppendVectorTo(vertices, CreateBgVertices(0, height, /*depth=*/1.0));
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(x, y, height));
   AppendVectorTo(elements, CreateElements(4));
-  AppendVectorTo(vertices, CreateBgVertices(0, 0, 0.0));  // Non-zero color
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
-
-  // Table 2: (0, 1)
-  AppendVectorTo(elements, CreateElements(8));
-  AppendVectorTo(vertices, CreateBgVertices(0, 1, 1.0));  // Zero color
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(1));
-  AppendVectorTo(elements, CreateElements(12));
-  AppendVectorTo(vertices, CreateBgVertices(0, 1, 0.0));  // Non-zero color
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(1));
-
-  // Table 1: (0, 2)
-  AppendVectorTo(elements, CreateElements(16));
-  AppendVectorTo(vertices, CreateBgVertices(0, 2, 1.0));  // Zero color
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
-  AppendVectorTo(elements, CreateElements(20));
-  AppendVectorTo(vertices, CreateBgVertices(0, 2, 0.0));  // Non-zero color
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(0));
+  AppendVectorTo(vertices, CreateBgVertices(0, height, /*depth=*/0.0));
+  AppendVectorTo(texture_coords, CreateBgTextureCoords(x, y, height));
 
   program_->SetElements(elements);
   program_->SetVertices(vertices);

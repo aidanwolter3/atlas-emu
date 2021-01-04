@@ -18,7 +18,7 @@ class Background {
 
  private:
   void PrepareTextures();
-  void LoadElements();
+  void LoadElements(int x, int y);
 
   std::unique_ptr<Program> program_;
 
