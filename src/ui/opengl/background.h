@@ -5,12 +5,14 @@
 #include <vector>
 
 #include "src/ui/opengl/program.h"
+#include "src/ui/renderer.h"
 
 class Background {
  public:
   Background();
 
   void Draw();
+  void SetMirroringMode(MirroringMode mode);
   void SetTiles(int num, std::vector<uint8_t>& tiles);
   void SetAttributes(int num, std::vector<uint8_t>& attributes);
   void SetPalettes(std::vector<uint8_t>& palettes);
@@ -27,6 +29,7 @@ class Background {
   unsigned int attributes_;
   unsigned int palettes_;
 
+  MirroringMode mirroring_mode_;
   int scroll_x_, scroll_y_ = 0;
 };
 

@@ -4,6 +4,13 @@
 #include <cstdint>
 #include <vector>
 
+enum class MirroringMode {
+  kOneScreenLower = 0,
+  kOneScreenUpper = 1,
+  kVertical = 2,
+  kHorizontal = 3,
+};
+
 struct Sprite {
   uint8_t x, y;
   uint8_t attribute;
@@ -14,6 +21,7 @@ class Renderer {
  public:
   virtual ~Renderer() {}
   virtual void Render() = 0;
+  virtual void SetMirroringMode(MirroringMode mode) = 0;
   virtual void SetMask(uint8_t mask) = 0;
   virtual void SetScroll(int x, int y) = 0;
   virtual void SetNametable(int num, std::vector<uint8_t>& nametable) = 0;
@@ -28,6 +36,7 @@ class FakeRenderer : public Renderer {
  public:
   // Renderer implementation:
   void Render() override {}
+  void SetMirroringMode(MirroringMode mode) override {}
   void SetMask(uint8_t mask) override {}
   void SetScroll(int x, int y) override {}
   void SetNametable(int num, std::vector<uint8_t>& nametable) override {}

@@ -12,6 +12,7 @@ class OpenGLRenderer : public Renderer {
 
   // Renderer implementation:
   void Render() override;
+  void SetMirroringMode(MirroringMode mode) override;
   void SetMask(uint8_t mask) override;
   void SetScroll(int x, int y) override;
   void SetNametable(int num, std::vector<uint8_t>& nametable) override;

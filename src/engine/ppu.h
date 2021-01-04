@@ -16,13 +16,6 @@ class Ppu {
   virtual void Scanline() = 0;
   virtual void Render() = 0;
   virtual void DumpRegisters() {}
-
-  enum class MirroringMode {
-    kOneScreenLower = 0,
-    kOneScreenUpper = 1,
-    kVertical = 2,
-    kHorizontal = 3,
-  };
   virtual void SetMirroringMode(MirroringMode mode) {}
 };
 

@@ -78,8 +78,9 @@ Background::Background() {
 
   PrepareTextures();
 
-  // Start with scroll = (0, 0).
+  // Start with scroll (0, 0) and horizontal mirroring.
   LoadElements(0, 0);
+  SetMirroringMode(MirroringMode::kHorizontal);
 }
 
 void Background::Draw() {
@@ -99,7 +100,17 @@ void Background::Draw() {
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_1D, palettes_);
 
+  // Set the mirroring mode.
+  // Currently, we only support horizontal/vertical mirroring.
+  bool vertical_mirroring = (mirroring_mode_ == MirroringMode::kVertical);
+  auto mirroring_loc = program_->GetUniformLocation("vertical_mirroring");
+  glUniform1i(mirroring_loc, vertical_mirroring);
+
   program_->Draw();
+}
+
+void Background::SetMirroringMode(MirroringMode mode) {
+  mirroring_mode_ = mode;
 }
 
 void Background::SetTiles(int num, std::vector<uint8_t>& tiles) {

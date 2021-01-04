@@ -28,12 +28,12 @@ std::string IntToHexString(int num) {
   return ss.str();
 }
 
-int AdjustTableNumForMirroring(int table_num, Ppu::MirroringMode mode) {
+int AdjustTableNumForMirroring(int table_num, MirroringMode mode) {
   // TODO: Implement one-screen mirroring.
   switch (mode) {
-    case Ppu::MirroringMode::kVertical:
+    case MirroringMode::kVertical:
       return table_num & 0x01;
-    case Ppu::MirroringMode::kHorizontal:
+    case MirroringMode::kHorizontal:
     default:
       return table_num >> 1;
   }
@@ -117,7 +117,10 @@ void PpuImpl::DumpRegisters() {
   std::cout << "---------" << std::endl;
 }
 
-void PpuImpl::SetMirroringMode(MirroringMode mode) { mirroring_mode_ = mode; }
+void PpuImpl::SetMirroringMode(MirroringMode mode) {
+  mirroring_mode_ = mode;
+  renderer_.SetMirroringMode(mode);
+}
 
 Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
   address = address % 0x08;

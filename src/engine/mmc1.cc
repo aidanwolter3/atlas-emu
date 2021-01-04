@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 
+#include "src/ui/renderer.h"
+
 namespace {
 
 constexpr bool kDebug = false;
@@ -21,18 +23,18 @@ std::string IntToHexString(int num) {
   return ss.str();
 }
 
-Ppu::MirroringMode MirroringModeFromControl(uint8_t control) {
+MirroringMode MirroringModeFromControl(uint8_t control) {
   switch (control & 0x03) {
     case 0:
-      return Ppu::MirroringMode::kOneScreenLower;
+      return MirroringMode::kOneScreenLower;
     case 1:
-      return Ppu::MirroringMode::kOneScreenUpper;
+      return MirroringMode::kOneScreenUpper;
     case 2:
-      return Ppu::MirroringMode::kVertical;
+      return MirroringMode::kVertical;
     case 3:
-      return Ppu::MirroringMode::kHorizontal;
+      return MirroringMode::kHorizontal;
     default:
-      return Ppu::MirroringMode::kHorizontal;
+      return MirroringMode::kHorizontal;
   }
 }
 

@@ -36,6 +36,10 @@ void OpenGLRenderer::Render() {
   glBindTexture(GL_TEXTURE_1D, palette_);
 }
 
+void OpenGLRenderer::SetMirroringMode(MirroringMode mode) {
+  background_->SetMirroringMode(mode);
+}
+
 void OpenGLRenderer::SetMask(uint8_t mask) {
   show_background = (mask & 0x08);
   show_sprites = (mask & 0x10);

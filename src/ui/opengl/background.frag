@@ -9,16 +9,22 @@ uniform sampler1D palette;
 uniform usampler2DArray tiles;
 uniform usampler1DArray attributes;
 uniform usampler1D palettes;
+uniform bool vertical_mirroring;
 
 void main() {
   // Calculate the texture coordinate inside the appropriate table.
   float table_x = tex_coord.x - floor(tex_coord.x);
   float table_y = tex_coord.y - floor(tex_coord.y);
-  // TODO: support vertical mirroring.
-  float table_num = floor(mod(tex_coord.y, 2.0));
-  vec3 table_tex_coord = vec3(table_x, table_y, table_num);
+  
+  // Calculate the table number based on the mirroring mode.
+  float mirroring_offset = tex_coord.y;
+  if (vertical_mirroring) {
+    mirroring_offset = tex_coord.x;
+  }
+  float table_num = floor(mod(mirroring_offset, 2.0));
 
-  uint color_num = texture(tiles, table_tex_coord).r;
+  // Find the color number (0-3) for the tile.
+  uint color_num = texture(tiles, vec3(table_x, table_y, table_num)).r;
 
   // Zero color pixels should only show up at depth 1.0f.
   // Non-zero color pixels should only show up at depth 0.0f.
