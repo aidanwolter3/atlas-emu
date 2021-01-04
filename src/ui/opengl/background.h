@@ -30,7 +30,6 @@ class Background {
   unsigned int palettes_;
 
   MirroringMode mirroring_mode_;
-  int scroll_x_, scroll_y_ = 0;
 };
 
 #endif  // UI_OPENGL_BACKGROUND_H_
