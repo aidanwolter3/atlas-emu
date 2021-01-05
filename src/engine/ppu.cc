@@ -59,6 +59,9 @@ void PpuImpl::Scanline() {
   // Reset the vertical split when rendering starts.
   if (scanline_ == 0) {
     vertical_split_scanline_ = 0;
+    vertical_split_base_nametable_ = base_nametable_;
+    vertical_split_scroll_x_ = scroll_x_;
+    vertical_split_scroll_y_ = scroll_y_;
   }
 
   // Normal rendering.
@@ -116,8 +119,12 @@ void PpuImpl::Render() {
   int base_scroll_y = ((base_nametable_ >> 1) & 0x01) * 0xF0;
   renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
 
-  renderer_.SetVerticalSplit(vertical_split_scanline_, vertical_split_scroll_x_,
-                             vertical_split_scroll_y_);
+  int split_base_scroll_x = (vertical_split_base_nametable_ & 0x01) * 0x100;
+  int split_base_scroll_y =
+      ((vertical_split_base_nametable_ >> 1) & 0x01) * 0xF0;
+  renderer_.SetVerticalSplit(vertical_split_scanline_,
+                             split_base_scroll_x + vertical_split_scroll_x_,
+                             split_base_scroll_y + vertical_split_scroll_y_);
 
   renderer_.SetMask(mask_);
   renderer_.Render();
@@ -229,14 +236,26 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       return Peripheral::Status::READ_ONLY;
     case kPpuCtrl:
       if (base_nametable_ != (byte & 0x03)) {
+        base_nametable_ = (byte & 0x03);
         nametable_dirty_ = true;
         attribute_dirty_ = true;
+
+        // Nametable is modified during the visible scanlines, which means a
+        // split is occuring.
+        if (scanline_ < 241) {
+          vertical_split_scanline_ = scanline_ + 1;
+          // TODO: We write the x/y values here, because otherwise, the scrolly
+          // will not be adjusted for the current scanline. We should
+          // investigate a better approach, as this will not work when the
+          // PpuAddr is changed, then the base nametable is changed mid-frame.
+          vertical_split_base_nametable_ = base_nametable_;
+          vertical_split_scroll_y_ = scroll_y_ + vertical_split_scanline_;
+        }
       }
       if ((ctrl_ & 0x10) != (byte & 0x10)) {
         pattern_dirty_ = true;
       }
       ctrl_ = byte;
-      base_nametable_ = (ctrl_ & 0x03);
       break;
     case kPpuMask:
       mask_ = byte;
@@ -256,16 +275,15 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       } else {
         scroll_y_ = byte;
       }
+      paired_write_latch_ = !paired_write_latch_;
 
       // Scroll is modified during the visible scanlines, which means a split
       // is occuring.
       if (scanline_ < 241) {
-        vertical_split_scanline_ = scanline_;
+        vertical_split_scanline_ = scanline_ + 1;
         vertical_split_scroll_x_ = scroll_x_;
-        vertical_split_scroll_y_ = scroll_y_;
+        vertical_split_scroll_y_ = scroll_y_ + vertical_split_scanline_;
       }
-
-      paired_write_latch_ = !paired_write_latch_;
       break;
     case kPpuAddress:
       // The first byte written is the upper byte of the address, and the second
@@ -289,16 +307,16 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
         scroll_x_ &= 0b00000111;
         scroll_x_ |= ((byte & 0x1F) << 3);
       }
+      paired_write_latch_ = !paired_write_latch_;
 
       // Address is modified during the visible scanlines, which means a split
       // is occuring.
       if (scanline_ < 241) {
-        vertical_split_scanline_ = scanline_;
+        vertical_split_scanline_ = scanline_ + 1;
+        vertical_split_base_nametable_ = base_nametable_;
         vertical_split_scroll_x_ = scroll_x_;
         vertical_split_scroll_y_ = scroll_y_;
       }
-
-      paired_write_latch_ = !paired_write_latch_;
       break;
     case kPpuData:
       if (data_address_ >= 0x4000) {

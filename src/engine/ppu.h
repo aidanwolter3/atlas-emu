@@ -51,6 +51,7 @@ class PpuImpl : public Ppu, public Peripheral {
   // Tracks whether a vertical split exist for parial horizontal scrolling.
   // A split location of 0 means no split.
   int vertical_split_scanline_ = 0;
+  int vertical_split_base_nametable_ = 0;
   int vertical_split_scroll_x_ = 0;
   int vertical_split_scroll_y_ = 0;
 
@@ -58,16 +59,14 @@ class PpuImpl : public Ppu, public Peripheral {
   // the lowest bits of a read from the PPU status register.
   uint8_t last_write_value_ = 0;
 
-  // Registers
+  bool paired_write_latch_ = true;
   uint8_t ctrl_ = 0;
   uint8_t mask_ = 0;
   uint8_t oam_address_ = 0;
-
-  bool paired_write_latch_ = true;
-  uint8_t scroll_x_ = 0;
-  uint8_t scroll_y_ = 0;
   uint16_t data_address_;
   uint8_t base_nametable_;
+  uint8_t scroll_x_ = 0;
+  uint8_t scroll_y_ = 0;
 
   // Data
   std::vector<uint8_t> oam_;

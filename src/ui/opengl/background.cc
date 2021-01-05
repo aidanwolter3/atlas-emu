@@ -77,10 +77,8 @@ Background::Background() {
   program_ = std::make_unique<Program>(std::move(shaders));
 
   PrepareTextures();
-
-  // Start with scroll (0, 0) and horizontal mirroring.
-  LoadElements(0, 0);
   SetMirroringMode(MirroringMode::kHorizontal);
+  RefreshElements();
 }
 
 void Background::Draw() {
@@ -147,18 +145,21 @@ void Background::SetPalettes(std::vector<uint8_t>& palettes) {
                GL_UNSIGNED_BYTE, palettes.data());
 }
 
-void Background::SetScroll(int x, int y) { LoadElements(x, y); }
+void Background::SetScroll(int x, int y) {
+  scroll_x_ = x;
+  scroll_y_ = y;
+  RefreshElements();
+}
 
 void Background::SetVerticalSplit(int scanline, int x, int y) {
   if (vertical_split_scanline_ != 0 && scanline == 0) {
-    // TODO: remove the vertical split.
     vertical_split_scanline_ = 0;
-  }
-  if (scanline != 0) {
-    // TODO: add the vertical split.
+    RefreshElements();
+  } else if (scanline != 0) {
     vertical_split_scanline_ = scanline;
     vertical_split_scroll_x_ = x;
     vertical_split_scroll_y_ = y;
+    RefreshElements();
   }
 }
 
@@ -200,18 +201,48 @@ void Background::PrepareTextures() {
   glActiveTexture(0);
 }
 
-void Background::LoadElements(int x, int y) {
+void Background::RefreshElements() {
+  // TODO: This is a lot of redrawing. We should optimize.
+
   std::vector<unsigned int> elements;
   std::vector<float> vertices;
   std::vector<float> texture_coords;
 
-  int height = 0xF0;
+  int top_split_height =
+      vertical_split_scanline_ ? vertical_split_scanline_ : 0xF0;
+
+  // Always add the top split even if it takes up the entire screen.
   AppendVectorTo(elements, CreateElements(0));
-  AppendVectorTo(vertices, CreateBgVertices(0, height, /*depth=*/1.0));
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(x, y, height));
   AppendVectorTo(elements, CreateElements(4));
-  AppendVectorTo(vertices, CreateBgVertices(0, height, /*depth=*/0.0));
-  AppendVectorTo(texture_coords, CreateBgTextureCoords(x, y, height));
+  AppendVectorTo(vertices,
+                 CreateBgVertices(0, top_split_height, /*depth=*/1.0));
+  AppendVectorTo(vertices,
+                 CreateBgVertices(0, top_split_height, /*depth=*/0.0));
+  AppendVectorTo(texture_coords,
+                 CreateBgTextureCoords(scroll_x_, scroll_y_, top_split_height));
+  AppendVectorTo(texture_coords,
+                 CreateBgTextureCoords(scroll_x_, scroll_y_, top_split_height));
+
+  // Draw the bottom split if required.
+  if (vertical_split_scanline_) {
+    AppendVectorTo(elements, CreateElements(8));
+    AppendVectorTo(elements, CreateElements(12));
+    int bottom_split_height = 0xF0 - top_split_height;
+    AppendVectorTo(vertices,
+                   CreateBgVertices(top_split_height, bottom_split_height,
+                                    /*depth=*/1.0));
+    AppendVectorTo(vertices,
+                   CreateBgVertices(top_split_height, bottom_split_height,
+                                    /*depth=*/0.0));
+    AppendVectorTo(
+        texture_coords,
+        CreateBgTextureCoords(vertical_split_scroll_x_,
+                              vertical_split_scroll_y_, bottom_split_height));
+    AppendVectorTo(
+        texture_coords,
+        CreateBgTextureCoords(vertical_split_scroll_x_,
+                              vertical_split_scroll_y_, bottom_split_height));
+  }
 
   program_->SetElements(elements);
   program_->SetVertices(vertices);

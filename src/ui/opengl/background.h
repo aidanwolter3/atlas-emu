@@ -21,7 +21,7 @@ class Background {
 
  private:
   void PrepareTextures();
-  void LoadElements(int x, int y);
+  void RefreshElements();
 
   std::unique_ptr<Program> program_;
 
@@ -31,6 +31,8 @@ class Background {
   unsigned int palettes_;
 
   MirroringMode mirroring_mode_;
+  int scroll_x_ = 0;
+  int scroll_y_ = 0;
   int vertical_split_scanline_ = 0;
   int vertical_split_scroll_x_ = 0;
   int vertical_split_scroll_y_ = 0;
