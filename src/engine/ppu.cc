@@ -56,17 +56,22 @@ PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
 PpuImpl::~PpuImpl() = default;
 
 void PpuImpl::Scanline() {
+  // Reset the vertical split when rendering starts.
+  if (scanline_ == 0) {
+    vertical_split_scanline_ = 0;
+  }
+
   // Normal rendering.
-  if (scan_line_ < 240) {
+  if (scanline_ < 240) {
     // Detect if sprite 0 has a hit anywhere on this scanline.
     // TODO: Should the CPU be able to run in the middle of a scanline?
     for (int x = 0; !sprite_0_hit_ && x < 0xFF; ++x) {
-      DetectSprite0HitAtCoordinate(x, scan_line_);
+      DetectSprite0HitAtCoordinate(x, scanline_);
     }
   }
 
   // VBlank.
-  else if (scan_line_ == 241) {
+  else if (scanline_ == 241) {
     vblank_ = true;
 
     // Trigger the NMI if the control bit is set.
@@ -76,13 +81,13 @@ void PpuImpl::Scanline() {
   }
 
   // Pre-rendering.
-  else if (scan_line_ == 261) {
+  else if (scanline_ == 261) {
     vblank_ = false;
     sprite_0_hit_ = false;
-    scan_line_ = -1;
+    scanline_ = -1;
   }
 
-  scan_line_++;
+  scanline_++;
 }
 
 void PpuImpl::Render() {
@@ -110,6 +115,9 @@ void PpuImpl::Render() {
   int base_scroll_x = (base_nametable_ & 0x01) * 0x100;
   int base_scroll_y = ((base_nametable_ >> 1) & 0x01) * 0xF0;
   renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
+
+  renderer_.SetVerticalSplit(vertical_split_scanline_, vertical_split_scroll_x_,
+                             vertical_split_scroll_y_);
 
   renderer_.SetMask(mask_);
   renderer_.Render();
@@ -248,6 +256,15 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       } else {
         scroll_y_ = byte;
       }
+
+      // Scroll is modified during the visible scanlines, which means a split
+      // is occuring.
+      if (scanline_ < 241) {
+        vertical_split_scanline_ = scanline_;
+        vertical_split_scroll_x_ = scroll_x_;
+        vertical_split_scroll_y_ = scroll_y_;
+      }
+
       paired_write_latch_ = !paired_write_latch_;
       break;
     case kPpuAddress:
@@ -271,6 +288,14 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
         scroll_y_ |= ((byte & 0xE0) >> 2);
         scroll_x_ &= 0b00000111;
         scroll_x_ |= ((byte & 0x1F) << 3);
+      }
+
+      // Address is modified during the visible scanlines, which means a split
+      // is occuring.
+      if (scanline_ < 241) {
+        vertical_split_scanline_ = scanline_;
+        vertical_split_scroll_x_ = scroll_x_;
+        vertical_split_scroll_y_ = scroll_y_;
       }
 
       paired_write_latch_ = !paired_write_latch_;

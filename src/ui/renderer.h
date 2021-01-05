@@ -24,6 +24,7 @@ class Renderer {
   virtual void SetMirroringMode(MirroringMode mode) = 0;
   virtual void SetMask(uint8_t mask) = 0;
   virtual void SetScroll(int x, int y) = 0;
+  virtual void SetVerticalSplit(int scanline, int x, int y) = 0;
   virtual void SetNametable(int num, std::vector<uint8_t>& nametable) = 0;
   virtual void SetAttributeTable(int num,
                                  std::vector<uint8_t>& attribute_table) = 0;
@@ -39,6 +40,7 @@ class FakeRenderer : public Renderer {
   void SetMirroringMode(MirroringMode mode) override {}
   void SetMask(uint8_t mask) override {}
   void SetScroll(int x, int y) override {}
+  void SetVerticalSplit(int scanline, int x, int y) override {}
   void SetNametable(int num, std::vector<uint8_t>& nametable) override {}
   void SetAttributeTable(int num,
                          std::vector<uint8_t>& attribute_table) override {}

@@ -44,9 +44,15 @@ class PpuImpl : public Ppu, public Peripheral {
   Renderer& renderer_;
   MirroringMode mirroring_mode_;
 
-  int scan_line_ = 0;
+  int scanline_ = 0;
   bool vblank_ = false;
   bool sprite_0_hit_ = false;
+
+  // Tracks whether a vertical split exist for parial horizontal scrolling.
+  // A split location of 0 means no split.
+  int vertical_split_scanline_ = 0;
+  int vertical_split_scroll_x_ = 0;
+  int vertical_split_scroll_y_ = 0;
 
   // Store the last value written to a register, so that it can be returned in
   // the lowest bits of a read from the PPU status register.

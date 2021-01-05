@@ -149,6 +149,19 @@ void Background::SetPalettes(std::vector<uint8_t>& palettes) {
 
 void Background::SetScroll(int x, int y) { LoadElements(x, y); }
 
+void Background::SetVerticalSplit(int scanline, int x, int y) {
+  if (vertical_split_scanline_ != 0 && scanline == 0) {
+    // TODO: remove the vertical split.
+    vertical_split_scanline_ = 0;
+  }
+  if (scanline != 0) {
+    // TODO: add the vertical split.
+    vertical_split_scanline_ = scanline;
+    vertical_split_scroll_x_ = x;
+    vertical_split_scroll_y_ = y;
+  }
+}
+
 void Background::PrepareTextures() {
   // Declare the tiles.
   glActiveTexture(GL_TEXTURE1);

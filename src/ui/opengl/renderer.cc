@@ -47,6 +47,10 @@ void OpenGLRenderer::SetMask(uint8_t mask) {
 
 void OpenGLRenderer::SetScroll(int x, int y) { background_->SetScroll(x, y); }
 
+void OpenGLRenderer::SetVerticalSplit(int scanline, int x, int y) {
+  background_->SetVerticalSplit(scanline, x, y);
+}
+
 void OpenGLRenderer::SetNametable(int num, std::vector<uint8_t>& nametable) {
   background_->SetTiles(num, nametable);
 }

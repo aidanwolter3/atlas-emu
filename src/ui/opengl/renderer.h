@@ -15,6 +15,7 @@ class OpenGLRenderer : public Renderer {
   void SetMirroringMode(MirroringMode mode) override;
   void SetMask(uint8_t mask) override;
   void SetScroll(int x, int y) override;
+  void SetVerticalSplit(int scanline, int x, int y) override;
   void SetNametable(int num, std::vector<uint8_t>& nametable) override;
   void SetAttributeTable(int num, std::vector<uint8_t>& table) override;
   void SetFramePalette(std::vector<uint8_t>& palette) override;

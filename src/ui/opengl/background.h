@@ -17,6 +17,7 @@ class Background {
   void SetAttributes(int num, std::vector<uint8_t>& attributes);
   void SetPalettes(std::vector<uint8_t>& palettes);
   void SetScroll(int x, int y);
+  void SetVerticalSplit(int scanline, int x, int y);
 
  private:
   void PrepareTextures();
@@ -30,6 +31,9 @@ class Background {
   unsigned int palettes_;
 
   MirroringMode mirroring_mode_;
+  int vertical_split_scanline_ = 0;
+  int vertical_split_scroll_x_ = 0;
+  int vertical_split_scroll_y_ = 0;
 };
 
 #endif  // UI_OPENGL_BACKGROUND_H_
