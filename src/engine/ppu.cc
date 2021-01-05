@@ -56,8 +56,17 @@ PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
 PpuImpl::~PpuImpl() = default;
 
 void PpuImpl::Scanline() {
+  // Normal rendering.
+  if (scan_line_ < 240) {
+    // Detect if sprite 0 has a hit anywhere on this scanline.
+    // TODO: Should the CPU be able to run in the middle of a scanline?
+    for (int x = 0; !sprite_0_hit_ && x < 0xFF; ++x) {
+      DetectSprite0HitAtCoordinate(x, scan_line_);
+    }
+  }
+
   // VBlank.
-  if (scan_line_ == 241) {
+  else if (scan_line_ == 241) {
     vblank_ = true;
 
     // Trigger the NMI if the control bit is set.
@@ -66,7 +75,7 @@ void PpuImpl::Scanline() {
     }
   }
 
-  // Pre-render
+  // Pre-rendering.
   else if (scan_line_ == 261) {
     vblank_ = false;
     sprite_0_hit_ = false;
@@ -98,8 +107,8 @@ void PpuImpl::Render() {
     LoadSprites();
   }
 
-  int base_scroll_x = (ctrl_ & 0x01) * 0x100;
-  int base_scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0;
+  int base_scroll_x = (base_nametable_ & 0x01) * 0x100;
+  int base_scroll_y = ((base_nametable_ >> 1) & 0x01) * 0xF0;
   renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
 
   renderer_.SetMask(mask_);
@@ -143,6 +152,7 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
         status |= 0x40;
       }
       *byte = status;
+      paired_write_latch_ = true;
       break;
     case kPpuData:
       if (data_address_ >= 0x4000) {
@@ -210,7 +220,7 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
     case kPpuStatus:
       return Peripheral::Status::READ_ONLY;
     case kPpuCtrl:
-      if ((ctrl_ & 0x03) != (byte & 0x03)) {
+      if (base_nametable_ != (byte & 0x03)) {
         nametable_dirty_ = true;
         attribute_dirty_ = true;
       }
@@ -218,6 +228,7 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
         pattern_dirty_ = true;
       }
       ctrl_ = byte;
+      base_nametable_ = (ctrl_ & 0x03);
       break;
     case kPpuMask:
       mask_ = byte;
@@ -232,23 +243,37 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
     case kPpuScroll:
       // The first byte written is the X-scroll and the second byte is Y-scroll.
       // After that it continues alternating back and forth.
-      if (scroll_write_to_x_) {
+      if (paired_write_latch_) {
         scroll_x_ = byte;
       } else {
         scroll_y_ = byte;
       }
-      scroll_write_to_x_ = !scroll_write_to_x_;
+      paired_write_latch_ = !paired_write_latch_;
       break;
     case kPpuAddress:
       // The first byte written is the upper byte of the address, and the second
       // byte is the lower byte of the address. After that it continues
       // alternating back and forth.
-      if (address_write_to_upper_) {
+      if (paired_write_latch_) {
         data_address_ = (byte << 8);
       } else {
         data_address_ = (data_address_ & 0xFF00) + byte;
       }
-      address_write_to_upper_ = !address_write_to_upper_;
+
+      // The PPU shared registers for several purposes, therefore this affects
+      // other variables.
+      if (paired_write_latch_) {
+        base_nametable_ = ((byte & 0x0C) >> 2);
+        scroll_y_ &= 0b00111000;
+        scroll_y_ |= ((byte & 0x03) << 6) | ((byte & 0x30) >> 4);
+      } else {
+        scroll_y_ &= 0b11000111;
+        scroll_y_ |= ((byte & 0xE0) >> 2);
+        scroll_x_ &= 0b00000111;
+        scroll_x_ |= ((byte & 0x1F) << 3);
+      }
+
+      paired_write_latch_ = !paired_write_latch_;
       break;
     case kPpuData:
       if (data_address_ >= 0x4000) {
@@ -342,7 +367,6 @@ void PpuImpl::LoadBackground() {
     }
     renderer_.SetNametable(table_num, background_[table_num]);
   }
-  DetectSprite0Hit();
 }
 
 void PpuImpl::LoadSprites() {
@@ -406,58 +430,61 @@ void PpuImpl::LoadSprites() {
   }
 
   renderer_.SetSprites(sprites);
-  DetectSprite0Hit();
 }
 
-void PpuImpl::DetectSprite0Hit() {
+void PpuImpl::DetectSprite0HitAtCoordinate(int x, int y) {
   if (!sprite_0_ || sprite_0_->y >= 0xF0) {
     return;
   }
 
-  int scroll_x = (ctrl_ & 0x01) * 0x100 + scroll_x_;
-  int scroll_y = ((ctrl_ >> 1) & 0x01) * 0xF0 + scroll_y_;
+  // Calculate the offset into the sprite's tile.
+  int sprite_x = x - sprite_0_->x;
+  int sprite_y = y - sprite_0_->y;
 
-  // TODO: Support splits.
-  int height = sprite_0_->tile.size() / 8;
-  for (int i = 0; i < height; ++i) {
-    int bg_offset_y = scroll_y + sprite_0_->y + i;
-
-    // Skip because we are off-screen.
-    if ((sprite_0_->y + i) > 0xF0) {
-      break;
-    }
-
-    // Bump to the next background if needed.
-    if (bg_offset_y >= 0xF0) {
-      // TODO: implement
-    }
-
-    for (int j = 0; j < 8; ++j) {
-      int bg_offset_x = scroll_x + sprite_0_->x + j;
-
-      // Skip because we are ff-screen.
-      if ((sprite_0_->x + j) > 0xFF) {
-        break;
-      }
-
-      // Bump to the next background if needed.
-      if (bg_offset_x >= 0xFF) {
-        // TODO: implement
-      }
-
-      // Find the colors of the background and the sprite at the specific
-      // location.
-      // TODO: Support nametables other than 0.
-      int background_index = (bg_offset_y * 0xFF) + bg_offset_x;
-      uint8_t background_color = background_[0][background_index];
-      int tile_index = (i * 8) + j;
-      uint8_t sprite_color = sprite_0_->tile[tile_index];
-
-      // Hit.
-      if (background_color && sprite_color) {
-        sprite_0_hit_ = true;
-        return;
-      }
-    }
+  // Sprite does not overlap with (x, y).
+  int sprite_height = sprite_0_->tile.size() / 8;
+  if ((sprite_x < 0 || sprite_x >= 8) ||
+      (sprite_y < 0 || sprite_y >= sprite_height)) {
+    return;
   }
+
+  // Find the sprite's color at (x, y).
+  int tile_index = (sprite_x * 8) + sprite_y;
+  uint8_t sprite_color = sprite_0_->tile[tile_index];
+
+  // Return early, if the sprite's color is zero.
+  if (sprite_color == 0) {
+    return;
+  }
+
+  // Calculate the origin of the background after the scroll, accounting for the
+  // base nametable.
+  int bg_origin_x = ((base_nametable_ & 0x01) * 0x100) + scroll_x_;
+  int bg_origin_y = ((base_nametable_ >> 1) & 0x01) * 0xF0 + scroll_y_;
+
+  // Calculate which table is at (x, y), accounting for the mirroring mode.
+  int table_num = 0;
+  if (mirroring_mode_ == MirroringMode::kHorizontal) {
+    table_num = (bg_origin_y % 0x1E0) / 0xF0;
+  } else if (mirroring_mode_ == MirroringMode::kVertical) {
+    table_num = (bg_origin_x % 0x200) / 0x100;
+  } else {
+    std::cout << "Unsupported mirroring mode" << std::endl;
+  }
+
+  // Calculate the offset into the background.
+  int bg_x = (bg_origin_x % 0xF0) + x;
+  int bg_y = (bg_origin_y % 0xF0) + y;
+
+  // Find the background's color at (x, y).
+  int bg_index = (bg_y * 0xFF) + bg_x;
+  uint8_t bg_color = background_[table_num][bg_index];
+
+  // Return if the background's color is zero.
+  if (bg_color == 0) {
+    return;
+  }
+
+  // Set hit, because both colors are non-zero.
+  sprite_0_hit_ = true;
 }

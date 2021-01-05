@@ -38,7 +38,7 @@ class PpuImpl : public Ppu, public Peripheral {
  private:
   void LoadBackground();
   void LoadSprites();
-  void DetectSprite0Hit();
+  void DetectSprite0HitAtCoordinate(int x, int y);
 
   Cpu& cpu_;
   Renderer& renderer_;
@@ -57,12 +57,11 @@ class PpuImpl : public Ppu, public Peripheral {
   uint8_t mask_ = 0;
   uint8_t oam_address_ = 0;
 
-  bool scroll_write_to_x_ = true;
+  bool paired_write_latch_ = true;
   uint8_t scroll_x_ = 0;
   uint8_t scroll_y_ = 0;
-
-  bool address_write_to_upper_ = true;
   uint16_t data_address_;
+  uint8_t base_nametable_;
 
   // Data
   std::vector<uint8_t> oam_;
