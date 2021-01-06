@@ -55,9 +55,9 @@ PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
 
 PpuImpl::~PpuImpl() = default;
 
-void PpuImpl::Scanline() {
-  // Reset the vertical split when rendering starts.
-  if (scanline_ == 0) {
+void PpuImpl::Tick() {
+  // Reset.
+  if (scanline_ == 0 && cycle_ == 0) {
     vertical_split_scanline_ = 0;
     vertical_split_base_nametable_ = base_nametable_;
     vertical_split_scroll_x_ = scroll_x_;
@@ -67,67 +67,39 @@ void PpuImpl::Scanline() {
   // Normal rendering.
   if (scanline_ < 240) {
     // Detect if sprite 0 has a hit anywhere on this scanline.
-    // TODO: Should the CPU be able to run in the middle of a scanline?
-    for (int x = 0; !sprite_0_hit_ && x < 0xFF; ++x) {
-      DetectSprite0HitAtCoordinate(x, scanline_);
+    if (!sprite_0_hit_ && cycle_ > 1 && cycle_ <= 256) {
+      DetectSprite0HitAtCoordinate(cycle_ - 2, scanline_);
     }
   }
 
-  // VBlank.
-  else if (scanline_ == 241) {
-    vblank_ = true;
-
-    // Trigger the NMI if the control bit is set.
-    if (ctrl_ & 0x80) {
-      cpu_.NMI();
+  // Start of VBlank.
+  if (scanline_ == 241) {
+    if (cycle_ == 1) {
+      vblank_ = true;
+      // Trigger the NMI if the control bit is set.
+      if (ctrl_ & 0x80) {
+        cpu_.NMI();
+      }
     }
   }
 
-  // Pre-rendering.
-  else if (scanline_ == 261) {
-    vblank_ = false;
-    sprite_0_hit_ = false;
-    scanline_ = -1;
+  // Prerender.
+  if (scanline_ == 261) {
+    if (cycle_ == 1) {
+      sprite_0_hit_ = false;
+      vblank_ = false;
+    }
   }
 
-  scanline_++;
-}
-
-void PpuImpl::Render() {
-  if (pattern_dirty_ || nametable_dirty_) {
-    pattern_dirty_ = nametable_dirty_ = false;
-    LoadBackground();
+  cycle_++;
+  if (cycle_ > 340) {
+    cycle_ = 0;
+    scanline_++;
   }
-
-  if (attribute_dirty_) {
-    attribute_dirty_ = false;
-    renderer_.SetAttributeTable(0, attribute_[0]);
-    renderer_.SetAttributeTable(1, attribute_[1]);
+  if (scanline_ > 261) {
+    Render();
+    scanline_ = 0;
   }
-
-  if (frame_palette_dirty_) {
-    frame_palette_dirty_ = false;
-    renderer_.SetFramePalette(frame_palette_);
-  }
-
-  if (oam_dirty_) {
-    oam_dirty_ = false;
-    LoadSprites();
-  }
-
-  int base_scroll_x = (base_nametable_ & 0x01) * 0x100;
-  int base_scroll_y = ((base_nametable_ >> 1) & 0x01) * 0xF0;
-  renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
-
-  int split_base_scroll_x = (vertical_split_base_nametable_ & 0x01) * 0x100;
-  int split_base_scroll_y =
-      ((vertical_split_base_nametable_ >> 1) & 0x01) * 0xF0;
-  renderer_.SetVerticalSplit(vertical_split_scanline_,
-                             split_base_scroll_x + vertical_split_scroll_x_,
-                             split_base_scroll_y + vertical_split_scroll_y_);
-
-  renderer_.SetMask(mask_);
-  renderer_.Render();
 }
 
 void PpuImpl::DumpRegisters() {
@@ -373,6 +345,43 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
 }
 
 uint16_t PpuImpl::GetAddressLength() { return kPpuSize; }
+
+void PpuImpl::Render() {
+  if (pattern_dirty_ || nametable_dirty_) {
+    pattern_dirty_ = nametable_dirty_ = false;
+    LoadBackground();
+  }
+
+  if (attribute_dirty_) {
+    attribute_dirty_ = false;
+    renderer_.SetAttributeTable(0, attribute_[0]);
+    renderer_.SetAttributeTable(1, attribute_[1]);
+  }
+
+  if (frame_palette_dirty_) {
+    frame_palette_dirty_ = false;
+    renderer_.SetFramePalette(frame_palette_);
+  }
+
+  if (oam_dirty_) {
+    oam_dirty_ = false;
+    LoadSprites();
+  }
+
+  int base_scroll_x = (base_nametable_ & 0x01) * 0x100;
+  int base_scroll_y = ((base_nametable_ >> 1) & 0x01) * 0xF0;
+  renderer_.SetScroll(base_scroll_x + scroll_x_, base_scroll_y + scroll_y_);
+
+  int split_base_scroll_x = (vertical_split_base_nametable_ & 0x01) * 0x100;
+  int split_base_scroll_y =
+      ((vertical_split_base_nametable_ >> 1) & 0x01) * 0xF0;
+  renderer_.SetVerticalSplit(vertical_split_scanline_,
+                             split_base_scroll_x + vertical_split_scroll_x_,
+                             split_base_scroll_y + vertical_split_scroll_y_);
+
+  renderer_.SetMask(mask_);
+  renderer_.Render();
+}
 
 void PpuImpl::LoadBackground() {
   constexpr int kBytesPerTile = 64;

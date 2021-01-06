@@ -13,8 +13,7 @@ class Ppu {
  public:
   virtual ~Ppu() {}
 
-  virtual void Scanline() = 0;
-  virtual void Render() = 0;
+  virtual void Tick() = 0;
   virtual void DumpRegisters() {}
   virtual void SetMirroringMode(MirroringMode mode) {}
 };
@@ -25,8 +24,7 @@ class PpuImpl : public Ppu, public Peripheral {
   ~PpuImpl() override;
 
   // Ppu implementation:
-  void Scanline() override;
-  void Render() override;
+  void Tick() override;
   void DumpRegisters() override;
   void SetMirroringMode(MirroringMode mode) override;
 
@@ -36,6 +34,7 @@ class PpuImpl : public Ppu, public Peripheral {
   uint16_t GetAddressLength() override;
 
  private:
+  void Render();
   void LoadBackground();
   void LoadSprites();
   void DetectSprite0HitAtCoordinate(int x, int y);
@@ -44,6 +43,7 @@ class PpuImpl : public Ppu, public Peripheral {
   Renderer& renderer_;
   MirroringMode mirroring_mode_;
 
+  int cycle_ = 0;
   int scanline_ = 0;
   bool vblank_ = false;
   bool sprite_0_hit_ = false;

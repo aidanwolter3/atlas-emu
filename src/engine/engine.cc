@@ -46,9 +46,11 @@ Engine::RunResult Engine::Run(int num_ticks) {
       .has_error = false,
   };
 
-  // Pump the CPU.
   int ticks;
   for (ticks = 0; ticks < num_ticks; ++ticks) {
+    ppu_->Tick();
+    ppu_->Tick();
+    ppu_->Tick();
     cpu_->Tick();
 
     // Check for errors.
@@ -69,16 +71,8 @@ Engine::RunResult Engine::Run(int num_ticks) {
       result.can_run = false;
       break;
     }
-
-    // The PPU renders a scanline every 114 CPU ticks.
-    if ((ticks % 114) == 0) {
-      ppu_->Scanline();
-    }
   }
   result.num_ticks_ran = ticks;
-
-  // Pump the PPU.
-  ppu_->Render();
 
   if (result.has_error) {
     DumpState();

@@ -45,8 +45,7 @@ std::vector<uint8_t> GenerateLargeTestData(uint8_t prg_count) {
 
 class FakePpu : public Ppu {
  public:
-  void Scanline() override {}
-  void Render() override {}
+  void Tick() override {}
 };
 
 TEST(MMC1Test, ReadBoundaries) {
