@@ -492,7 +492,7 @@ void PpuImpl::DetectSprite0HitAtCoordinate(int x, int y) {
   }
 
   // Find the sprite's color at (x, y).
-  int tile_index = (sprite_x * 8) + sprite_y;
+  int tile_index = (sprite_y * 8) + sprite_x;
   uint8_t sprite_color = sprite_0_->tile[tile_index];
 
   // Return early, if the sprite's color is zero.
