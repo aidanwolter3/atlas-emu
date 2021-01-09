@@ -10,11 +10,24 @@
 #define SET_LOG_NAME(n) \
   std::string GetLogName() override { return n; }
 
-class Instruction {
+class Instruction2 {
  public:
-  Instruction(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
-  virtual ~Instruction() {}
-  void Execute(uint8_t opcode);
+  Instruction2(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
+  virtual ~Instruction2() {}
+  virtual bool Execute(uint8_t opcode, int cycle) = 0;
+
+ protected:
+  // Grabs the next |num| bytes after the pc.
+  std::vector<uint8_t> FetchOperands(int num);
+
+  Bus& bus_;
+  Registers& reg_;
+};
+
+class Instruction : public Instruction2 {
+ public:
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle = 0) override;
 
  protected:
   // Rather than overriding this method, Instructions should use the
@@ -35,9 +48,6 @@ class Instruction {
   uint16_t IndexedAbsolute(uint8_t index);
   uint16_t IndexedIndirect(uint8_t index);
   uint16_t IndirectIndexed(uint8_t index);
-
-  Bus& bus_;
-  Registers& reg_;
 
   std::vector<std::string> log_elements_;
 };

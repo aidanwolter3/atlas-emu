@@ -20,35 +20,43 @@ std::string IntToHexString(int num) {
 Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
     : event_logger_(event_logger), bus_(bus), reg_(reg) {}
 
-void Cpu::Reset() { reg_.pc = ReadAddressFromVectorTable(0xFFFC); }
-
-void Cpu::NMI() {
-  bus_.Write(kStackStartAddress + reg_.sp--, reg_.pc >> 8);
-  bus_.Write(kStackStartAddress + reg_.sp--, reg_.pc & 0xFF);
-  bus_.Write(kStackStartAddress + reg_.sp--, reg_.status.to_ulong());
-  reg_.status.set(Status::kIntDisable);
-  reg_.pc = ReadAddressFromVectorTable(0xFFFA);
+void Cpu::Reset() {
+  state_ = State::kFetchOpcode;
+  nmi_ = false;
+  reg_.pc = ReadAddressFromVectorTable(0xFFFC);
 }
 
+void Cpu::NMI() { nmi_ = true; }
+
 void Cpu::Tick() {
-  // Fetch
-  uint8_t opcode;
-  bus_.Read(reg_.pc, &opcode);
-  reg_.pc++;
+  switch (state_) {
+    case State::kFetchOpcode:
+      // Reset state
+      opcode_ = 0;
+      execute_instruction_ticks_ = 0;
+      nmi_ticks_ = 0;
 
-  // Decode
-  auto instruction_it = instruction_map_.find(opcode);
-  if (instruction_it == instruction_map_.end()) {
-    std::string event_name =
-        "Failed to decode: unknown instruction: " + IntToHexString(opcode);
-    event_logger_.LogEvent(
-        {.type = EventLogger::EventType::kError, .name = event_name});
-    return;
+      FetchOpcode();
+      state_ = State::kExecuteInstruction;
+      break;
+    case State::kExecuteInstruction:
+      execute_instruction_ticks_++;
+      if (ExecuteInstruction()) {
+        if (nmi_) {
+          state_ = State::kNMI;
+        } else {
+          state_ = State::kFetchOpcode;
+        }
+      }
+      break;
+    case State::kNMI:
+      nmi_ticks_++;
+      if (PerformNMI()) {
+        nmi_ = false;
+        state_ = State::kFetchOpcode;
+      }
+      break;
   }
-
-  // Execute
-  Instruction* instruction_ptr = instruction_it->second;
-  instruction_ptr->Execute(opcode);
 }
 
 void Cpu::DumpRegisters() {
@@ -73,13 +81,48 @@ void Cpu::DumpRegisters() {
   std::cout << "-----------" << std::endl;
 }
 
-void Cpu::RegisterInstruction(std::unique_ptr<Instruction> instruction,
+void Cpu::RegisterInstruction(std::unique_ptr<Instruction2> instruction,
                               std::vector<uint8_t> opcodes) {
   instructions_.push_back(std::move(instruction));
-  Instruction* instruction_ptr = instructions_.back().get();
+  Instruction2* instruction_ptr = instructions_.back().get();
   for (auto opcode : opcodes) {
     instruction_map_[opcode] = instruction_ptr;
   }
+}
+
+void Cpu::FetchOpcode() {
+  auto status = bus_.Read(reg_.pc, &opcode_);
+  if (status != Peripheral::Status::OK) {
+    std::string event_name =
+        "Failed to read the opcode at address: " + IntToHexString(reg_.pc);
+    event_logger_.LogEvent(
+        {.type = EventLogger::EventType::kError, .name = event_name});
+    return;
+  }
+  reg_.pc++;
+
+  if (!instruction_map_.count(opcode_)) {
+    std::string event_name =
+        "Failed to decode: unknown instruction: " + IntToHexString(opcode_);
+    event_logger_.LogEvent(
+        {.type = EventLogger::EventType::kError, .name = event_name});
+    return;
+  }
+}
+
+bool Cpu::ExecuteInstruction() {
+  return instruction_map_[opcode_]->Execute(opcode_,
+                                            execute_instruction_ticks_);
+}
+
+bool Cpu::PerformNMI() {
+  if (nmi_ticks_ < 7) return false;
+  bus_.Write(kStackStartAddress + reg_.sp--, reg_.pc >> 8);
+  bus_.Write(kStackStartAddress + reg_.sp--, reg_.pc & 0xFF);
+  bus_.Write(kStackStartAddress + reg_.sp--, reg_.status.to_ulong());
+  reg_.status.set(Status::kIntDisable);
+  reg_.pc = ReadAddressFromVectorTable(0xFFFA);
+  return true;
 }
 
 uint16_t Cpu::ReadAddressFromVectorTable(uint16_t address) {

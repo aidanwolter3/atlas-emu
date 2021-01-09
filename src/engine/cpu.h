@@ -21,19 +21,34 @@ class Cpu {
   void DumpRegisters();
 
   // Register an Instruction which will be executed for the set of |opcodes|.
-  void RegisterInstruction(std::unique_ptr<Instruction> instruction,
+  void RegisterInstruction(std::unique_ptr<Instruction2> instruction,
                            std::vector<uint8_t> opcodes);
 
  private:
+  enum class State {
+    kFetchOpcode,
+    kExecuteInstruction,
+    kNMI,
+  };
+
+  void FetchOpcode();
+  bool ExecuteInstruction();
+  bool PerformNMI();
   uint16_t ReadAddressFromVectorTable(uint16_t address);
 
   EventLogger& event_logger_;
   Bus& bus_;
   Registers& reg_;
-  std::vector<std::unique_ptr<Instruction>> instructions_;
+  std::vector<std::unique_ptr<Instruction2>> instructions_;
   // Map of opcode to Instruction pointer, which points to the Instruction in
-  // |instructions_|..
-  std::map<uint8_t, Instruction*> instruction_map_;
+  // |instructions_|.
+  std::map<uint8_t, Instruction2*> instruction_map_;
+
+  State state_;
+  bool nmi_;
+  uint8_t opcode_;
+  int execute_instruction_ticks_;
+  int nmi_ticks_;
 };
 
 #endif  // ENGINE_CPU_H_

@@ -17,7 +17,21 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-void Instruction::Execute(uint8_t opcode) {
+std::vector<uint8_t> Instruction2::FetchOperands(int num) {
+  std::vector<uint8_t> operands(num);
+  uint16_t pc = reg_.pc;
+  for (int i = 0; i < num; ++i) {
+    auto status = bus_.Read(pc++, &operands[i]);
+    if (status != Peripheral::Status::OK) {
+      std::cout << "Failed to fetch operands" << std::endl;
+      return {};
+    }
+  }
+  reg_.pc = pc;
+  return operands;
+}
+
+bool Instruction::Execute(uint8_t opcode, int cycle) {
   if (kDebug) {
     // The PC has already been incremented by the CPU, so decrement one to find
     // the instruction.
@@ -35,6 +49,8 @@ void Instruction::Execute(uint8_t opcode) {
     }
     std::cout << std::endl;
   }
+
+  return true;
 }
 
 std::string Instruction::GetLogName() { return "<unknown>"; }
