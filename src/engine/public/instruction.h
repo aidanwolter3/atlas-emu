@@ -17,9 +17,6 @@ class Instruction2 {
   virtual bool Execute(uint8_t opcode, int cycle) = 0;
 
  protected:
-  // Grabs the next |num| bytes after the pc.
-  std::vector<uint8_t> FetchOperands(int num);
-
   Bus& bus_;
   Registers& reg_;
 };

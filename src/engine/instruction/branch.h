@@ -3,60 +3,52 @@
 
 #include "src/engine/public/instruction.h"
 
-class BPL : public Instruction {
+class BPL : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BPL");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BMI : public Instruction {
+class BMI : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BMI");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BVC : public Instruction {
+class BVC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BVC");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BVS : public Instruction {
+class BVS : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BVS");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BCC : public Instruction {
+class BCC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BCC");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BCS : public Instruction {
+class BCS : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BCS");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BNE : public Instruction {
+class BNE : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BNE");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
-class BEQ : public Instruction {
+class BEQ : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BEQ");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, int cycle) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_BRANCH_H_
