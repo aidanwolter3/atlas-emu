@@ -4,39 +4,33 @@
 
 #include "src/engine/public/constants.h"
 
-void JMP::ExecuteInternal(uint8_t opcode) {
-  uint16_t address;
-  switch (opcode) {
-    case 0x4C:
-      address = Absolute();
-      break;
-    case 0x6C:
-      address = IndirectAbsolute();
-      break;
-    default:
-      std::cout << "Unsupported JMP variant: " << opcode << std::endl;
-      return;
-  }
-  reg_.pc = address;
+bool JMP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  reg_.pc = operand;
+  return true;
 }
 
-void JSR::ExecuteInternal(uint8_t opcode) {
-  uint16_t address = Absolute();
-  uint16_t address_to_push = reg_.pc - 1;
+bool JSR::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 4) return false;
+  uint16_t address_to_push = reg_.pc + 1;
   bus_.Write(kStackStartAddress + reg_.sp--, address_to_push >> 8);
   bus_.Write(kStackStartAddress + reg_.sp--, address_to_push & 0xFF);
-  reg_.pc = address;
+  reg_.pc = operand;
+  return true;
 }
 
-void RTS::ExecuteInternal(uint8_t opcode) {
+bool RTS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 5) return false;
   uint8_t lower_byte, upper_byte;
   bus_.Read(kStackStartAddress + ++reg_.sp, &lower_byte);
   bus_.Read(kStackStartAddress + ++reg_.sp, &upper_byte);
   uint16_t address_from_stack = (upper_byte << 8) | lower_byte;
   reg_.pc = address_from_stack + 1;
+  return true;
 }
 
-void RTI::ExecuteInternal(uint8_t opcode) {
+bool RTI::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 5) return false;
+
   // Pull the status from the stack.
   uint8_t status;
   bus_.Read(kStackStartAddress + ++reg_.sp, &status);
@@ -47,4 +41,5 @@ void RTI::ExecuteInternal(uint8_t opcode) {
   bus_.Read(kStackStartAddress + ++reg_.sp, &lower_byte);
   bus_.Read(kStackStartAddress + ++reg_.sp, &upper_byte);
   reg_.pc = (upper_byte << 8) | lower_byte;
+  return true;
 }

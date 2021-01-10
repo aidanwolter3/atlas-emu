@@ -20,7 +20,11 @@
 #include "src/engine/memory.h"
 
 Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
-    : immediate_(bus_, reg_), oamdma_(bus_), joystick_(input) {
+    : immediate_(bus_, reg_),
+      absolute_(bus_, reg_),
+      indirect_(bus_, reg_),
+      oamdma_(bus_),
+      joystick_(input) {
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
@@ -161,8 +165,9 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<ROR>({0x6A, 0x66, 0x76, 0x6E, 0x7E});
 
   // jump
-  RegisterInstruction<JMP>({0x4C, 0x6C});
-  RegisterInstruction<JSR>(0x20);
+  RegisterInstruction<JMP>(0x4C, &absolute_);
+  RegisterInstruction<JMP>(0x6C, &indirect_);
+  RegisterInstruction<JSR>(0x20, &absolute_);
   RegisterInstruction<RTS>(0x60);
   RegisterInstruction<RTI>(0x40);
 

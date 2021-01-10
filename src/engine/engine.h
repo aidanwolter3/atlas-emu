@@ -55,6 +55,8 @@ class Engine {
 
   // All addressing modes and instructions.
   Immediate immediate_;
+  Absolute absolute_;
+  Indirect indirect_;
   std::unordered_map<uint8_t, std::unique_ptr<Instruction2>> instructions_;
 
   EventLoggerImpl event_logger_;

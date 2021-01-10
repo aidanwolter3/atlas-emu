@@ -4,35 +4,31 @@
 #include "src/engine/instruction/instruction.h"
 
 // Jump
-class JMP : public Instruction {
+class JMP : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("JMP");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Jump Subroutine
-class JSR : public Instruction {
+class JSR : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("JSR");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Return From Subroutine
-class RTS : public Instruction {
+class RTS : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("RTS");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Return From Interrupt
-class RTI : public Instruction {
+class RTI : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("RTI");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_JUMP_H_
