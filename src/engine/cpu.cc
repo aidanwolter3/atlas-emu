@@ -122,13 +122,14 @@ void Cpu::FetchOpcode() {
 }
 
 bool Cpu::FetchOperand() {
-  InstructionConfig config = instructions_[opcode_];
+  InstructionConfig& config = instructions_[opcode_];
   return addressing_.FetchOperand(config.mode, instruction_ticks_, &operand_);
 }
 
 bool Cpu::ExecuteInstruction() {
-  InstructionConfig config = instructions_[opcode_];
-  return config.instruction->Execute(opcode_, operand_, instruction_ticks_);
+  InstructionConfig& config = instructions_[opcode_];
+  return config.instruction->Execute(opcode_, config.mode, operand_,
+                                     instruction_ticks_);
 }
 
 bool Cpu::PerformNMI() {

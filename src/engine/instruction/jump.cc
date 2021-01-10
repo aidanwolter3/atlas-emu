@@ -4,12 +4,14 @@
 
 #include "src/engine/public/constants.h"
 
-bool JMP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool JMP::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   reg_.pc = operand;
   return true;
 }
 
-bool JSR::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool JSR::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   if (cycle < 6) return false;
   uint16_t address_to_push = reg_.pc + 1;
   bus_.Write(kStackStartAddress + reg_.sp--, address_to_push >> 8);
@@ -18,7 +20,8 @@ bool JSR::Execute(uint8_t opcode, uint16_t operand, int cycle) {
   return true;
 }
 
-bool RTS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool RTS::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   if (cycle < 6) return false;
   uint8_t lower_byte, upper_byte;
   bus_.Read(kStackStartAddress + ++reg_.sp, &lower_byte);
@@ -28,7 +31,8 @@ bool RTS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
   return true;
 }
 
-bool RTI::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool RTI::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   if (cycle < 6) return false;
 
   // Pull the status from the stack.

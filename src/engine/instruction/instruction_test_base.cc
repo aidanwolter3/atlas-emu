@@ -6,12 +6,13 @@ using testing::Return;
 using testing::SetArgPointee;
 
 int Instruction2TestBase::ExecuteUntilComplete(Instruction2* ins,
+                                               Addressing::Mode mode,
                                                uint16_t operand) {
   int cycles = 0;
   bool finished = false;
   while (!finished) {
     cycles++;
-    finished = ins->Execute(0, operand, cycles);
+    finished = ins->Execute(0, mode, operand, cycles);
   }
   return cycles;
 }

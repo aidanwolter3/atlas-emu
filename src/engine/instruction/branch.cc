@@ -34,34 +34,42 @@ bool Branch(Registers& reg, Status condition, bool set, int cycle,
 
 }  // namespace
 
-bool BPL::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BPL::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kSign, false, cycle, operand);
 }
 
-bool BMI::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BMI::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kSign, true, cycle, operand);
 }
 
-bool BVC::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BVC::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kOverflow, false, cycle, operand);
 }
 
-bool BVS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BVS::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kOverflow, true, cycle, operand);
 }
 
-bool BCC::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BCC::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kCarry, false, cycle, operand);
 }
 
-bool BCS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BCS::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kCarry, true, cycle, operand);
 }
 
-bool BNE::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BNE::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kZero, false, cycle, operand);
 }
 
-bool BEQ::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BEQ::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   return Branch(reg_, Status::kZero, true, cycle, operand);
 }

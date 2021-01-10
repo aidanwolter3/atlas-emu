@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "src/engine/instruction/addressing.h"
 #include "src/engine/public/bus.h"
 #include "src/engine/public/registers.h"
 
@@ -14,8 +15,16 @@ class Instruction2 {
  public:
   Instruction2(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
   virtual ~Instruction2() {}
-  // TODO: Remove |opcode| once all instructions have migrated to Instruction2.
-  virtual bool Execute(uint8_t opcode, uint16_t operand, int cycle) = 0;
+  // TODO: Remove |opcode| once all instructions have migrated to Instruction2,
+  // and remove the default implementation.
+  virtual bool Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                       int cycle) {
+    return Execute(opcode);
+  }
+
+  // This method enables incremental migration to Instruction2.
+  // TODO: Remove this once all instructions have migrated to Instruction2.
+  virtual bool Execute(uint8_t opcode) { return true; }
 
  protected:
   Bus& bus_;
@@ -25,7 +34,7 @@ class Instruction2 {
 class Instruction : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  bool Execute(uint8_t opcode, uint16_t operand = 0, int cycle = 0) override;
+  bool Execute(uint8_t opcode) override;
 
  protected:
   // Rather than overriding this method, Instructions should use the

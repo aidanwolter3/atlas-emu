@@ -2,7 +2,8 @@
 
 #include <string>
 
-bool NOP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool NOP::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   if (cycle < 2) return false;
   return true;
 }
@@ -10,7 +11,8 @@ bool NOP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
 BRK::BRK(Bus& bus, Registers& reg, EventLogger& event_logger)
     : Instruction2(bus, reg), event_logger_(event_logger) {}
 
-bool BRK::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+bool BRK::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
+                  int cycle) {
   // The accumulator holds the test result.
   // 0 is success; everything else is failure.
   bool passed = reg_.acc == 0;
