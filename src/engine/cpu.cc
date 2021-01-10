@@ -18,7 +18,10 @@ std::string IntToHexString(int num) {
 }  // namespace
 
 Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
-    : event_logger_(event_logger), bus_(bus), reg_(reg) {}
+    : event_logger_(event_logger),
+      bus_(bus),
+      reg_(reg),
+      addressing_(bus_, reg_) {}
 
 void Cpu::Reset() {
   state_ = State::kFetchOpcode;
@@ -44,7 +47,7 @@ void Cpu::Tick() {
       break;
     case State::kFetchOperand:
       instruction_ticks_++;
-      if (instructions_[opcode_].mode != nullptr && !FetchOperand()) {
+      if (!FetchOperand()) {
         break;
       }
       state_ = State::kExecuteInstruction;
@@ -120,7 +123,7 @@ void Cpu::FetchOpcode() {
 
 bool Cpu::FetchOperand() {
   InstructionConfig config = instructions_[opcode_];
-  return config.mode->FetchOperand(instruction_ticks_, &operand_);
+  return addressing_.FetchOperand(config.mode, instruction_ticks_, &operand_);
 }
 
 bool Cpu::ExecuteInstruction() {

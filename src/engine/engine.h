@@ -9,6 +9,7 @@
 #include "src/engine/bus_impl.h"
 #include "src/engine/cpu.h"
 #include "src/engine/event_logger_impl.h"
+#include "src/engine/instruction/addressing.h"
 #include "src/engine/instruction/instruction.h"
 #include "src/engine/joystick.h"
 #include "src/engine/memory.h"
@@ -43,20 +44,19 @@ class Engine {
   void RegisterInstructions();
 
   // Register a list of |opcodes| for the templated instruction.
+  // Constructs the addressing mode if it does not already exist.
   // Constructs the instruction if it does not already exist.
-  // Uses a nullptr AddressingMode for all opcodes.
   template <class INS>
   void RegisterInstruction(std::vector<uint8_t> opcodes);
 
   // Register |opcode| for the templated instruction with address |mode|.
+  // Constructs the addressing mode if it does not already exist.
   // Constructs the instruction if it does not alredy exist.
   template <class INS>
-  void RegisterInstruction(uint8_t opcode, AddressingMode* mode = nullptr);
+  void RegisterInstruction(uint8_t opcode,
+                           Addressing::Mode mode = Addressing::Mode::kImplied);
 
-  // All addressing modes and instructions.
-  Immediate immediate_;
-  Absolute absolute_;
-  Indirect indirect_;
+  // Map of opcodes to instructions.
   std::unordered_map<uint8_t, std::unique_ptr<Instruction2>> instructions_;
 
   EventLoggerImpl event_logger_;

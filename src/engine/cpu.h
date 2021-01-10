@@ -6,14 +6,14 @@
 #include <memory>
 #include <vector>
 
-#include "src/engine/instruction/addressing_mode.h"
+#include "src/engine/instruction/addressing.h"
 #include "src/engine/instruction/instruction.h"
 #include "src/engine/public/bus.h"
 #include "src/engine/public/event_logger.h"
 #include "src/engine/public/registers.h"
 
 struct InstructionConfig {
-  AddressingMode* mode;
+  Addressing::Mode mode;
   Instruction2* instruction;
 };
 
@@ -49,8 +49,9 @@ class Cpu {
   EventLogger& event_logger_;
   Bus& bus_;
   Registers& reg_;
+  Addressing addressing_;
 
-  // Map of opcode to InstructionConfig
+  // Map of opcode to InstructionConfig.
   std::map<uint8_t, InstructionConfig> instructions_;
 
   State state_;

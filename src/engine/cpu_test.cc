@@ -2,6 +2,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "src/engine/instruction/addressing.h"
 #include "src/engine/instruction/instruction.h"
 #include "src/engine/public/bus.h"
 #include "src/engine/public/event_logger.h"
@@ -61,7 +62,7 @@ TEST(CpuTest, RunUntilSegfault) {
   // Add a mock instruction
   MockInstruction mock_instruction(bus, reg);
   cpu.RegisterInstruction(kFakeOpcode, {
-                                           .mode = nullptr,
+                                           .mode = Addressing::Mode::kImplied,
                                            .instruction = &mock_instruction,
                                        });
 

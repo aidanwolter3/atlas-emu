@@ -2,7 +2,7 @@ cc_library(
     name = "instruction",
     visibility = ["//src/engine:__pkg__"],
     hdrs = [
-        "addressing_mode.h",
+        "addressing.h",
         "branch.h",
         "compare.h",
         "instruction.h",
@@ -18,7 +18,7 @@ cc_library(
         "transfer.h",
     ],
     srcs = [
-        "addressing_mode.cc",
+        "addressing.cc",
         "branch.cc",
         "compare.cc",
         "instruction.cc",

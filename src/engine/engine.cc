@@ -20,11 +20,7 @@
 #include "src/engine/memory.h"
 
 Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
-    : immediate_(bus_, reg_),
-      absolute_(bus_, reg_),
-      indirect_(bus_, reg_),
-      oamdma_(bus_),
-      joystick_(input) {
+    : oamdma_(bus_), joystick_(input) {
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
@@ -103,7 +99,7 @@ void Engine::RegisterInstructions() {
   // RegisterInstruction<>.
   instructions_[0x00] = std::make_unique<BRK>(bus_, reg_, event_logger_);
   cpu_->RegisterInstruction(0x00, {
-                                      .mode = nullptr,
+                                      .mode = Addressing::Mode::kImplied,
                                       .instruction = instructions_[0x00].get(),
                                   });
 
@@ -139,14 +135,14 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<BIT>({0x24, 0x2C});
 
   // branch
-  RegisterInstruction<BPL>(0x10, &immediate_);
-  RegisterInstruction<BMI>(0x30, &immediate_);
-  RegisterInstruction<BVC>(0x50, &immediate_);
-  RegisterInstruction<BVS>(0x70, &immediate_);
-  RegisterInstruction<BCC>(0x90, &immediate_);
-  RegisterInstruction<BCS>(0xB0, &immediate_);
-  RegisterInstruction<BNE>(0xD0, &immediate_);
-  RegisterInstruction<BEQ>(0xF0, &immediate_);
+  RegisterInstruction<BPL>(0x10, Addressing::Mode::kImmediate);
+  RegisterInstruction<BMI>(0x30, Addressing::Mode::kImmediate);
+  RegisterInstruction<BVC>(0x50, Addressing::Mode::kImmediate);
+  RegisterInstruction<BVS>(0x70, Addressing::Mode::kImmediate);
+  RegisterInstruction<BCC>(0x90, Addressing::Mode::kImmediate);
+  RegisterInstruction<BCS>(0xB0, Addressing::Mode::kImmediate);
+  RegisterInstruction<BNE>(0xD0, Addressing::Mode::kImmediate);
+  RegisterInstruction<BEQ>(0xF0, Addressing::Mode::kImmediate);
 
   // math
   RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
@@ -165,9 +161,9 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<ROR>({0x6A, 0x66, 0x76, 0x6E, 0x7E});
 
   // jump
-  RegisterInstruction<JMP>(0x4C, &absolute_);
-  RegisterInstruction<JMP>(0x6C, &indirect_);
-  RegisterInstruction<JSR>(0x20, &absolute_);
+  RegisterInstruction<JMP>(0x4C, Addressing::Mode::kAbsolute);
+  RegisterInstruction<JMP>(0x6C, Addressing::Mode::kIndirect);
+  RegisterInstruction<JSR>(0x20, Addressing::Mode::kAbsolute);
   RegisterInstruction<RTS>(0x60);
   RegisterInstruction<RTI>(0x40);
 
@@ -193,7 +189,7 @@ void Engine::RegisterInstruction(std::vector<uint8_t> opcodes) {
 }
 
 template <class INS>
-void Engine::RegisterInstruction(uint8_t opcode, AddressingMode* mode) {
+void Engine::RegisterInstruction(uint8_t opcode, Addressing::Mode mode) {
   // Construct the instruction if needed.
   if (!instructions_.count(opcode)) {
     instructions_[opcode] = std::make_unique<INS>(bus_, reg_);
