@@ -24,4 +24,18 @@ class Immediate : public AddressingMode {
   bool FetchOperand(int cycle, uint16_t* operand) override;
 };
 
+// 1 cycle.
+class Absolute : public AddressingMode {
+ public:
+  using AddressingMode::AddressingMode;
+  bool FetchOperand(int cycle, uint16_t* operand) override;
+};
+
+// 3 cycles.
+class Indirect : public AddressingMode {
+ public:
+  using AddressingMode::AddressingMode;
+  bool FetchOperand(int cycle, uint16_t* operand) override;
+};
+
 #endif  // ENGINE_INSTRUCTION_ADDRESSING_MODE_H_
