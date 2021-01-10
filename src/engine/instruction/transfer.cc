@@ -9,26 +9,42 @@ void SetStatusFromData(Registers& reg, uint8_t data) {
 
 }  // namespace
 
-void TAX::ExecuteInternal(uint8_t opcode) {
+bool TAX::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.x = reg_.acc;
   SetStatusFromData(reg_, reg_.x);
+  return true;
 }
 
-void TXA::ExecuteInternal(uint8_t opcode) {
+bool TXA::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.acc = reg_.x;
   SetStatusFromData(reg_, reg_.acc);
+  return true;
 }
 
-void TAY::ExecuteInternal(uint8_t opcode) {
+bool TAY::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.y = reg_.acc;
   SetStatusFromData(reg_, reg_.y);
+  return true;
 }
 
-void TYA::ExecuteInternal(uint8_t opcode) {
+bool TYA::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.acc = reg_.y;
   SetStatusFromData(reg_, reg_.acc);
+  return true;
 }
 
-void TXS::ExecuteInternal(uint8_t) { reg_.sp = reg_.x; }
+bool TXS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
+  reg_.sp = reg_.x;
+  return true;
+}
 
-void TSX::ExecuteInternal(uint8_t) { reg_.x = reg_.sp; }
+bool TSX::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
+  reg_.x = reg_.sp;
+  return true;
+}

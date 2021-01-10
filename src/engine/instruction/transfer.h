@@ -4,51 +4,45 @@
 #include "src/engine/instruction/instruction.h"
 
 // Transfer A to X
-class TAX : public Instruction {
+class TAX : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TAX");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Transfer X to A
-class TXA : public Instruction {
+class TXA : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TXA");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Transfer A to Y
-class TAY : public Instruction {
+class TAY : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TAY");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Transfer Y to A
-class TYA : public Instruction {
+class TYA : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TYA");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Transfer X to stack pointer
-class TXS : public Instruction {
+class TXS : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TXS");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Transfer stack pointer to X
-class TSX : public Instruction {
+class TSX : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("TSX");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_TRANSFER_H_
