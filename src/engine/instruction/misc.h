@@ -5,19 +5,17 @@
 #include "src/engine/public/instruction.h"
 
 // No Operation
-class NOP : public Instruction {
+class NOP : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("NOP");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Break (used for e2e tests)
-class BRK : public Instruction {
+class BRK : public Instruction2 {
  public:
   explicit BRK(Bus& bus, Registers& reg, EventLogger& event_logger);
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BRK");
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 
  private:
   EventLogger& event_logger_;

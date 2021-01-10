@@ -4,13 +4,14 @@
 
 namespace {
 
-class MiscTest : public InstructionTestBase {};
+class MiscTest : public Instruction2TestBase {};
 
 TEST_F(MiscTest, NOP) {
   reg_.pc = 0;
   reg_.status = 0;
   NOP nop(bus_, reg_);
-  nop.Execute(0x78);
+  int cycles = ExecuteUntilComplete(&nop, 0x78, 0);
+  EXPECT_EQ(cycles, 1);
   EXPECT_EQ(reg_.pc, 0);
   EXPECT_EQ(reg_.status, 0);
 }

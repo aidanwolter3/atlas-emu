@@ -5,6 +5,18 @@ using testing::DoAll;
 using testing::Return;
 using testing::SetArgPointee;
 
+int Instruction2TestBase::ExecuteUntilComplete(Instruction2* ins,
+                                               uint8_t opcode,
+                                               uint16_t operand) {
+  int cycles = 0;
+  bool finished = false;
+  while (!finished) {
+    cycles++;
+    finished = ins->Execute(opcode, operand, cycles);
+  }
+  return cycles;
+}
+
 uint16_t InstructionTestBase::ExpectImmediate() {
   reg_.pc = 0x00;
   EXPECT_CALL(bus_, Read(0x00, _))

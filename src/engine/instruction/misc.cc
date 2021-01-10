@@ -2,12 +2,12 @@
 
 #include <string>
 
-void NOP::ExecuteInternal(uint8_t opcode) {}
+bool NOP::Execute(uint8_t opcode, uint16_t operand, int cycle) { return true; }
 
 BRK::BRK(Bus& bus, Registers& reg, EventLogger& event_logger)
-    : Instruction(bus, reg), event_logger_(event_logger) {}
+    : Instruction2(bus, reg), event_logger_(event_logger) {}
 
-void BRK::ExecuteInternal(uint8_t opcode) {
+bool BRK::Execute(uint8_t opcode, uint16_t operand, int cycle) {
   // The accumulator holds the test result.
   // 0 is success; everything else is failure.
   bool passed = reg_.acc == 0;
@@ -16,4 +16,8 @@ void BRK::ExecuteInternal(uint8_t opcode) {
                                           ? EventLogger::EventType::kTestPassed
                                           : EventLogger::EventType::kTestFailed;
   event_logger_.LogEvent({.type = event_type, .name = event_name});
+
+  // Note: We do not care about having cycle accuracy here, because this ends
+  // the program.
+  return true;
 }
