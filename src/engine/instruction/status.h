@@ -4,59 +4,52 @@
 #include "src/engine/instruction/instruction.h"
 
 // Clear Carry
-class CLC : public Instruction {
+class CLC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("CLC");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Set Carry
-class SEC : public Instruction {
+class SEC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("SEC");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Clear Interrupt
-class CLI : public Instruction {
+class CLI : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("CLI");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Set Interrupt
-class SEI : public Instruction {
+class SEI : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("SEI");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Clear Overflow
-class CLV : public Instruction {
+class CLV : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("CLV");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Clear Decimal
-class CLD : public Instruction {
+class CLD : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("CLD");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 // Set Decimal
-class SED : public Instruction {
+class SED : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("SED");
+  using Instruction2::Instruction2;
+  bool Execute(uint8_t opcode, uint16_t operand, int cycle) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_STATUS_H_

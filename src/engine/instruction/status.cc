@@ -1,23 +1,43 @@
 #include "src/engine/instruction/status.h"
 
-void CLC::ExecuteInternal(uint8_t opcode) { reg_.status.reset(Status::kCarry); }
+bool CLC::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
+  reg_.status.reset(Status::kCarry);
+  return true;
+}
 
-void SEC::ExecuteInternal(uint8_t opcode) { reg_.status.set(Status::kCarry); }
+bool SEC::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
+  reg_.status.set(Status::kCarry);
+  return true;
+}
 
-void CLI::ExecuteInternal(uint8_t opcode) {
+bool CLI::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.status.reset(Status::kIntDisable);
+  return true;
 }
 
-void SEI::ExecuteInternal(uint8_t opcode) {
+bool SEI::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.status.set(Status::kIntDisable);
+  return true;
 }
 
-void CLV::ExecuteInternal(uint8_t opcode) {
+bool CLV::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.status.reset(Status::kOverflow);
+  return true;
 }
 
-void CLD::ExecuteInternal(uint8_t opcode) {
+bool CLD::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   reg_.status.reset(Status::kBCDMode);
+  return true;
 }
 
-void SED::ExecuteInternal(uint8_t opcode) { reg_.status.set(Status::kBCDMode); }
+bool SED::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
+  reg_.status.set(Status::kBCDMode);
+  return true;
+}

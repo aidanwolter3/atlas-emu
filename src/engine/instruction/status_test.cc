@@ -4,54 +4,61 @@
 
 namespace {
 
-class StatusTest : public InstructionTestBase {};
+class StatusTest : public Instruction2TestBase {};
 
 TEST_F(StatusTest, CLC) {
   reg_.status.set(Status::kCarry);
   CLC clc(bus_, reg_);
-  clc.Execute(0x18);
+  int cycles = ExecuteUntilComplete(&clc);
+  EXPECT_EQ(cycles, 2);
   EXPECT_FALSE(reg_.status.test(Status::kCarry));
 }
 
 TEST_F(StatusTest, SEC) {
   reg_.status.reset(Status::kCarry);
   SEC sec(bus_, reg_);
-  sec.Execute(0x38);
+  int cycles = ExecuteUntilComplete(&sec);
+  EXPECT_EQ(cycles, 2);
   EXPECT_TRUE(reg_.status.test(Status::kCarry));
 }
 
 TEST_F(StatusTest, CLI) {
   reg_.status.set(Status::kIntDisable);
   CLI cli(bus_, reg_);
-  cli.Execute(0x58);
+  int cycles = ExecuteUntilComplete(&cli);
+  EXPECT_EQ(cycles, 2);
   EXPECT_FALSE(reg_.status.test(Status::kIntDisable));
 }
 
 TEST_F(StatusTest, SEI) {
   reg_.status.reset(Status::kIntDisable);
   SEI sei(bus_, reg_);
-  sei.Execute(0x78);
+  int cycles = ExecuteUntilComplete(&sei);
+  EXPECT_EQ(cycles, 2);
   EXPECT_TRUE(reg_.status.test(Status::kIntDisable));
 }
 
 TEST_F(StatusTest, CLV) {
   reg_.status.set(Status::kOverflow);
   CLV clv(bus_, reg_);
-  clv.Execute(0xB8);
+  int cycles = ExecuteUntilComplete(&clv);
+  EXPECT_EQ(cycles, 2);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
 }
 
 TEST_F(StatusTest, CLD) {
   reg_.status.set(Status::kBCDMode);
   CLD cld(bus_, reg_);
-  cld.Execute(0xD8);
+  int cycles = ExecuteUntilComplete(&cld);
+  EXPECT_EQ(cycles, 2);
   EXPECT_FALSE(reg_.status.test(Status::kBCDMode));
 }
 
 TEST_F(StatusTest, SED) {
   reg_.status.reset(Status::kBCDMode);
   SED sed(bus_, reg_);
-  sed.Execute(0xF8);
+  int cycles = ExecuteUntilComplete(&sed);
+  EXPECT_EQ(cycles, 2);
   EXPECT_TRUE(reg_.status.test(Status::kBCDMode));
 }
 
