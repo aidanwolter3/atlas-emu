@@ -20,18 +20,22 @@ class Cpu {
   void Tick();
   void DumpRegisters();
 
-  // Register an Instruction which will be executed for the set of |opcodes|.
-  void RegisterInstruction(std::unique_ptr<Instruction2> instruction,
-                           std::vector<uint8_t> opcodes);
+  // Register an Instruction which will be executed for given |opcode|.
+  // If the |config| specifies a nullptr mode, then zero operands are fetched.
+  // If the |config| specifies a nullptr instruction, then no instruction is
+  // executed.
+  void RegisterInstruction(uint8_t opcode, InstructionConfig config);
 
  private:
   enum class State {
     kFetchOpcode,
+    kFetchOperand,
     kExecuteInstruction,
     kNMI,
   };
 
   void FetchOpcode();
+  bool FetchOperand();
   bool ExecuteInstruction();
   bool PerformNMI();
   uint16_t ReadAddressFromVectorTable(uint16_t address);
@@ -39,14 +43,15 @@ class Cpu {
   EventLogger& event_logger_;
   Bus& bus_;
   Registers& reg_;
-  std::vector<std::unique_ptr<Instruction2>> instructions_;
-  // Map of opcode to Instruction pointer, which points to the Instruction in
-  // |instructions_|.
-  std::map<uint8_t, Instruction2*> instruction_map_;
+
+  // Map of opcode to InstructionConfig
+  std::map<uint8_t, InstructionConfig> instructions_;
 
   State state_;
   bool nmi_;
   uint8_t opcode_;
+  uint16_t operand_;
+  int fetch_operand_ticks_;
   int execute_instruction_ticks_;
   int nmi_ticks_;
 };

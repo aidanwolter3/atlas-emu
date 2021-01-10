@@ -59,15 +59,17 @@ TEST(CpuTest, RunUntilSegfault) {
   cpu.Reset();
 
   // Add a mock instruction
-  auto mock_instruction = std::make_unique<MockInstruction>(bus, reg);
-  MockInstruction* instruction_ptr = mock_instruction.get();
-  cpu.RegisterInstruction(std::move(mock_instruction), {kFakeOpcode});
+  MockInstruction mock_instruction(bus, reg);
+  cpu.RegisterInstruction(kFakeOpcode, {
+                                           .mode = nullptr,
+                                           .instruction = &mock_instruction,
+                                       });
 
   EXPECT_CALL(bus, Read(0xBBAA, _))
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   cpu.Tick();
-  EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
+  EXPECT_CALL(mock_instruction, ExecuteInternal(kFakeOpcode));
   cpu.Tick();
   EXPECT_EQ(0xBBAB, reg.pc);
 
@@ -75,7 +77,7 @@ TEST(CpuTest, RunUntilSegfault) {
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   cpu.Tick();
-  EXPECT_CALL(*instruction_ptr, ExecuteInternal(kFakeOpcode));
+  EXPECT_CALL(mock_instruction, ExecuteInternal(kFakeOpcode));
   cpu.Tick();
   EXPECT_EQ(0xBBAC, reg.pc);
 

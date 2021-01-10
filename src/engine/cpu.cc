@@ -34,12 +34,25 @@ void Cpu::Tick() {
     case State::kFetchOpcode:
       // Reset state
       opcode_ = 0;
+      operand_ = 0;
+      fetch_operand_ticks_ = 0;
       execute_instruction_ticks_ = 0;
       nmi_ticks_ = 0;
 
       FetchOpcode();
-      state_ = State::kExecuteInstruction;
+      state_ = State::kFetchOperand;
       break;
+    case State::kFetchOperand:
+      fetch_operand_ticks_++;
+      if (instructions_[opcode_].mode == nullptr) {
+      } else {
+        if (FetchOperand()) {
+          state_ = State::kExecuteInstruction;
+        }
+        break;
+      }
+      // Fallthrough to execution when there is no addressing mode.
+      state_ = State::kExecuteInstruction;
     case State::kExecuteInstruction:
       execute_instruction_ticks_++;
       if (ExecuteInstruction()) {
@@ -82,13 +95,8 @@ void Cpu::DumpRegisters() {
   std::cout << "-----------" << std::endl;
 }
 
-void Cpu::RegisterInstruction(std::unique_ptr<Instruction2> instruction,
-                              std::vector<uint8_t> opcodes) {
-  instructions_.push_back(std::move(instruction));
-  Instruction2* instruction_ptr = instructions_.back().get();
-  for (auto opcode : opcodes) {
-    instruction_map_[opcode] = instruction_ptr;
-  }
+void Cpu::RegisterInstruction(uint8_t opcode, InstructionConfig config) {
+  instructions_[opcode] = config;
 }
 
 void Cpu::FetchOpcode() {
@@ -102,7 +110,7 @@ void Cpu::FetchOpcode() {
   }
   reg_.pc++;
 
-  if (!instruction_map_.count(opcode_)) {
+  if (!instructions_.count(opcode_)) {
     std::string event_name =
         "Failed to decode: unknown instruction: " + IntToHexString(opcode_);
     event_logger_.LogEvent(
@@ -111,9 +119,15 @@ void Cpu::FetchOpcode() {
   }
 }
 
+bool Cpu::FetchOperand() {
+  InstructionConfig config = instructions_[opcode_];
+  return config.mode->FetchOperand(fetch_operand_ticks_, &operand_);
+}
+
 bool Cpu::ExecuteInstruction() {
-  return instruction_map_[opcode_]->Execute(opcode_,
-                                            execute_instruction_ticks_);
+  InstructionConfig config = instructions_[opcode_];
+  return config.instruction->Execute(opcode_, operand_,
+                                     execute_instruction_ticks_);
 }
 
 bool Cpu::PerformNMI() {

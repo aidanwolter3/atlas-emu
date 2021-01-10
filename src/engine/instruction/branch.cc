@@ -1,12 +1,10 @@
 #include "src/engine/instruction/branch.h"
 
-#include <iostream>
-
 namespace {
 
-bool Branch(Registers& reg, Bus& bus, Status condition, bool set, int cycle) {
-  if (cycle < 2) return false;
-  if (cycle == 2) {
+bool Branch(Registers& reg, Status condition, bool set, int cycle,
+            uint16_t operand) {
+  if (cycle == 1) {
     if (reg.status.test(condition) != set) {
       reg.pc++;
       return true;
@@ -15,9 +13,8 @@ bool Branch(Registers& reg, Bus& bus, Status condition, bool set, int cycle) {
     }
   }
 
-  else if (cycle == 3) {
-    uint8_t uoffset;
-    bus.Read(reg.pc, &uoffset);
+  else if (cycle == 2) {
+    uint8_t uoffset = operand & 0xFF;
     int8_t offset = static_cast<int8_t>(uoffset);
 
     // Run an extra cycle if we cross the page boundary.
@@ -37,34 +34,34 @@ bool Branch(Registers& reg, Bus& bus, Status condition, bool set, int cycle) {
 
 }  // namespace
 
-bool BPL::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kSign, false, cycle);
+bool BPL::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kSign, false, cycle, operand);
 }
 
-bool BMI::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kSign, true, cycle);
+bool BMI::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kSign, true, cycle, operand);
 }
 
-bool BVC::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kOverflow, false, cycle);
+bool BVC::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kOverflow, false, cycle, operand);
 }
 
-bool BVS::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kOverflow, true, cycle);
+bool BVS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kOverflow, true, cycle, operand);
 }
 
-bool BCC::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kCarry, false, cycle);
+bool BCC::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kCarry, false, cycle, operand);
 }
 
-bool BCS::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kCarry, true, cycle);
+bool BCS::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kCarry, true, cycle, operand);
 }
 
-bool BNE::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kZero, false, cycle);
+bool BNE::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kZero, false, cycle, operand);
 }
 
-bool BEQ::Execute(uint8_t opcode, int cycle) {
-  return Branch(reg_, bus_, Status::kZero, true, cycle);
+bool BEQ::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  return Branch(reg_, Status::kZero, true, cycle, operand);
 }

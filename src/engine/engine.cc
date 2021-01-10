@@ -1,6 +1,7 @@
 #include "src/engine/engine.h"
 
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "src/engine/cpu.h"
@@ -19,7 +20,7 @@
 #include "src/engine/memory.h"
 
 Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
-    : oamdma_(bus_), joystick_(input) {
+    : immediate_(bus_, reg_), oamdma_(bus_), joystick_(input) {
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
@@ -94,9 +95,15 @@ void Engine::DumpState() {
 }
 
 void Engine::RegisterInstructions() {
+  // BRK has a custom constructor, therefore we cannot use
+  // RegisterInstruction<>.
+  instructions_[0x00] = std::make_unique<BRK>(bus_, reg_, event_logger_);
+  cpu_->RegisterInstruction(0x00, {
+                                      .mode = nullptr,
+                                      .instruction = instructions_[0x00].get(),
+                                  });
+
   RegisterInstruction<NOP>(0xEA);
-  cpu_->RegisterInstruction(std::make_unique<BRK>(bus_, reg_, event_logger_),
-                            {0x00});
 
   // status
   RegisterInstruction<CLC>(0x18);
@@ -128,14 +135,14 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<BIT>({0x24, 0x2C});
 
   // branch
-  RegisterInstruction<BPL>(0x10);
-  RegisterInstruction<BMI>(0x30);
-  RegisterInstruction<BVC>(0x50);
-  RegisterInstruction<BVS>(0x70);
-  RegisterInstruction<BCC>(0x90);
-  RegisterInstruction<BCS>(0xB0);
-  RegisterInstruction<BNE>(0xD0);
-  RegisterInstruction<BEQ>(0xF0);
+  RegisterInstruction<BPL>(0x10, &immediate_);
+  RegisterInstruction<BMI>(0x30, &immediate_);
+  RegisterInstruction<BVC>(0x50, &immediate_);
+  RegisterInstruction<BVS>(0x70, &immediate_);
+  RegisterInstruction<BCC>(0x90, &immediate_);
+  RegisterInstruction<BCS>(0xB0, &immediate_);
+  RegisterInstruction<BNE>(0xD0, &immediate_);
+  RegisterInstruction<BEQ>(0xF0, &immediate_);
 
   // math
   RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
@@ -174,12 +181,22 @@ void Engine::RegisterInstructions() {
 }
 
 template <class INS>
-void Engine::RegisterInstruction(uint8_t opcode) {
-  RegisterInstruction<INS>(std::vector<uint8_t>({opcode}));
+void Engine::RegisterInstruction(std::vector<uint8_t> opcodes) {
+  for (auto opcode : opcodes) {
+    RegisterInstruction<INS>(opcode);
+  }
 }
 
 template <class INS>
-void Engine::RegisterInstruction(std::vector<uint8_t> opcodes) {
-  cpu_->RegisterInstruction(std::make_unique<INS>(bus_, reg_),
-                            std::move(opcodes));
+void Engine::RegisterInstruction(uint8_t opcode, AddressingMode* mode) {
+  // Construct the instruction if needed.
+  if (!instructions_.count(opcode)) {
+    instructions_[opcode] = std::make_unique<INS>(bus_, reg_);
+  }
+
+  cpu_->RegisterInstruction(opcode,
+                            {
+                                .mode = mode,
+                                .instruction = instructions_[opcode].get(),
+                            });
 }

@@ -17,7 +17,7 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-bool Instruction::Execute(uint8_t opcode, int cycle) {
+bool Instruction::Execute(uint8_t opcode, uint16_t operand, int cycle) {
   if (kDebug) {
     // The PC has already been incremented by the CPU, so decrement one to find
     // the instruction.

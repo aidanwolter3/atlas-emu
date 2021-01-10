@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "src/engine/bus_impl.h"
@@ -13,6 +14,7 @@
 #include "src/engine/mmc1.h"
 #include "src/engine/oamdma.h"
 #include "src/engine/ppu.h"
+#include "src/engine/public/instruction.h"
 #include "src/engine/public/registers.h"
 #include "src/input/input.h"
 #include "src/ui/renderer.h"
@@ -39,14 +41,21 @@ class Engine {
  private:
   void DumpState();
   void RegisterInstructions();
-  // Construct and register an instruction with the classname INS that will get
-  // executed when |opcode| is fetched.
-  template <class INS>
-  void RegisterInstruction(uint8_t opcode);
-  // Construct and register an instruction with the classname INS that will get
-  // executed when one of the |opcodes| are fetched.
+
+  // Register a list of |opcodes| for the templated instruction.
+  // Constructs the instruction if it does not already exist.
+  // Uses a nullptr AddressingMode for all opcodes.
   template <class INS>
   void RegisterInstruction(std::vector<uint8_t> opcodes);
+
+  // Register |opcode| for the templated instruction with address |mode|.
+  // Constructs the instruction if it does not alredy exist.
+  template <class INS>
+  void RegisterInstruction(uint8_t opcode, AddressingMode* mode = nullptr);
+
+  // All addressing modes and instructions.
+  Immediate immediate_;
+  std::unordered_map<uint8_t, std::unique_ptr<Instruction2>> instructions_;
 
   EventLoggerImpl event_logger_;
   BusImpl bus_;
