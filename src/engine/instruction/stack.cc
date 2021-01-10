@@ -2,20 +2,28 @@
 
 #include "src/engine/public/constants.h"
 
-void PHA::ExecuteInternal(uint8_t) {
+bool PHA::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.acc);
+  return true;
 }
 
-void PLA::ExecuteInternal(uint8_t) {
+bool PLA::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 3) return false;
   bus_.Read(kStackStartAddress + ++reg_.sp, &reg_.acc);
+  return true;
 }
 
-void PHP::ExecuteInternal(uint8_t) {
+bool PHP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.status.to_ulong());
+  return true;
 }
 
-void PLP::ExecuteInternal(uint8_t) {
+bool PLP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 3) return false;
   uint8_t byte_read;
   bus_.Read(kStackStartAddress + ++reg_.sp, &byte_read);
   reg_.status = byte_read;
+  return true;
 }
