@@ -10,6 +10,8 @@ bool Addressing::FetchOperand(Mode mode, int cycle, uint16_t* operand) {
       return true;
     case Mode::kImmediate:
       return Immediate(cycle, operand);
+    case Mode::kZeroPage:
+      return ZeroPage(cycle, operand);
     case Mode::kAbsolute:
       return Absolute(cycle, operand);
     case Mode::kIndirect:
@@ -25,6 +27,14 @@ bool Addressing::Immediate(int cycle, uint16_t* operand) {
   uint8_t low;
   bus_.Read(reg_.pc, &low);
   *operand = low;
+  return true;
+}
+
+bool Addressing::ZeroPage(int cycle, uint16_t* operand) {
+  if (cycle < 2) return false;
+  uint8_t byte;
+  bus_.Read(reg_.pc, &byte);
+  *operand = byte;
   return true;
 }
 
