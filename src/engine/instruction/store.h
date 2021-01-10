@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_STORE_H_
 #define ENGINE_INSTRUCTION_STORE_H_
 
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 // Store Accumulator
 class STA : public Instruction {

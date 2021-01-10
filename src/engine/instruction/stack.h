@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_STACK_H_
 #define ENGINE_INSTRUCTION_STACK_H_
 
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 // Push Accumulator
 class PHA : public Instruction {

@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_BRANCH_H_
 #define ENGINE_INSTRUCTION_BRANCH_H_
 
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 class BPL : public Instruction2 {
  public:

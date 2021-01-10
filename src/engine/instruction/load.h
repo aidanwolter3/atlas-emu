@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_LOAD_H_
 #define ENGINE_INSTRUCTION_LOAD_H_
 
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 // Load Accumulator
 class LDA : public Instruction {

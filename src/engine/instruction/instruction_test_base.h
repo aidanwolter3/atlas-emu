@@ -5,8 +5,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "src/engine/instruction/instruction.h"
 #include "src/engine/public/bus.h"
-#include "src/engine/public/instruction.h"
 #include "src/engine/public/registers.h"
 
 class MockBus : public Bus {
@@ -21,7 +21,8 @@ class Instruction2TestBase : public testing::Test {
  protected:
   // Executes an instruction until it completes, then returns how many cycles
   // were taken.
-  int ExecuteUntilComplete(Instruction2* ins, uint8_t opcode, uint16_t operand);
+  int ExecuteUntilComplete(Instruction2* ins, uint8_t opcode,
+                           uint16_t operand = 0);
 
   MockBus bus_;
   Registers reg_;

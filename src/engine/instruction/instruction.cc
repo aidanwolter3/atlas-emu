@@ -1,4 +1,4 @@
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 #include <iomanip>
 #include <iostream>

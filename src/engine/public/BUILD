@@ -5,7 +5,6 @@ cc_library(
         "bus.h",
         "constants.h",
         "event_logger.h",
-        "instruction.h",
         "registers.h",
     ]
 )

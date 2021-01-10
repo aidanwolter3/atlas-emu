@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_COMPARE_H_
 #define ENGINE_INSTRUCTION_COMPARE_H_
 
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 // Compare Accumulator
 class CMP : public Instruction {

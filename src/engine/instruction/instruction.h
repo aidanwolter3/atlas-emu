@@ -1,5 +1,5 @@
-#ifndef ENGINE_PUBLIC_INSTRUCTION_H_
-#define ENGINE_PUBLIC_INSTRUCTION_H_
+#ifndef ENGINE_INSTRUCTION_INSTRUCTION_H_
+#define ENGINE_INSTRUCTION_INSTRUCTION_H_
 
 #include <cstdint>
 #include <vector>
@@ -10,39 +10,12 @@
 #define SET_LOG_NAME(n) \
   std::string GetLogName() override { return n; }
 
-class AddressingMode {
- public:
-  virtual ~AddressingMode() {}
-  virtual bool FetchOperand(int cycle, uint16_t* operand) = 0;
-};
-
 class Instruction2 {
  public:
   Instruction2(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
   virtual ~Instruction2() {}
   // TODO: Remove |opcode| once all instructions have migrated to Instruction2.
   virtual bool Execute(uint8_t opcode, uint16_t operand, int cycle) = 0;
-
- protected:
-  Bus& bus_;
-  Registers& reg_;
-};
-
-struct InstructionConfig {
-  AddressingMode* mode;
-  Instruction2* instruction;
-};
-
-class Immediate : public AddressingMode {
- public:
-  Immediate(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
-
-  bool FetchOperand(int cycle, uint16_t* operand) override {
-    uint8_t low;
-    bus_.Read(reg_.pc, &low);
-    *operand = low;
-    return true;
-  }
 
  protected:
   Bus& bus_;
@@ -77,4 +50,4 @@ class Instruction : public Instruction2 {
   std::vector<std::string> log_elements_;
 };
 
-#endif  // ENGINE_PUBLIC_INSTRUCTION_H_
+#endif  // ENGINE_INSTRUCTION_INSTRUCTION_H_

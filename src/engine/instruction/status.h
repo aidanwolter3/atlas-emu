@@ -1,7 +1,7 @@
 #ifndef ENGINE_INSTRUCTION_STATUS_H_
 #define ENGINE_INSTRUCTION_STATUS_H_
 
-#include "src/engine/public/instruction.h"
+#include "src/engine/instruction/instruction.h"
 
 // Clear Carry
 class CLC : public Instruction {
