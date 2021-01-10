@@ -24,6 +24,7 @@ void Cpu::Reset() {
   state_ = State::kFetchOpcode;
   nmi_ = false;
   reg_.pc = ReadAddressFromVectorTable(0xFFFC);
+  reg_.sp = 0xFF;
 }
 
 void Cpu::NMI() { nmi_ = true; }
