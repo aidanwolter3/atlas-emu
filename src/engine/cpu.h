@@ -57,8 +57,7 @@ class Cpu {
   bool nmi_;
   uint8_t opcode_;
   uint16_t operand_;
-  int fetch_operand_ticks_;
-  int execute_instruction_ticks_;
+  int instruction_ticks_;
   int nmi_ticks_;
 };
 

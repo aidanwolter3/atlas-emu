@@ -17,21 +17,18 @@ class AddressingMode {
   Registers& reg_;
 };
 
-// 1 cycle.
 class Immediate : public AddressingMode {
  public:
   using AddressingMode::AddressingMode;
   bool FetchOperand(int cycle, uint16_t* operand) override;
 };
 
-// 1 cycle.
 class Absolute : public AddressingMode {
  public:
   using AddressingMode::AddressingMode;
   bool FetchOperand(int cycle, uint16_t* operand) override;
 };
 
-// 3 cycles.
 class Indirect : public AddressingMode {
  public:
   using AddressingMode::AddressingMode;

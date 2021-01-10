@@ -1,6 +1,7 @@
 #include "src/engine/instruction/addressing_mode.h"
 
 bool Immediate::FetchOperand(int cycle, uint16_t* operand) {
+  if (cycle < 2) return false;
   uint8_t low;
   bus_.Read(reg_.pc, &low);
   *operand = low;
@@ -8,6 +9,7 @@ bool Immediate::FetchOperand(int cycle, uint16_t* operand) {
 }
 
 bool Absolute::FetchOperand(int cycle, uint16_t* operand) {
+  if (cycle < 2) return false;
   uint8_t lower, upper;
   bus_.Read(reg_.pc, &lower);
   bus_.Read(reg_.pc + 1, &upper);
@@ -16,7 +18,7 @@ bool Absolute::FetchOperand(int cycle, uint16_t* operand) {
 }
 
 bool Indirect::FetchOperand(int cycle, uint16_t* operand) {
-  if (cycle < 2) return false;
+  if (cycle < 4) return false;
 
   uint8_t lower, upper;
   bus_.Read(reg_.pc, &lower);

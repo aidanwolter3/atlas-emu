@@ -35,32 +35,31 @@ void Cpu::Tick() {
       // Reset state
       opcode_ = 0;
       operand_ = 0;
-      fetch_operand_ticks_ = 0;
-      execute_instruction_ticks_ = 0;
+      instruction_ticks_ = 0;
       nmi_ticks_ = 0;
 
+      instruction_ticks_++;
       FetchOpcode();
       state_ = State::kFetchOperand;
       break;
     case State::kFetchOperand:
-      fetch_operand_ticks_++;
-      if (instructions_[opcode_].mode == nullptr) {
-      } else {
-        if (FetchOperand()) {
-          state_ = State::kExecuteInstruction;
-        }
+      instruction_ticks_++;
+      if (instructions_[opcode_].mode != nullptr && !FetchOperand()) {
         break;
       }
-      // Fallthrough to execution when there is no addressing mode.
       state_ = State::kExecuteInstruction;
+      // Fallthrough to execution without using a clock cycle, because many
+      // instructions perform their operation immediately after fetching the
+      // operand.
     case State::kExecuteInstruction:
-      execute_instruction_ticks_++;
       if (ExecuteInstruction()) {
         if (nmi_) {
           state_ = State::kNMI;
         } else {
           state_ = State::kFetchOpcode;
         }
+      } else {
+        instruction_ticks_++;
       }
       break;
     case State::kNMI:
@@ -121,13 +120,12 @@ void Cpu::FetchOpcode() {
 
 bool Cpu::FetchOperand() {
   InstructionConfig config = instructions_[opcode_];
-  return config.mode->FetchOperand(fetch_operand_ticks_, &operand_);
+  return config.mode->FetchOperand(instruction_ticks_, &operand_);
 }
 
 bool Cpu::ExecuteInstruction() {
   InstructionConfig config = instructions_[opcode_];
-  return config.instruction->Execute(opcode_, operand_,
-                                     execute_instruction_ticks_);
+  return config.instruction->Execute(opcode_, operand_, instruction_ticks_);
 }
 
 bool Cpu::PerformNMI() {

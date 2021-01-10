@@ -2,7 +2,10 @@
 
 #include <string>
 
-bool NOP::Execute(uint8_t opcode, uint16_t operand, int cycle) { return true; }
+bool NOP::Execute(uint8_t opcode, uint16_t operand, int cycle) {
+  if (cycle < 2) return false;
+  return true;
+}
 
 BRK::BRK(Bus& bus, Registers& reg, EventLogger& event_logger)
     : Instruction2(bus, reg), event_logger_(event_logger) {}

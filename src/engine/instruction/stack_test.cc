@@ -18,7 +18,7 @@ TEST_F(StackTest, PHA) {
   EXPECT_CALL(bus_, Write(0x01FF, 0xAB))
       .WillOnce(Return(Peripheral::Status::OK));
   int cycles = ExecuteUntilComplete(&pha, 0x48);
-  EXPECT_EQ(cycles, 2);
+  EXPECT_EQ(cycles, 3);
   EXPECT_EQ(reg_.sp, 0xFE);
 }
 
@@ -29,7 +29,7 @@ TEST_F(StackTest, PLA) {
   EXPECT_CALL(bus_, Read(0x01FF, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
   int cycles = ExecuteUntilComplete(&pla, 0x68);
-  EXPECT_EQ(cycles, 3);
+  EXPECT_EQ(cycles, 4);
   EXPECT_EQ(reg_.sp, 0xFF);
   EXPECT_EQ(reg_.acc, 0xAB);
 }
@@ -41,7 +41,7 @@ TEST_F(StackTest, PHP) {
   EXPECT_CALL(bus_, Write(0x01FF, 0xAB))
       .WillOnce(Return(Peripheral::Status::OK));
   int cycles = ExecuteUntilComplete(&php, 0x08);
-  EXPECT_EQ(cycles, 2);
+  EXPECT_EQ(cycles, 3);
   EXPECT_EQ(reg_.sp, 0xFE);
 }
 
@@ -52,7 +52,7 @@ TEST_F(StackTest, PLP) {
   EXPECT_CALL(bus_, Read(0x01FF, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
   int cycles = ExecuteUntilComplete(&plp, 0x28);
-  EXPECT_EQ(cycles, 3);
+  EXPECT_EQ(cycles, 4);
   EXPECT_EQ(reg_.sp, 0xFF);
   EXPECT_EQ(reg_.status, 0xAB);
 }

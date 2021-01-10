@@ -4,7 +4,7 @@ namespace {
 
 bool Branch(Registers& reg, Status condition, bool set, int cycle,
             uint16_t operand) {
-  if (cycle == 1) {
+  if (cycle == 2) {
     if (reg.status.test(condition) != set) {
       reg.pc++;
       return true;
@@ -13,7 +13,7 @@ bool Branch(Registers& reg, Status condition, bool set, int cycle,
     }
   }
 
-  else if (cycle == 2) {
+  else if (cycle == 3) {
     uint8_t uoffset = operand & 0xFF;
     int8_t offset = static_cast<int8_t>(uoffset);
 
