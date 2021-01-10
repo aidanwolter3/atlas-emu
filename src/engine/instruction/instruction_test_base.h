@@ -21,8 +21,7 @@ class Instruction2TestBase : public testing::Test {
  protected:
   // Executes an instruction until it completes, then returns how many cycles
   // were taken.
-  int ExecuteUntilComplete(Instruction2* ins, uint8_t opcode,
-                           uint16_t operand = 0);
+  int ExecuteUntilComplete(Instruction2* ins, uint16_t operand = 0);
 
   MockBus bus_;
   Registers reg_;

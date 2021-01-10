@@ -6,13 +6,12 @@ using testing::Return;
 using testing::SetArgPointee;
 
 int Instruction2TestBase::ExecuteUntilComplete(Instruction2* ins,
-                                               uint8_t opcode,
                                                uint16_t operand) {
   int cycles = 0;
   bool finished = false;
   while (!finished) {
     cycles++;
-    finished = ins->Execute(opcode, operand, cycles);
+    finished = ins->Execute(0, operand, cycles);
   }
   return cycles;
 }

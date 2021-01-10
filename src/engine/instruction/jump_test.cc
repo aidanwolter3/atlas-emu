@@ -21,7 +21,7 @@ TEST_F(JumpTest, JSR_RTS) {
   EXPECT_CALL(bus_, Write(0x10F, 0x23));
 
   int cycles = 0;
-  cycles = ExecuteUntilComplete(&jsr, 0x20, 0xBBAA);
+  cycles = ExecuteUntilComplete(&jsr, 0xBBAA);
   EXPECT_EQ(cycles, 6);
   EXPECT_EQ(reg_.pc, 0xBBAA);
   EXPECT_EQ(reg_.sp, 0x0E);
@@ -31,7 +31,7 @@ TEST_F(JumpTest, JSR_RTS) {
   EXPECT_CALL(bus_, Read(0x110, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x11), Return(Peripheral::Status::OK)));
 
-  cycles = ExecuteUntilComplete(&rts, 0x60);
+  cycles = ExecuteUntilComplete(&rts);
   EXPECT_EQ(cycles, 6);
   EXPECT_EQ(reg_.pc, 0x1124);
   EXPECT_EQ(reg_.sp, 0x10);
