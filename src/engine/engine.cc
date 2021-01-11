@@ -135,14 +135,14 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<BIT>({0x24, 0x2C});
 
   // branch
-  RegisterInstruction<BPL>(0x10, Addressing::Mode::kImmediate);
-  RegisterInstruction<BMI>(0x30, Addressing::Mode::kImmediate);
-  RegisterInstruction<BVC>(0x50, Addressing::Mode::kImmediate);
-  RegisterInstruction<BVS>(0x70, Addressing::Mode::kImmediate);
-  RegisterInstruction<BCC>(0x90, Addressing::Mode::kImmediate);
-  RegisterInstruction<BCS>(0xB0, Addressing::Mode::kImmediate);
-  RegisterInstruction<BNE>(0xD0, Addressing::Mode::kImmediate);
-  RegisterInstruction<BEQ>(0xF0, Addressing::Mode::kImmediate);
+  RegisterInstruction<BPL>(0x10, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BMI>(0x30, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BVC>(0x50, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BVS>(0x70, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BCC>(0x90, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BCS>(0xB0, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BNE>(0xD0, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<BEQ>(0xF0, Mode::kImmediate, Operation::kRead);
 
   // math
   RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
@@ -161,9 +161,9 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<ROR>({0x6A, 0x66, 0x76, 0x6E, 0x7E});
 
   // jump
-  RegisterInstruction<JMP>(0x4C, Addressing::Mode::kImmediateAddress);
-  RegisterInstruction<JMP>(0x6C, Addressing::Mode::kIndirect);
-  RegisterInstruction<JSR>(0x20, Addressing::Mode::kImmediateAddress);
+  RegisterInstruction<JMP>(0x4C, Mode::kImmediateAddress, Operation::kRead);
+  RegisterInstruction<JMP>(0x6C, Mode::kIndirect, Operation::kRead);
+  RegisterInstruction<JSR>(0x20, Mode::kImmediateAddress, Operation::kRead);
   RegisterInstruction<RTS>(0x60);
   RegisterInstruction<RTI>(0x40);
 
@@ -189,7 +189,7 @@ void Engine::RegisterInstruction(std::vector<uint8_t> opcodes) {
 }
 
 template <class INS>
-void Engine::RegisterInstruction(uint8_t opcode, Addressing::Mode mode) {
+void Engine::RegisterInstruction(uint8_t opcode, Mode mode, Operation op) {
   // Construct the instruction if needed.
   if (!instructions_.count(opcode)) {
     instructions_[opcode] = std::make_unique<INS>(bus_, reg_);
@@ -198,6 +198,7 @@ void Engine::RegisterInstruction(uint8_t opcode, Addressing::Mode mode) {
   cpu_->RegisterInstruction(opcode,
                             {
                                 .mode = mode,
+                                .op = op,
                                 .instruction = instructions_[opcode].get(),
                             });
 }

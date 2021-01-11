@@ -40,6 +40,9 @@ class Engine {
   void Reset();
 
  private:
+  using Mode = Addressing::Mode;
+  using Operation = Addressing::Operation;
+
   void DumpState();
   void RegisterInstructions();
 
@@ -53,8 +56,8 @@ class Engine {
   // Constructs the addressing mode if it does not already exist.
   // Constructs the instruction if it does not alredy exist.
   template <class INS>
-  void RegisterInstruction(uint8_t opcode,
-                           Addressing::Mode mode = Addressing::Mode::kImplied);
+  void RegisterInstruction(uint8_t opcode, Mode mode = Mode::kImplied,
+                           Operation op = Operation::kRead);
 
   // Map of opcodes to instructions.
   std::unordered_map<uint8_t, std::unique_ptr<Instruction2>> instructions_;

@@ -123,7 +123,8 @@ void Cpu::FetchOpcode() {
 
 bool Cpu::FetchOperand() {
   InstructionConfig& config = instructions_[opcode_];
-  return addressing_.FetchOperand(config.mode, instruction_ticks_, &operand_);
+  return addressing_.Execute(config.mode, config.op, instruction_ticks_,
+                             &operand_);
 }
 
 bool Cpu::ExecuteInstruction() {

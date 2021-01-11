@@ -17,15 +17,21 @@ class Addressing {
     kIndirect,
   };
 
+  enum class Operation {
+    kRead,
+    kWrite,
+    kReadWrite,
+  };
+
   Addressing(Bus& bus, Registers& reg);
-  bool FetchOperand(Mode mode, int cycle, uint16_t* operand);
+  bool Execute(Mode mode, Operation op, int cycle, uint16_t* operand);
 
  private:
-  bool Immediate(int cycle, uint16_t* operand);
+  bool Immediate(Operation op, int cycle, uint16_t* operand);
   bool ImmediateAddress(int cycle, uint16_t* operand);
-  bool ZeroPage(int cycle, uint16_t* operand);
-  bool Absolute(int cycle, uint16_t* operand);
-  bool Indirect(int cycle, uint16_t* operand);
+  bool ZeroPage(Operation op, int cycle, uint16_t* operand);
+  bool Absolute(Operation op, int cycle, uint16_t* operand);
+  bool Indirect(Operation op, int cycle, uint16_t* operand);
 
   Bus& bus_;
   Registers& reg_;

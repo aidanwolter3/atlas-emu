@@ -4,27 +4,28 @@
 
 Addressing::Addressing(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
 
-bool Addressing::FetchOperand(Mode mode, int cycle, uint16_t* operand) {
+bool Addressing::Execute(Mode mode, Operation op, int cycle,
+                         uint16_t* operand) {
   switch (mode) {
     case Mode::kImplied:
       return true;
     case Mode::kImmediate:
-      return Immediate(cycle, operand);
+      return Immediate(op, cycle, operand);
     case Mode::kImmediateAddress:
       return ImmediateAddress(cycle, operand);
     case Mode::kZeroPage:
-      return ZeroPage(cycle, operand);
+      return ZeroPage(op, cycle, operand);
     case Mode::kAbsolute:
-      return Absolute(cycle, operand);
+      return Absolute(op, cycle, operand);
     case Mode::kIndirect:
-      return Indirect(cycle, operand);
+      return Indirect(op, cycle, operand);
     default:
       std::cout << "Invalid addressing mode: " << (int)mode << std::endl;
       return true;
   }
 }
 
-bool Addressing::Immediate(int cycle, uint16_t* operand) {
+bool Addressing::Immediate(Operation op, int cycle, uint16_t* operand) {
   if (cycle < 2) return false;
   uint8_t lower;
   bus_.Read(reg_.pc, &lower);
@@ -41,7 +42,7 @@ bool Addressing::ImmediateAddress(int cycle, uint16_t* operand) {
   return true;
 }
 
-bool Addressing::ZeroPage(int cycle, uint16_t* operand) {
+bool Addressing::ZeroPage(Operation op, int cycle, uint16_t* operand) {
   if (cycle < 2) return false;
   uint8_t address_lower, lower;
   bus_.Read(reg_.pc, &address_lower);
@@ -50,7 +51,7 @@ bool Addressing::ZeroPage(int cycle, uint16_t* operand) {
   return true;
 }
 
-bool Addressing::Absolute(int cycle, uint16_t* operand) {
+bool Addressing::Absolute(Operation op, int cycle, uint16_t* operand) {
   if (cycle < 2) return false;
   uint8_t address_lower, address_upper, lower, upper;
   bus_.Read(reg_.pc, &address_lower);
@@ -61,7 +62,7 @@ bool Addressing::Absolute(int cycle, uint16_t* operand) {
   return true;
 }
 
-bool Addressing::Indirect(int cycle, uint16_t* operand) {
+bool Addressing::Indirect(Operation op, int cycle, uint16_t* operand) {
   if (cycle < 4) return false;
 
   uint8_t lower, upper;

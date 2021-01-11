@@ -14,6 +14,7 @@
 
 struct InstructionConfig {
   Addressing::Mode mode;
+  Addressing::Operation op;
   Instruction2* instruction;
 };
 
