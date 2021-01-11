@@ -2,32 +2,32 @@
 
 #include "src/engine/public/constants.h"
 
-bool PHA::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 3) return false;
+std::optional<uint8_t> PHA::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 3) return std::nullopt;
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.acc);
-  return true;
+  return 0;
 }
 
-bool PLA::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 4) return false;
+std::optional<uint8_t> PLA::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 4) return std::nullopt;
   bus_.Read(kStackStartAddress + ++reg_.sp, &reg_.acc);
-  return true;
+  return 0;
 }
 
-bool PHP::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 3) return false;
+std::optional<uint8_t> PHP::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 3) return std::nullopt;
   bus_.Write(kStackStartAddress + reg_.sp--, reg_.status.to_ulong());
-  return true;
+  return 0;
 }
 
-bool PLP::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 4) return false;
+std::optional<uint8_t> PLP::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 4) return std::nullopt;
   uint8_t byte_read;
   bus_.Read(kStackStartAddress + ++reg_.sp, &byte_read);
   reg_.status = byte_read;
-  return true;
+  return 0;
 }

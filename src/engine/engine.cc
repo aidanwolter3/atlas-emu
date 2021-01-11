@@ -98,10 +98,12 @@ void Engine::RegisterInstructions() {
   // BRK has a custom constructor, therefore we cannot use
   // RegisterInstruction<>.
   instructions_[0x00] = std::make_unique<BRK>(bus_, reg_, event_logger_);
-  cpu_->RegisterInstruction(0x00, {
-                                      .mode = Addressing::Mode::kImplied,
-                                      .instruction = instructions_[0x00].get(),
-                                  });
+  cpu_->RegisterInstruction({
+      .opcode = 0x00,
+      .mode = Mode::kImplied,
+      .operation = Operation::kNone,
+      .instruction = instructions_[0x00].get(),
+  });
 
   RegisterInstruction<NOP>(0xEA);
 
@@ -189,16 +191,17 @@ void Engine::RegisterInstruction(std::vector<uint8_t> opcodes) {
 }
 
 template <class INS>
-void Engine::RegisterInstruction(uint8_t opcode, Mode mode, Operation op) {
+void Engine::RegisterInstruction(uint8_t opcode, Mode mode,
+                                 Operation operation) {
   // Construct the instruction if needed.
   if (!instructions_.count(opcode)) {
     instructions_[opcode] = std::make_unique<INS>(bus_, reg_);
   }
 
-  cpu_->RegisterInstruction(opcode,
-                            {
-                                .mode = mode,
-                                .op = op,
-                                .instruction = instructions_[opcode].get(),
-                            });
+  cpu_->RegisterInstruction({
+      .opcode = opcode,
+      .mode = mode,
+      .operation = operation,
+      .instruction = instructions_[opcode].get(),
+  });
 }

@@ -1,6 +1,6 @@
 #include "src/engine/instruction/jump.h"
 
-#include "src/engine/instruction/addressing.h"
+#include "src/engine/instruction/instruction.h"
 #include "src/engine/instruction/instruction_test_base.h"
 
 using testing::_;
@@ -22,7 +22,7 @@ TEST_F(JumpTest, JSR_RTS) {
   EXPECT_CALL(bus_, Write(0x10F, 0x23));
 
   int cycles = 0;
-  cycles = ExecuteUntilComplete(&jsr, Addressing::Mode::kAbsolute, 0xBBAA);
+  cycles = ExecuteUntilComplete(&jsr, Instruction2::Mode::kAbsolute, 0xBBAA);
   EXPECT_EQ(cycles, 6);
   EXPECT_EQ(reg_.pc, 0xBBAA);
   EXPECT_EQ(reg_.sp, 0x0E);

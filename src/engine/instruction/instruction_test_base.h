@@ -22,9 +22,9 @@ class Instruction2TestBase : public testing::Test {
  protected:
   // Executes an instruction until it completes, then returns how many cycles
   // were taken. By default, we assume implied addressing with no operand.
-  int ExecuteUntilComplete(Instruction2* ins,
-                           Addressing::Mode mode = Addressing::Mode::kImplied,
-                           uint16_t operand = 0);
+  int ExecuteUntilComplete(
+      Instruction2* ins, Instruction2::Mode mode = Instruction2::Mode::kImplied,
+      uint16_t operand = 0);
 
   MockBus bus_;
   Registers reg_;

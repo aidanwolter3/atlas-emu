@@ -1,50 +1,50 @@
 #include "src/engine/instruction/status.h"
 
-bool CLC::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> CLC::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.reset(Status::kCarry);
-  return true;
+  return 0;
 }
 
-bool SEC::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> SEC::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.set(Status::kCarry);
-  return true;
+  return 0;
 }
 
-bool CLI::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> CLI::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.reset(Status::kIntDisable);
-  return true;
+  return 0;
 }
 
-bool SEI::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> SEI::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.set(Status::kIntDisable);
-  return true;
+  return 0;
 }
 
-bool CLV::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> CLV::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.reset(Status::kOverflow);
-  return true;
+  return 0;
 }
 
-bool CLD::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> CLD::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.reset(Status::kBCDMode);
-  return true;
+  return 0;
 }
 
-bool SED::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
+std::optional<uint8_t> SED::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
   reg_.status.set(Status::kBCDMode);
-  return true;
+  return 0;
 }

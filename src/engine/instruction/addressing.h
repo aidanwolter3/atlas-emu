@@ -2,39 +2,28 @@
 #define ENGINE_INSTRUCTION_ADDRESSING_H_
 
 #include <cstdint>
+#include <optional>
 
+#include "src/engine/instruction/instruction.h"
 #include "src/engine/public/bus.h"
 #include "src/engine/public/registers.h"
 
 class Addressing {
  public:
-  enum class Mode {
-    kImplied,
-    kImmediate,
-    kImmediateAddress,
-    kZeroPage,
-    kAbsolute,
-    kIndirect,
-  };
-
-  enum class Operation {
-    kRead,
-    kWrite,
-    kReadWrite,
-  };
-
   Addressing(Bus& bus, Registers& reg);
-  bool Execute(Mode mode, Operation op, int cycle, uint16_t* operand);
+  bool Execute(Instruction2::Config& config, int cycle);
 
  private:
-  bool Immediate(Operation op, int cycle, uint16_t* operand);
-  bool ImmediateAddress(int cycle, uint16_t* operand);
-  bool ZeroPage(Operation op, int cycle, uint16_t* operand);
-  bool Absolute(Operation op, int cycle, uint16_t* operand);
-  bool Indirect(Operation op, int cycle, uint16_t* operand);
+  uint16_t Immediate();
+  uint16_t ImmediateAddress();
+  uint16_t ZeroPage();
+  uint16_t Absolute();
+  uint16_t Indirect();
 
   Bus& bus_;
   Registers& reg_;
+  std::optional<uint16_t> address_;
+  uint16_t operand_;
 };
 
 #endif  // ENGINE_INSTRUCTION_ADDRESSING_H_

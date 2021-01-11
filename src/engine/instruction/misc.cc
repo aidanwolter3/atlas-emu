@@ -2,17 +2,17 @@
 
 #include <string>
 
-bool NOP::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
-  if (cycle < 2) return false;
-  return true;
+std::optional<uint8_t> NOP::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (cycle < 2) return std::nullopt;
+  return 0;
 }
 
 BRK::BRK(Bus& bus, Registers& reg, EventLogger& event_logger)
     : Instruction2(bus, reg), event_logger_(event_logger) {}
 
-bool BRK::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
-                  int cycle) {
+std::optional<uint8_t> BRK::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
   // The accumulator holds the test result.
   // 0 is success; everything else is failure.
   bool passed = reg_.acc == 0;
@@ -24,5 +24,5 @@ bool BRK::Execute(uint8_t opcode, Addressing::Mode mode, uint16_t operand,
 
   // Note: We do not care about having cycle accuracy here, because this ends
   // the program.
-  return true;
+  return 0;
 }

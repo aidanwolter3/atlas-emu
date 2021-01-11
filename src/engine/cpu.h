@@ -7,16 +7,9 @@
 #include <vector>
 
 #include "src/engine/instruction/addressing.h"
-#include "src/engine/instruction/instruction.h"
 #include "src/engine/public/bus.h"
 #include "src/engine/public/event_logger.h"
 #include "src/engine/public/registers.h"
-
-struct InstructionConfig {
-  Addressing::Mode mode;
-  Addressing::Operation op;
-  Instruction2* instruction;
-};
 
 class Cpu {
  public:
@@ -27,22 +20,20 @@ class Cpu {
   void Tick();
   void DumpRegisters();
 
-  // Register an Instruction which will be executed for given |opcode|.
+  // Register an Instruction using |config|.
   // If the |config| specifies a nullptr mode, then zero operands are fetched.
   // If the |config| specifies a nullptr instruction, then no instruction is
   // executed.
-  void RegisterInstruction(uint8_t opcode, InstructionConfig config);
+  void RegisterInstruction(Instruction2::Config config);
 
  private:
   enum class State {
     kFetchOpcode,
-    kFetchOperand,
     kExecuteInstruction,
     kNMI,
   };
 
   void FetchOpcode();
-  bool FetchOperand();
   bool ExecuteInstruction();
   bool PerformNMI();
   uint16_t ReadAddressFromVectorTable(uint16_t address);
@@ -52,13 +43,12 @@ class Cpu {
   Registers& reg_;
   Addressing addressing_;
 
-  // Map of opcode to InstructionConfig.
-  std::map<uint8_t, InstructionConfig> instructions_;
+  // Map of opcode to Instruction2::Config.
+  std::map<uint8_t, Instruction2::Config> instructions_;
 
   State state_;
   bool nmi_;
   uint8_t opcode_;
-  uint16_t operand_;
   int instruction_ticks_;
   int nmi_ticks_;
 };

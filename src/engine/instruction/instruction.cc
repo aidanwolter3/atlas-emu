@@ -17,7 +17,7 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-bool Instruction::Execute(uint8_t opcode) {
+void Instruction::Execute(uint8_t opcode) {
   if (kDebug) {
     // The PC has already been incremented by the CPU, so decrement one to find
     // the instruction.
@@ -35,8 +35,6 @@ bool Instruction::Execute(uint8_t opcode) {
     }
     std::cout << std::endl;
   }
-
-  return true;
 }
 
 std::string Instruction::GetLogName() { return "<unknown>"; }

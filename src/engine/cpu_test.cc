@@ -61,10 +61,12 @@ TEST(CpuTest, RunUntilSegfault) {
 
   // Add a mock instruction
   MockInstruction mock_instruction(bus, reg);
-  cpu.RegisterInstruction(kFakeOpcode, {
-                                           .mode = Addressing::Mode::kImplied,
-                                           .instruction = &mock_instruction,
-                                       });
+  cpu.RegisterInstruction({
+      .opcode = kFakeOpcode,
+      .mode = Instruction2::Mode::kImplied,
+      .operation = Instruction2::Operation::kNone,
+      .instruction = &mock_instruction,
+  });
 
   EXPECT_CALL(bus, Read(0xBBAA, _))
       .WillOnce(

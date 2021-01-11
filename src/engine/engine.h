@@ -9,7 +9,6 @@
 #include "src/engine/bus_impl.h"
 #include "src/engine/cpu.h"
 #include "src/engine/event_logger_impl.h"
-#include "src/engine/instruction/addressing.h"
 #include "src/engine/instruction/instruction.h"
 #include "src/engine/joystick.h"
 #include "src/engine/memory.h"
@@ -40,8 +39,8 @@ class Engine {
   void Reset();
 
  private:
-  using Mode = Addressing::Mode;
-  using Operation = Addressing::Operation;
+  using Mode = Instruction2::Mode;
+  using Operation = Instruction2::Operation;
 
   void DumpState();
   void RegisterInstructions();
@@ -57,7 +56,7 @@ class Engine {
   // Constructs the instruction if it does not alredy exist.
   template <class INS>
   void RegisterInstruction(uint8_t opcode, Mode mode = Mode::kImplied,
-                           Operation op = Operation::kRead);
+                           Operation operation = Operation::kNone);
 
   // Map of opcodes to instructions.
   std::unordered_map<uint8_t, std::unique_ptr<Instruction2>> instructions_;
