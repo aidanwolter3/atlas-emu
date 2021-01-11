@@ -116,20 +116,14 @@ void EOR::ExecuteInternal(uint8_t opcode) {
   SetStatusFromData(reg_, reg_.acc);
 }
 
-void BIT::ExecuteInternal(uint8_t opcode) {
-  uint8_t value;
-  switch (opcode) {
-    case 0x24:
-      bus_.Read(ZeroPage(), &value);
-      break;
-    case 0x2C:
-      bus_.Read(Absolute(), &value);
-      break;
-    default:
-      std::cout << "Unsupported BIT variant: " << opcode << std::endl;
-      return;
-  }
+std::optional<uint8_t> BIT::Execute(uint8_t opcode, Instruction2::Mode mode,
+                                    uint16_t operand, int cycle) {
+  if (mode == Instruction2::Mode::kZeroPage && cycle < 3) return std::nullopt;
+  if (mode == Instruction2::Mode::kAbsolute && cycle < 4) return std::nullopt;
+
+  uint8_t value = operand & 0xFF;
   reg_.status.set(Status::kZero, (value & reg_.acc) == 0);
   reg_.status.set(Status::kSign, value & 0x80);
   reg_.status.set(Status::kOverflow, value & 0x40);
+  return 0;
 }

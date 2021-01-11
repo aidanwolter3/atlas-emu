@@ -28,11 +28,11 @@ class EOR : public Instruction {
 };
 
 // Bit Test
-class BIT : public Instruction {
+class BIT : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("BIT");
+  using Instruction2::Instruction2;
+  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
+                                 uint16_t operand, int cycle) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_LOGIC_H_
