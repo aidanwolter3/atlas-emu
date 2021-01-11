@@ -19,11 +19,29 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
       case Instruction2::Mode::kZeroPage:
         address_ = ZeroPage();
         break;
+      case Instruction2::Mode::kZeroPageX:
+        address_ = ZeroPage() + reg_.x;
+        break;
+      case Instruction2::Mode::kZeroPageY:
+        address_ = ZeroPage() + reg_.y;
+        break;
       case Instruction2::Mode::kAbsolute:
         address_ = Absolute();
         break;
+      case Instruction2::Mode::kAbsoluteX:
+        address_ = Absolute() + reg_.x;
+        break;
+      case Instruction2::Mode::kAbsoluteY:
+        address_ = Absolute() + reg_.y;
+        break;
       case Instruction2::Mode::kIndirect:
         operand_ = Indirect();
+        break;
+      case Instruction2::Mode::kIndirectX:
+        operand_ = IndirectX();
+        break;
+      case Instruction2::Mode::kIndirectY:
+        operand_ = IndirectY();
         break;
       default:
         std::cout << "Invalid addressing mode: " << (int)config.mode
@@ -60,18 +78,20 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
   return true;
 }
 
-uint16_t Addressing::Immediate() { return reg_.pc; }
+uint16_t Addressing::Immediate() { return reg_.pc++; }
 
 uint16_t Addressing::ImmediateAddress() {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
+  reg_.pc += 2;
   return (address_upper << 8) | address_lower;
 }
 
 uint16_t Addressing::ZeroPage() {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
+  reg_.pc++;
   return address;
 }
 
@@ -79,6 +99,7 @@ uint16_t Addressing::Absolute() {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
+  reg_.pc += 2;
   return (address_upper << 8) | address_lower;
 }
 
@@ -86,6 +107,7 @@ uint16_t Addressing::Indirect() {
   uint8_t lower, upper;
   bus_.Read(reg_.pc, &lower);
   bus_.Read(reg_.pc + 1, &upper);
+  reg_.pc += 2;
 
   uint16_t address_location_1 = ((upper << 8) | lower);
   uint16_t address_location_2 =
@@ -94,4 +116,26 @@ uint16_t Addressing::Indirect() {
   bus_.Read(address_location_1, &lower);
   bus_.Read(address_location_2, &upper);
   return (upper << 8) | lower;
+}
+
+uint16_t Addressing::IndirectX() {
+  uint8_t address;
+  bus_.Read(reg_.pc, &address);
+  reg_.pc++;
+
+  uint8_t lower, upper;
+  bus_.Read(address + reg_.x, &lower);
+  bus_.Read(address + reg_.x + 1, &upper);
+  return (upper << 8) | lower;
+}
+
+uint16_t Addressing::IndirectY() {
+  uint8_t address;
+  bus_.Read(reg_.pc, &address);
+  reg_.pc++;
+
+  uint8_t lower, upper;
+  bus_.Read(address, &lower);
+  bus_.Read(address + 1, &upper);
+  return ((upper << 8) | lower) + reg_.y;
 }

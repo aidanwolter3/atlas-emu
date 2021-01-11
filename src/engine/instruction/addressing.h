@@ -19,6 +19,8 @@ class Addressing {
   uint16_t ZeroPage();
   uint16_t Absolute();
   uint16_t Indirect();
+  uint16_t IndirectX();
+  uint16_t IndirectY();
 
   Bus& bus_;
   Registers& reg_;

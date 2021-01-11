@@ -18,8 +18,14 @@ class Instruction2 {
     kImmediate,
     kImmediateAddress,
     kZeroPage,
+    kZeroPageX,
+    kZeroPageY,
     kAbsolute,
+    kAbsoluteX,
+    kAbsoluteY,
     kIndirect,
+    kIndirectX,
+    kIndirectY,
   };
 
   enum class Operation {
