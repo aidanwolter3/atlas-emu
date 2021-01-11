@@ -10,6 +10,8 @@ bool Addressing::FetchOperand(Mode mode, int cycle, uint16_t* operand) {
       return true;
     case Mode::kImmediate:
       return Immediate(cycle, operand);
+    case Mode::kImmediateAddress:
+      return ImmediateAddress(cycle, operand);
     case Mode::kZeroPage:
       return ZeroPage(cycle, operand);
     case Mode::kAbsolute:
@@ -24,25 +26,37 @@ bool Addressing::FetchOperand(Mode mode, int cycle, uint16_t* operand) {
 
 bool Addressing::Immediate(int cycle, uint16_t* operand) {
   if (cycle < 2) return false;
-  uint8_t low;
-  bus_.Read(reg_.pc, &low);
-  *operand = low;
+  uint8_t lower;
+  bus_.Read(reg_.pc, &lower);
+  *operand = lower;
+  return true;
+}
+
+bool Addressing::ImmediateAddress(int cycle, uint16_t* operand) {
+  if (cycle < 2) return false;
+  uint8_t lower, upper;
+  bus_.Read(reg_.pc, &lower);
+  bus_.Read(reg_.pc + 1, &upper);
+  *operand = (upper << 8) | lower;
   return true;
 }
 
 bool Addressing::ZeroPage(int cycle, uint16_t* operand) {
   if (cycle < 2) return false;
-  uint8_t byte;
-  bus_.Read(reg_.pc, &byte);
-  *operand = byte;
+  uint8_t address_lower, lower;
+  bus_.Read(reg_.pc, &address_lower);
+  bus_.Read(address_lower, &lower);
+  *operand = lower;
   return true;
 }
 
 bool Addressing::Absolute(int cycle, uint16_t* operand) {
   if (cycle < 2) return false;
-  uint8_t lower, upper;
-  bus_.Read(reg_.pc, &lower);
-  bus_.Read(reg_.pc + 1, &upper);
+  uint8_t address_lower, address_upper, lower, upper;
+  bus_.Read(reg_.pc, &address_lower);
+  bus_.Read(reg_.pc + 1, &address_upper);
+  bus_.Read(address_lower, &lower);
+  bus_.Read(address_upper, &upper);
   *operand = (upper << 8) | lower;
   return true;
 }

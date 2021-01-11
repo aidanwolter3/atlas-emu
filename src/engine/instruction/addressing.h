@@ -11,6 +11,7 @@ class Addressing {
   enum class Mode {
     kImplied,
     kImmediate,
+    kImmediateAddress,
     kZeroPage,
     kAbsolute,
     kIndirect,
@@ -21,6 +22,7 @@ class Addressing {
 
  private:
   bool Immediate(int cycle, uint16_t* operand);
+  bool ImmediateAddress(int cycle, uint16_t* operand);
   bool ZeroPage(int cycle, uint16_t* operand);
   bool Absolute(int cycle, uint16_t* operand);
   bool Indirect(int cycle, uint16_t* operand);
