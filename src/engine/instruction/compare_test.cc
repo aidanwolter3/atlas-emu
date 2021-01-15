@@ -9,7 +9,7 @@ using testing::SetArgPointee;
 
 namespace {
 
-class CompareTest : public InstructionTestBase {
+class CompareTest : public Instruction2TestBase {
  protected:
   void ExpectZeroCarrySign(bool zero, bool carry, bool sign) {
     EXPECT_EQ(zero, reg_.status.test(Status::kZero));
@@ -18,55 +18,20 @@ class CompareTest : public InstructionTestBase {
   }
 };
 
-TEST_F(CompareTest, CMP_Immediate) {
+TEST_F(CompareTest, CMP) {
   reg_.acc = 10;
   CMP cmp(bus_, reg_);
 
   reg_.pc = 0;
-  EXPECT_CALL(bus_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(10), Return(Peripheral::Status::OK)));
-  cmp.Execute(0xC9);
+  cmp.Execute(0, 10);
   ExpectZeroCarrySign(true, true, false);
 
   reg_.pc = 0;
-  EXPECT_CALL(bus_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(20), Return(Peripheral::Status::OK)));
-  cmp.Execute(0xC9);
+  cmp.Execute(0, 20);
   ExpectZeroCarrySign(false, false, true);
 
   reg_.pc = 0;
-  EXPECT_CALL(bus_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0), Return(Peripheral::Status::OK)));
-  cmp.Execute(0xC9);
-  ExpectZeroCarrySign(false, true, false);
-}
-
-TEST_F(CompareTest, CMP_ZeroPage) {
-  reg_.acc = 10;
-  CMP cmp(bus_, reg_);
-
-  reg_.pc = 0;
-  EXPECT_CALL(bus_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAA), Return(Peripheral::Status::OK)));
-  EXPECT_CALL(bus_, Read(0xAA, _))
-      .WillOnce(DoAll(SetArgPointee<1>(10), Return(Peripheral::Status::OK)));
-  cmp.Execute(0xC5);
-  ExpectZeroCarrySign(true, true, false);
-
-  reg_.pc = 0;
-  EXPECT_CALL(bus_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAA), Return(Peripheral::Status::OK)));
-  EXPECT_CALL(bus_, Read(0xAA, _))
-      .WillOnce(DoAll(SetArgPointee<1>(20), Return(Peripheral::Status::OK)));
-  cmp.Execute(0xC5);
-  ExpectZeroCarrySign(false, false, true);
-
-  reg_.pc = 0;
-  EXPECT_CALL(bus_, Read(0x00, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0xAA), Return(Peripheral::Status::OK)));
-  EXPECT_CALL(bus_, Read(0xAA, _))
-      .WillOnce(DoAll(SetArgPointee<1>(0), Return(Peripheral::Status::OK)));
-  cmp.Execute(0xC5);
+  cmp.Execute(0, 0);
   ExpectZeroCarrySign(false, true, false);
 }
 

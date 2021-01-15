@@ -195,9 +195,22 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<RTI>(0x40);
 
   // compare
-  RegisterInstruction<CMP>({0xC9, 0xC5, 0xD5, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1});
-  RegisterInstruction<CPX>({0xE0, 0xE4, 0xEC});
-  RegisterInstruction<CPY>({0xC0, 0xC4, 0xCC});
+  RegisterInstruction<CMP>(0xC9, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<CMP>(0xC5, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<CMP>(0xD5, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<CMP>(0xCD, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<CMP>(0xDD, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<CMP>(0xD9, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<CMP>(0xC1, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<CMP>(0xD1, Mode::kIndirectY, Operation::kRead);
+
+  RegisterInstruction<CPX>(0xE0, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<CPX>(0xE4, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<CPX>(0xEC, Mode::kZeroPage, Operation::kRead);
+
+  RegisterInstruction<CPY>(0xC0, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<CPY>(0xC4, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<CPY>(0xCC, Mode::kAbsolute, Operation::kRead);
 
   // register
   RegisterInstruction<TAX>(0xAA);
