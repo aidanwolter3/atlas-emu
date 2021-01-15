@@ -8,16 +8,14 @@
 class NOP : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Break (used for e2e tests)
 class BRK : public Instruction2 {
  public:
   explicit BRK(Bus& bus, Registers& reg, EventLogger& event_logger);
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 
  private:
   EventLogger& event_logger_;

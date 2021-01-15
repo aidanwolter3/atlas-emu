@@ -13,7 +13,7 @@ namespace {
 class JumpTest : public Instruction2TestBase {};
 
 TEST_F(JumpTest, JSR_RTS) {
-  reg_.pc = 0x1122;
+  reg_.pc = 0x1124;
   reg_.sp = 0x10;
   JSR jsr(bus_, reg_);
   RTS rts(bus_, reg_);
@@ -21,9 +21,7 @@ TEST_F(JumpTest, JSR_RTS) {
   EXPECT_CALL(bus_, Write(0x110, 0x11));
   EXPECT_CALL(bus_, Write(0x10F, 0x23));
 
-  int cycles = 0;
-  cycles = ExecuteUntilComplete(&jsr, Instruction2::Mode::kAbsolute, 0xBBAA);
-  EXPECT_EQ(cycles, 6);
+  jsr.Execute(0, 0xBBAA);
   EXPECT_EQ(reg_.pc, 0xBBAA);
   EXPECT_EQ(reg_.sp, 0x0E);
 
@@ -32,8 +30,7 @@ TEST_F(JumpTest, JSR_RTS) {
   EXPECT_CALL(bus_, Read(0x110, _))
       .WillOnce(DoAll(SetArgPointee<1>(0x11), Return(Peripheral::Status::OK)));
 
-  cycles = ExecuteUntilComplete(&rts);
-  EXPECT_EQ(cycles, 6);
+  rts.Execute(0, 0);
   EXPECT_EQ(reg_.pc, 0x1124);
   EXPECT_EQ(reg_.sp, 0x10);
 }

@@ -116,11 +116,7 @@ void EOR::ExecuteInternal(uint8_t opcode) {
   SetStatusFromData(reg_, reg_.acc);
 }
 
-std::optional<uint8_t> BIT::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
-  if (mode == Instruction2::Mode::kZeroPage && cycle < 3) return std::nullopt;
-  if (mode == Instruction2::Mode::kAbsolute && cycle < 4) return std::nullopt;
-
+uint8_t BIT::Execute(uint8_t opcode, uint16_t operand) {
   uint8_t value = operand & 0xFF;
   reg_.status.set(Status::kZero, (value & reg_.acc) == 0);
   reg_.status.set(Status::kSign, value & 0x80);

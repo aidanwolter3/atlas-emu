@@ -164,9 +164,9 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<ROR>({0x6A, 0x66, 0x76, 0x6E, 0x7E});
 
   // jump
-  RegisterInstruction<JMP>(0x4C, Mode::kImmediateAddress, Operation::kRead);
-  RegisterInstruction<JMP>(0x6C, Mode::kIndirect, Operation::kRead);
-  RegisterInstruction<JSR>(0x20, Mode::kImmediateAddress, Operation::kRead);
+  RegisterInstruction<JMP>(0x4C, Mode::kImmediateAddress);
+  RegisterInstruction<JMP>(0x6C, Mode::kIndirect);
+  RegisterInstruction<JSR>(0x20, Mode::kImmediateAddress);
   RegisterInstruction<RTS>(0x60);
   RegisterInstruction<RTI>(0x40);
 

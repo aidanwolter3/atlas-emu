@@ -6,57 +6,49 @@
 class BPL : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BMI : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BVC : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BVS : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BCC : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BCS : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BNE : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 class BEQ : public Instruction2 {
  public:
   using Instruction2::Instruction2;
-  std::optional<uint8_t> Execute(uint8_t opcode, Instruction2::Mode mode,
-                                 uint16_t operand, int cycle) override;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_BRANCH_H_

@@ -2,17 +2,12 @@
 
 #include <string>
 
-std::optional<uint8_t> NOP::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
-  if (cycle < 2) return std::nullopt;
-  return 0;
-}
+uint8_t NOP::Execute(uint8_t opcode, uint16_t operand) { return 0; }
 
 BRK::BRK(Bus& bus, Registers& reg, EventLogger& event_logger)
     : Instruction2(bus, reg), event_logger_(event_logger) {}
 
-std::optional<uint8_t> BRK::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
+uint8_t BRK::Execute(uint8_t opcode, uint16_t operand) {
   // The accumulator holds the test result.
   // 0 is success; everything else is failure.
   bool passed = reg_.acc == 0;

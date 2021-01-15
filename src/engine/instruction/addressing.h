@@ -14,18 +14,28 @@ class Addressing {
   bool Execute(Instruction2::Config& config, int cycle);
 
  private:
-  uint16_t Immediate();
-  uint16_t ImmediateAddress();
-  uint16_t ZeroPage();
-  uint16_t Absolute();
-  uint16_t Indirect();
-  uint16_t IndirectX();
-  uint16_t IndirectY();
+  struct Result {
+    uint16_t data;
+    int cycles;
+  };
+
+  Result Immediate(Instruction2::Operation operation);
+  Result ImmediateAddress(Instruction2::Operation operation);
+  Result ZeroPage(Instruction2::Operation operation);
+  Result ZeroPageX(Instruction2::Operation operation);
+  Result ZeroPageY(Instruction2::Operation operation);
+  Result Absolute(Instruction2::Operation operation);
+  Result AbsoluteX(Instruction2::Operation operation);
+  Result AbsoluteY(Instruction2::Operation operation);
+  Result Indirect(Instruction2::Operation operation);
+  Result IndirectX(Instruction2::Operation operation);
+  Result IndirectY(Instruction2::Operation operation);
 
   Bus& bus_;
   Registers& reg_;
   std::optional<uint16_t> address_;
-  uint16_t operand_;
+  std::optional<uint16_t> operand_;
+  int cycles_;
 };
 
 #endif  // ENGINE_INSTRUCTION_ADDRESSING_H_

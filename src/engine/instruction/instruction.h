@@ -2,7 +2,6 @@
 #define ENGINE_INSTRUCTION_INSTRUCTION_H_
 
 #include <cstdint>
-#include <optional>
 #include <vector>
 
 #include "src/engine/public/bus.h"
@@ -46,8 +45,7 @@ class Instruction2 {
   virtual ~Instruction2() {}
   // TODO: Remove |opcode| once all instructions have migrated to Instruction2,
   // and remove the default implementation.
-  virtual std::optional<uint8_t> Execute(uint8_t opcode, Mode mode,
-                                         uint16_t operand, int cycle) {
+  virtual uint8_t Execute(uint8_t opcode, uint16_t operand) {
     Execute(opcode);
     return 0;
   }

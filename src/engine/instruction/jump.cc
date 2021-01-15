@@ -4,25 +4,20 @@
 
 #include "src/engine/public/constants.h"
 
-std::optional<uint8_t> JMP::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
+uint8_t JMP::Execute(uint8_t opcode, uint16_t operand) {
   reg_.pc = operand;
   return 0;
 }
 
-std::optional<uint8_t> JSR::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
-  if (cycle < 6) return std::nullopt;
-  uint16_t address_to_push = reg_.pc + 1;
+uint8_t JSR::Execute(uint8_t opcode, uint16_t operand) {
+  uint16_t address_to_push = reg_.pc - 1;
   bus_.Write(kStackStartAddress + reg_.sp--, address_to_push >> 8);
   bus_.Write(kStackStartAddress + reg_.sp--, address_to_push & 0xFF);
   reg_.pc = operand;
   return 0;
 }
 
-std::optional<uint8_t> RTS::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
-  if (cycle < 6) return std::nullopt;
+uint8_t RTS::Execute(uint8_t opcode, uint16_t operand) {
   uint8_t lower_byte, upper_byte;
   bus_.Read(kStackStartAddress + ++reg_.sp, &lower_byte);
   bus_.Read(kStackStartAddress + ++reg_.sp, &upper_byte);
@@ -31,10 +26,7 @@ std::optional<uint8_t> RTS::Execute(uint8_t opcode, Instruction2::Mode mode,
   return 0;
 }
 
-std::optional<uint8_t> RTI::Execute(uint8_t opcode, Instruction2::Mode mode,
-                                    uint16_t operand, int cycle) {
-  if (cycle < 6) return std::nullopt;
-
+uint8_t RTI::Execute(uint8_t opcode, uint16_t operand) {
   // Pull the status from the stack.
   uint8_t status;
   bus_.Read(kStackStartAddress + ++reg_.sp, &status);
