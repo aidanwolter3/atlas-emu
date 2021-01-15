@@ -131,9 +131,33 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<STY>({0x84, 0x94, 0x8C});
 
   // logic
-  RegisterInstruction<AND>({0x29, 0x25, 0x35, 0x2D, 0x3D, 0x39, 0x21, 0x31});
-  RegisterInstruction<ORA>({0x09, 0x05, 0x15, 0x0D, 0x1D, 0x19, 0x01, 0x11});
-  RegisterInstruction<EOR>({0x49, 0x45, 0x55, 0x4D, 0x5D, 0x59, 0x41, 0x51});
+  RegisterInstruction<EOR>(0x49, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<EOR>(0x45, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<EOR>(0x55, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<EOR>(0x4D, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<EOR>(0x5D, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<EOR>(0x59, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<EOR>(0x41, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<EOR>(0x51, Mode::kIndirectY, Operation::kRead);
+
+  RegisterInstruction<ORA>(0x09, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<ORA>(0x05, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<ORA>(0x15, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<ORA>(0x0D, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<ORA>(0x1D, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<ORA>(0x19, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<ORA>(0x01, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<ORA>(0x11, Mode::kIndirectY, Operation::kRead);
+
+  RegisterInstruction<AND>(0x29, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<AND>(0x25, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<AND>(0x35, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<AND>(0x2D, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<AND>(0x3D, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<AND>(0x39, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<AND>(0x21, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<AND>(0x31, Mode::kIndirectY, Operation::kRead);
+
   RegisterInstruction<BIT>(0x24, Mode::kZeroPage, Operation::kRead);
   RegisterInstruction<BIT>(0x2C, Mode::kAbsolute, Operation::kRead);
 

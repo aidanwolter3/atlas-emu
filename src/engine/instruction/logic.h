@@ -4,27 +4,24 @@
 #include "src/engine/instruction/instruction.h"
 
 // AND Accumulator
-class AND : public Instruction {
+class AND : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("AND");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // OR Accumulator
-class ORA : public Instruction {
+class ORA : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("ORA");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Exclusive OR Accumulator
-class EOR : public Instruction {
+class EOR : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("EOR");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Bit Test
