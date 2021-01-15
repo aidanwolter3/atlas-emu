@@ -4,67 +4,59 @@
 #include "src/engine/instruction/instruction.h"
 
 // Add with Carry
-class ADC : public Instruction {
+class ADC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("ADC");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Subtract with Carry
-class SBC : public Instruction {
+class SBC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("SBC");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Decrement Memory
-class DEC : public Instruction {
+class DEC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("DEC");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Decrement X
-class DEX : public Instruction {
+class DEX : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("DEX");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Decrement Y
-class DEY : public Instruction {
+class DEY : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("DEY");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Increment Memory
-class INC : public Instruction {
+class INC : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("INC");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Increment X
-class INX : public Instruction {
+class INX : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("INX");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Increment Y
-class INY : public Instruction {
+class INY : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("INY");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_MATH_H_

@@ -172,12 +172,36 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<BEQ>(0xF0, Mode::kImmediate, Operation::kRead);
 
   // math
-  RegisterInstruction<ADC>({0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71});
-  RegisterInstruction<SBC>({0xE9, 0xE5, 0xF5, 0xED, 0xFD, 0xF9, 0xE1, 0xF1});
-  RegisterInstruction<DEC>({0xC6, 0xD6, 0xCE, 0xDE});
+  RegisterInstruction<ADC>(0x69, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<ADC>(0x65, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<ADC>(0x75, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<ADC>(0x6D, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<ADC>(0x7D, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<ADC>(0x79, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<ADC>(0x61, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<ADC>(0x71, Mode::kIndirectY, Operation::kRead);
+
+  RegisterInstruction<SBC>(0xE9, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<SBC>(0xE5, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<SBC>(0xF5, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<SBC>(0xED, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<SBC>(0xFD, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<SBC>(0xF9, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<SBC>(0xE1, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<SBC>(0xF1, Mode::kIndirectY, Operation::kRead);
+
+  RegisterInstruction<DEC>(0xC6, Mode::kZeroPage, Operation::kReadWrite);
+  RegisterInstruction<DEC>(0xD6, Mode::kZeroPageX, Operation::kReadWrite);
+  RegisterInstruction<DEC>(0xCE, Mode::kAbsolute, Operation::kReadWrite);
+  RegisterInstruction<DEC>(0xDE, Mode::kAbsoluteX, Operation::kReadWrite);
+
+  RegisterInstruction<INC>(0xE6, Mode::kZeroPage, Operation::kReadWrite);
+  RegisterInstruction<INC>(0xF6, Mode::kZeroPageX, Operation::kReadWrite);
+  RegisterInstruction<INC>(0xEE, Mode::kAbsolute, Operation::kReadWrite);
+  RegisterInstruction<INC>(0xFE, Mode::kAbsoluteX, Operation::kReadWrite);
+
   RegisterInstruction<DEX>(0xCA);
   RegisterInstruction<DEY>(0x88);
-  RegisterInstruction<INC>({0xE6, 0xF6, 0xEE, 0xFE});
   RegisterInstruction<INX>(0xE8);
   RegisterInstruction<INY>(0xC8);
 

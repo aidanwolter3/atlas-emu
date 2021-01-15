@@ -6,7 +6,7 @@
 namespace {
 
 #define IS_POSITIVE(n) (n & 0x80 ? false : true)
-#define ONES_COMPLIMENT(n) (0xFF - n)
+#define ONES_COMPLIMENT(n) (0xFF - (n))
 
 void SetZeroSignStatus(Registers& reg, uint8_t data) {
   reg.status.set(Status::kZero, data == 0);
@@ -28,160 +28,58 @@ void SetStatusFromSummation(Registers& reg, uint16_t a, uint16_t b,
 
 }  // namespace
 
-void ADC::ExecuteInternal(uint8_t opcode) {
+uint8_t ADC::Execute(uint8_t opcode, uint16_t operand) {
   uint16_t a = reg_.acc;
-  uint8_t b;
+  uint8_t b = operand & 0xFF;
   uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
-  switch (opcode) {
-    case 0x69:
-      b = Immediate();
-      break;
-    case 0x65:
-      bus_.Read(ZeroPage(), &b);
-      break;
-    case 0x75:
-      bus_.Read(IndexedZeroPage(reg_.x), &b);
-      break;
-    case 0x6D:
-      bus_.Read(Absolute(), &b);
-      break;
-    case 0x7D:
-      bus_.Read(IndexedAbsolute(reg_.x), &b);
-      break;
-    case 0x79:
-      bus_.Read(IndexedAbsolute(reg_.y), &b);
-      break;
-    case 0x61:
-      bus_.Read(IndexedIndirect(reg_.x), &b);
-      break;
-    case 0x71:
-      bus_.Read(IndirectIndexed(reg_.y), &b);
-      break;
-    default:
-      std::cout << "Unsupported ADC variant: " << opcode << std::endl;
-      return;
-  }
-
   uint16_t sum = a + b + c;
   SetStatusFromSummation(reg_, a, b, sum);
   reg_.acc = sum;
+  return 0;
 }
 
-void SBC::ExecuteInternal(uint8_t opcode) {
+uint8_t SBC::Execute(uint8_t opcode, uint16_t operand) {
   uint16_t a = reg_.acc;
-  uint8_t b;
+  uint8_t b = ONES_COMPLIMENT(operand & 0xFF);
   uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
-  switch (opcode) {
-    case 0xE9:
-      b = ONES_COMPLIMENT(Immediate());
-      break;
-    case 0xE5:
-      bus_.Read(ZeroPage(), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xF5:
-      bus_.Read(IndexedZeroPage(reg_.x), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xED:
-      bus_.Read(Absolute(), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xFD:
-      bus_.Read(IndexedAbsolute(reg_.x), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xF9:
-      bus_.Read(IndexedAbsolute(reg_.y), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xE1:
-      bus_.Read(IndexedIndirect(reg_.x), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    case 0xF1:
-      bus_.Read(IndirectIndexed(reg_.y), &b);
-      b = ONES_COMPLIMENT(b);
-      break;
-    default:
-      std::cout << "Unsupported SBC variant: " << opcode << std::endl;
-      return;
-  }
-
   uint16_t sum = a + b + c;
   SetStatusFromSummation(reg_, a, b, sum);
   reg_.acc = sum;
+  return 0;
 }
 
-void DEC::ExecuteInternal(uint8_t opcode) {
-  uint16_t address;
-  switch (opcode) {
-    case 0xC6:
-      address = ZeroPage();
-      break;
-    case 0xD6:
-      address = IndexedZeroPage(reg_.x);
-      break;
-    case 0xCE:
-      address = Absolute();
-      break;
-    case 0xDE:
-      address = IndexedAbsolute(reg_.x);
-      break;
-    default:
-      std::cout << "Unsupported DEC variant: " << opcode << std::endl;
-      return;
-  }
-
-  uint8_t byte;
-  bus_.Read(address, &byte);
-  byte -= 1;
-  bus_.Write(address, byte);
-  SetZeroSignStatus(reg_, byte);
+uint8_t DEC::Execute(uint8_t opcode, uint16_t operand) {
+  uint8_t result = (operand & 0xFF) - 1;
+  SetZeroSignStatus(reg_, result);
+  return result;
 }
 
-void DEX::ExecuteInternal(uint8_t opcode) {
+uint8_t DEX::Execute(uint8_t opcode, uint16_t operand) {
   reg_.x -= 1;
   SetZeroSignStatus(reg_, reg_.x);
+  return 0;
 }
 
-void DEY::ExecuteInternal(uint8_t opcode) {
+uint8_t DEY::Execute(uint8_t opcode, uint16_t operand) {
   reg_.y -= 1;
   SetZeroSignStatus(reg_, reg_.y);
+  return 0;
 }
 
-void INC::ExecuteInternal(uint8_t opcode) {
-  uint16_t address;
-  switch (opcode) {
-    case 0xE6:
-      address = ZeroPage();
-      break;
-    case 0xF6:
-      address = IndexedZeroPage(reg_.x);
-      break;
-    case 0xEE:
-      address = Absolute();
-      break;
-    case 0xFE:
-      address = IndexedAbsolute(reg_.x);
-      break;
-    default:
-      std::cout << "Unsupported INC variant: " << opcode << std::endl;
-      return;
-  }
-
-  uint8_t byte;
-  bus_.Read(address, &byte);
-  byte += 1;
-  bus_.Write(address, byte);
-  SetZeroSignStatus(reg_, byte);
+uint8_t INC::Execute(uint8_t opcode, uint16_t operand) {
+  uint8_t result = (operand & 0xFF) + 1;
+  SetZeroSignStatus(reg_, result);
+  return result;
 }
 
-void INX::ExecuteInternal(uint8_t opcode) {
+uint8_t INX::Execute(uint8_t opcode, uint16_t operand) {
   reg_.x += 1;
   SetZeroSignStatus(reg_, reg_.x);
+  return 0;
 }
-void INY::ExecuteInternal(uint8_t opcode) {
+
+uint8_t INY::Execute(uint8_t opcode, uint16_t operand) {
   reg_.y += 1;
   SetZeroSignStatus(reg_, reg_.y);
+  return 0;
 }
