@@ -4,24 +4,24 @@
 #include "src/engine/instruction/instruction.h"
 
 // Compare Accumulator
-class CMP : public Instruction2 {
+class CMP : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Compare X Register
-class CPX : public Instruction2 {
+class CPX : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Compare Y Register
-class CPY : public Instruction2 {
+class CPY : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_COMPARE_H_

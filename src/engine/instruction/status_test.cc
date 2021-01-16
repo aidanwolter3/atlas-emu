@@ -4,54 +4,54 @@
 
 namespace {
 
-class StatusTest : public Instruction2TestBase {};
+class StatusTest : public InstructionTestBase {};
 
 TEST_F(StatusTest, CLC) {
   reg_.status.set(Status::kCarry);
   CLC clc(bus_, reg_);
-  clc.Execute(0, 0);
+  clc.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kCarry));
 }
 
 TEST_F(StatusTest, SEC) {
   reg_.status.reset(Status::kCarry);
   SEC sec(bus_, reg_);
-  sec.Execute(0, 0);
+  sec.Execute(0);
   EXPECT_TRUE(reg_.status.test(Status::kCarry));
 }
 
 TEST_F(StatusTest, CLI) {
   reg_.status.set(Status::kIntDisable);
   CLI cli(bus_, reg_);
-  cli.Execute(0, 0);
+  cli.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kIntDisable));
 }
 
 TEST_F(StatusTest, SEI) {
   reg_.status.reset(Status::kIntDisable);
   SEI sei(bus_, reg_);
-  sei.Execute(0, 0);
+  sei.Execute(0);
   EXPECT_TRUE(reg_.status.test(Status::kIntDisable));
 }
 
 TEST_F(StatusTest, CLV) {
   reg_.status.set(Status::kOverflow);
   CLV clv(bus_, reg_);
-  clv.Execute(0, 0);
+  clv.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
 }
 
 TEST_F(StatusTest, CLD) {
   reg_.status.set(Status::kBCDMode);
   CLD cld(bus_, reg_);
-  cld.Execute(0, 0);
+  cld.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kBCDMode));
 }
 
 TEST_F(StatusTest, SED) {
   reg_.status.reset(Status::kBCDMode);
   SED sed(bus_, reg_);
-  sed.Execute(0, 0);
+  sed.Execute(0);
   EXPECT_TRUE(reg_.status.test(Status::kBCDMode));
 }
 

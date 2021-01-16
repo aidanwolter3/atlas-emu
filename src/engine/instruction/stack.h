@@ -4,31 +4,31 @@
 #include "src/engine/instruction/instruction.h"
 
 // Push Accumulator
-class PHA : public Instruction2 {
+class PHA : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Pull Accumulator
-class PLA : public Instruction2 {
+class PLA : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Push Status
-class PHP : public Instruction2 {
+class PHP : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Pull Status
-class PLP : public Instruction2 {
+class PLP : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_STACK_H_

@@ -4,31 +4,31 @@
 #include "src/engine/instruction/instruction.h"
 
 // AND Accumulator
-class AND : public Instruction2 {
+class AND : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // OR Accumulator
-class ORA : public Instruction2 {
+class ORA : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Exclusive OR Accumulator
-class EOR : public Instruction2 {
+class EOR : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Bit Test
-class BIT : public Instruction2 {
+class BIT : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_LOGIC_H_

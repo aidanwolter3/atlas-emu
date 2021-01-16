@@ -11,7 +11,7 @@
 class Addressing {
  public:
   Addressing(Bus& bus, Registers& reg);
-  bool Execute(Instruction2::Config& config, int cycle);
+  bool Execute(Instruction::Config& config, int cycle);
 
  private:
   struct Result {
@@ -19,17 +19,17 @@ class Addressing {
     int cycles;
   };
 
-  Result Immediate(Instruction2::Operation operation);
-  Result ImmediateAddress(Instruction2::Operation operation);
-  Result ZeroPage(Instruction2::Operation operation);
-  Result ZeroPageX(Instruction2::Operation operation);
-  Result ZeroPageY(Instruction2::Operation operation);
-  Result Absolute(Instruction2::Operation operation);
-  Result AbsoluteX(Instruction2::Operation operation);
-  Result AbsoluteY(Instruction2::Operation operation);
-  Result Indirect(Instruction2::Operation operation);
-  Result IndirectX(Instruction2::Operation operation);
-  Result IndirectY(Instruction2::Operation operation);
+  Result Immediate(Instruction::Operation operation);
+  Result ImmediateAddress(Instruction::Operation operation);
+  Result ZeroPage(Instruction::Operation operation);
+  Result ZeroPageX(Instruction::Operation operation);
+  Result ZeroPageY(Instruction::Operation operation);
+  Result Absolute(Instruction::Operation operation);
+  Result AbsoluteX(Instruction::Operation operation);
+  Result AbsoluteY(Instruction::Operation operation);
+  Result Indirect(Instruction::Operation operation);
+  Result IndirectX(Instruction::Operation operation);
+  Result IndirectY(Instruction::Operation operation);
 
   Bus& bus_;
   Registers& reg_;

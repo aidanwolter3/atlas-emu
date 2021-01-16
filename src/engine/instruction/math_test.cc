@@ -2,14 +2,9 @@
 
 #include "src/engine/instruction/instruction_test_base.h"
 
-using testing::_;
-using testing::DoAll;
-using testing::Return;
-using testing::SetArgPointee;
-
 namespace {
 
-class MathTest : public Instruction2TestBase {};
+class MathTest : public InstructionTestBase {};
 
 TEST_F(MathTest, ADC_NoOverflowNoCarry) {
   reg_.acc = 10;
@@ -17,7 +12,7 @@ TEST_F(MathTest, ADC_NoOverflowNoCarry) {
   reg_.status.set(Status::kCarry, false);
 
   ADC adc(bus_, reg_);
-  adc.Execute(0, 10);
+  adc.Execute(10);
 
   EXPECT_EQ(reg_.acc, 20);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
@@ -30,7 +25,7 @@ TEST_F(MathTest, ADC_OverflowNoCarry) {
   reg_.status.set(Status::kCarry, false);
 
   ADC adc(bus_, reg_);
-  adc.Execute(0, 80);
+  adc.Execute(80);
 
   EXPECT_EQ(reg_.acc, 160);
   EXPECT_TRUE(reg_.status.test(Status::kOverflow));
@@ -43,7 +38,7 @@ TEST_F(MathTest, ADC_NoOverflowCarry) {
   reg_.status.set(Status::kCarry, false);
 
   ADC adc(bus_, reg_);
-  adc.Execute(0, 208);
+  adc.Execute(208);
 
   EXPECT_EQ(reg_.acc, 32);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
@@ -56,7 +51,7 @@ TEST_F(MathTest, ADC_OverflowCarry) {
   reg_.status.set(Status::kCarry, false);
 
   ADC adc(bus_, reg_);
-  adc.Execute(0, 144);
+  adc.Execute(144);
 
   EXPECT_EQ(reg_.acc, 96);
   EXPECT_TRUE(reg_.status.test(Status::kOverflow));
@@ -69,7 +64,7 @@ TEST_F(MathTest, SBC_NoOverflowNoCarry) {
   reg_.status.set(Status::kCarry, true);  // borrow = false
 
   SBC sbc(bus_, reg_);
-  sbc.Execute(0, 240);
+  sbc.Execute(240);
 
   EXPECT_EQ(reg_.acc, 96);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
@@ -82,7 +77,7 @@ TEST_F(MathTest, SBC_OverflowNoCarry) {
   reg_.status.set(Status::kCarry, true);  // borrow = false
 
   SBC sbc(bus_, reg_);
-  sbc.Execute(0, 176);
+  sbc.Execute(176);
 
   EXPECT_EQ(reg_.acc, 160);
   EXPECT_TRUE(reg_.status.test(Status::kOverflow));
@@ -95,7 +90,7 @@ TEST_F(MathTest, SBC_NoOverflowCarry) {
   reg_.status.set(Status::kCarry, true);  // borrow = false
 
   SBC sbc(bus_, reg_);
-  sbc.Execute(0, 48);
+  sbc.Execute(48);
 
   EXPECT_EQ(reg_.acc, 32);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
@@ -108,7 +103,7 @@ TEST_F(MathTest, SBC_OverflowCarry) {
   reg_.status.set(Status::kCarry, true);  // borrow = false
 
   SBC sbc(bus_, reg_);
-  sbc.Execute(0, 112);
+  sbc.Execute(112);
 
   EXPECT_EQ(reg_.acc, 96);
   EXPECT_TRUE(reg_.status.test(Status::kOverflow));
@@ -117,7 +112,7 @@ TEST_F(MathTest, SBC_OverflowCarry) {
 
 TEST_F(MathTest, DEC_ZeroPage) {
   DEC dec(bus_, reg_);
-  uint8_t result = dec.Execute(0, 0xAA);
+  uint8_t result = dec.Execute(0xAA);
 
   EXPECT_EQ(result, 0xA9);
   EXPECT_FALSE(reg_.status.test(Status::kZero));
@@ -126,7 +121,7 @@ TEST_F(MathTest, DEC_ZeroPage) {
 
 TEST_F(MathTest, INC_ZeroPage) {
   INC inc(bus_, reg_);
-  uint8_t result = inc.Execute(0, 0xAA);
+  uint8_t result = inc.Execute(0xAA);
 
   EXPECT_EQ(result, 0xAB);
   EXPECT_FALSE(reg_.status.test(Status::kZero));

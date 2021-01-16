@@ -296,13 +296,6 @@ void Engine::RegisterInstructions() {
 }
 
 template <class INS>
-void Engine::RegisterInstruction(std::vector<uint8_t> opcodes) {
-  for (auto opcode : opcodes) {
-    RegisterInstruction<INS>(opcode);
-  }
-}
-
-template <class INS>
 void Engine::RegisterInstruction(uint8_t opcode, Mode mode,
                                  Operation operation) {
   // Construct the instruction if needed.

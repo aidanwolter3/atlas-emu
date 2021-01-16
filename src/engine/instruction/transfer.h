@@ -4,45 +4,45 @@
 #include "src/engine/instruction/instruction.h"
 
 // Transfer A to X
-class TAX : public Instruction2 {
+class TAX : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Transfer X to A
-class TXA : public Instruction2 {
+class TXA : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Transfer A to Y
-class TAY : public Instruction2 {
+class TAY : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Transfer Y to A
-class TYA : public Instruction2 {
+class TYA : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Transfer X to stack pointer
-class TXS : public Instruction2 {
+class TXS : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Transfer stack pointer to X
-class TSX : public Instruction2 {
+class TSX : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_TRANSFER_H_

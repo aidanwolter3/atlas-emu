@@ -1,8 +1,5 @@
 #include "src/engine/instruction/math.h"
 
-#include <cmath>
-#include <iostream>
-
 namespace {
 
 #define IS_POSITIVE(n) (n & 0x80 ? false : true)
@@ -28,7 +25,7 @@ void SetStatusFromSummation(Registers& reg, uint16_t a, uint16_t b,
 
 }  // namespace
 
-uint8_t ADC::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t ADC::Execute(uint16_t operand) {
   uint16_t a = reg_.acc;
   uint8_t b = operand & 0xFF;
   uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
@@ -38,7 +35,7 @@ uint8_t ADC::Execute(uint8_t opcode, uint16_t operand) {
   return 0;
 }
 
-uint8_t SBC::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t SBC::Execute(uint16_t operand) {
   uint16_t a = reg_.acc;
   uint8_t b = ONES_COMPLIMENT(operand & 0xFF);
   uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
@@ -48,37 +45,37 @@ uint8_t SBC::Execute(uint8_t opcode, uint16_t operand) {
   return 0;
 }
 
-uint8_t DEC::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t DEC::Execute(uint16_t operand) {
   uint8_t result = (operand & 0xFF) - 1;
   SetZeroSignStatus(reg_, result);
   return result;
 }
 
-uint8_t DEX::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t DEX::Execute(uint16_t operand) {
   reg_.x -= 1;
   SetZeroSignStatus(reg_, reg_.x);
   return 0;
 }
 
-uint8_t DEY::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t DEY::Execute(uint16_t operand) {
   reg_.y -= 1;
   SetZeroSignStatus(reg_, reg_.y);
   return 0;
 }
 
-uint8_t INC::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t INC::Execute(uint16_t operand) {
   uint8_t result = (operand & 0xFF) + 1;
   SetZeroSignStatus(reg_, result);
   return result;
 }
 
-uint8_t INX::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t INX::Execute(uint16_t operand) {
   reg_.x += 1;
   SetZeroSignStatus(reg_, reg_.x);
   return 0;
 }
 
-uint8_t INY::Execute(uint8_t opcode, uint16_t operand) {
+uint8_t INY::Execute(uint16_t operand) {
   reg_.y += 1;
   SetZeroSignStatus(reg_, reg_.y);
   return 0;

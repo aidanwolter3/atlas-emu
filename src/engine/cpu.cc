@@ -86,7 +86,7 @@ void Cpu::DumpRegisters() {
   std::cout << "-----------" << std::endl;
 }
 
-void Cpu::RegisterInstruction(Instruction2::Config config) {
+void Cpu::RegisterInstruction(Instruction::Config config) {
   instructions_[config.opcode] = config;
 }
 
@@ -111,7 +111,7 @@ void Cpu::FetchOpcode() {
 }
 
 bool Cpu::ExecuteInstruction() {
-  Instruction2::Config& config = instructions_[opcode_];
+  Instruction::Config& config = instructions_[opcode_];
   return addressing_.Execute(config, instruction_ticks_);
 }
 

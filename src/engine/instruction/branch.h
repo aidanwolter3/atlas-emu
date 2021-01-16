@@ -3,52 +3,52 @@
 
 #include "src/engine/instruction/instruction.h"
 
-class BPL : public Instruction2 {
+class BPL : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BMI : public Instruction2 {
+class BMI : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BVC : public Instruction2 {
+class BVC : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BVS : public Instruction2 {
+class BVS : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BCC : public Instruction2 {
+class BCC : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BCS : public Instruction2 {
+class BCS : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BNE : public Instruction2 {
+class BNE : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
-class BEQ : public Instruction2 {
+class BEQ : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_BRANCH_H_

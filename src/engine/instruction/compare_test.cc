@@ -2,14 +2,9 @@
 
 #include "src/engine/instruction/instruction_test_base.h"
 
-using testing::_;
-using testing::DoAll;
-using testing::Return;
-using testing::SetArgPointee;
-
 namespace {
 
-class CompareTest : public Instruction2TestBase {
+class CompareTest : public InstructionTestBase {
  protected:
   void ExpectZeroCarrySign(bool zero, bool carry, bool sign) {
     EXPECT_EQ(zero, reg_.status.test(Status::kZero));
@@ -23,15 +18,15 @@ TEST_F(CompareTest, CMP) {
   CMP cmp(bus_, reg_);
 
   reg_.pc = 0;
-  cmp.Execute(0, 10);
+  cmp.Execute(10);
   ExpectZeroCarrySign(true, true, false);
 
   reg_.pc = 0;
-  cmp.Execute(0, 20);
+  cmp.Execute(20);
   ExpectZeroCarrySign(false, false, true);
 
   reg_.pc = 0;
-  cmp.Execute(0, 0);
+  cmp.Execute(0);
   ExpectZeroCarrySign(false, true, false);
 }
 

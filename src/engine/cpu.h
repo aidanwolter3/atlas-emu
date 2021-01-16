@@ -24,7 +24,7 @@ class Cpu {
   // If the |config| specifies a nullptr mode, then zero operands are fetched.
   // If the |config| specifies a nullptr instruction, then no instruction is
   // executed.
-  void RegisterInstruction(Instruction2::Config config);
+  void RegisterInstruction(Instruction::Config config);
 
  private:
   enum class State {
@@ -43,8 +43,8 @@ class Cpu {
   Registers& reg_;
   Addressing addressing_;
 
-  // Map of opcode to Instruction2::Config.
-  std::map<uint8_t, Instruction2::Config> instructions_;
+  // Map of opcode to Instruction::Config.
+  std::map<uint8_t, Instruction::Config> instructions_;
 
   State state_;
   bool nmi_;

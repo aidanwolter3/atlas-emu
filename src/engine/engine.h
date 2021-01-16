@@ -39,18 +39,11 @@ class Engine {
   void Reset();
 
  private:
-  using Mode = Instruction2::Mode;
-  using Operation = Instruction2::Operation;
+  using Mode = Instruction::Mode;
+  using Operation = Instruction::Operation;
 
   void DumpState();
   void RegisterInstructions();
-
-  // Register a list of |opcodes| for the templated instruction.
-  // Constructs the addressing mode if it does not already exist.
-  // Constructs the instruction if it does not already exist.
-  template <class INS>
-  void RegisterInstruction(std::vector<uint8_t> opcodes);
-
   // Register |opcode| for the templated instruction with address |mode|.
   // Constructs the addressing mode if it does not already exist.
   // Constructs the instruction if it does not alredy exist.
@@ -59,7 +52,7 @@ class Engine {
                            Operation operation = Operation::kNone);
 
   // Map of opcodes to instructions.
-  std::unordered_map<uint8_t, std::unique_ptr<Instruction2>> instructions_;
+  std::unordered_map<uint8_t, std::unique_ptr<Instruction>> instructions_;
 
   EventLoggerImpl event_logger_;
   BusImpl bus_;

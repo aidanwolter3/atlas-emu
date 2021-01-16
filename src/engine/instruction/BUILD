@@ -21,7 +21,6 @@ cc_library(
         "addressing.cc",
         "branch.cc",
         "compare.cc",
-        "instruction.cc",
         "jump.cc",
         "load.cc",
         "logic.cc",
@@ -42,7 +41,6 @@ cc_test(
     name = "instruction_test",
     srcs = [
         "compare_test.cc",
-        "instruction_test_base.cc",
         "instruction_test_base.h",
         "jump_test.cc",
         "load_test.cc",

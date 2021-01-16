@@ -4,7 +4,7 @@
 
 Addressing::Addressing(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
 
-bool Addressing::Execute(Instruction2::Config& config, int cycle) {
+bool Addressing::Execute(Instruction::Config& config, int cycle) {
   if (cycle < 2) return false;
 
   // Execute the instruction.
@@ -13,50 +13,50 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
     Addressing::Result result;
     operand_ = 0;
     switch (config.mode) {
-      case Instruction2::Mode::kImplied:
+      case Instruction::Mode::kImplied:
         result.cycles = 2;
         break;
-      case Instruction2::Mode::kImmediate:
+      case Instruction::Mode::kImmediate:
         result = Immediate(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kImmediateAddress:
+      case Instruction::Mode::kImmediateAddress:
         result = ImmediateAddress(config.operation);
         operand_ = result.data;
         break;
-      case Instruction2::Mode::kZeroPage:
+      case Instruction::Mode::kZeroPage:
         result = ZeroPage(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kZeroPageX:
+      case Instruction::Mode::kZeroPageX:
         result = ZeroPageX(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kZeroPageY:
+      case Instruction::Mode::kZeroPageY:
         result = ZeroPageY(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kAbsolute:
+      case Instruction::Mode::kAbsolute:
         result = Absolute(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kAbsoluteX:
+      case Instruction::Mode::kAbsoluteX:
         result = AbsoluteX(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kAbsoluteY:
+      case Instruction::Mode::kAbsoluteY:
         result = AbsoluteY(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kIndirect:
+      case Instruction::Mode::kIndirect:
         result = Indirect(config.operation);
         operand_ = result.data;
         break;
-      case Instruction2::Mode::kIndirectX:
+      case Instruction::Mode::kIndirectX:
         result = IndirectX(config.operation);
         address_ = result.data;
         break;
-      case Instruction2::Mode::kIndirectY:
+      case Instruction::Mode::kIndirectY:
         result = IndirectY(config.operation);
         address_ = result.data;
         break;
@@ -70,9 +70,9 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
     // Read the operand on the post-opcode first cycle (optional).
     // For ImmediateAddress/Indirect we do not read, as the operand _is_ the
     // address.
-    if (config.operation == Instruction2::Operation::kRead ||
-        config.operation == Instruction2::Operation::kReadWrite) {
-      if (config.mode == Instruction2::Mode::kImplied) {
+    if (config.operation == Instruction::Operation::kRead ||
+        config.operation == Instruction::Operation::kReadWrite) {
+      if (config.mode == Instruction::Mode::kImplied) {
         operand_ = reg_.acc;
       } else {
         if (!address_.has_value()) {
@@ -86,13 +86,12 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
     }
 
     // Run the instruction with the operand.
-    uint8_t data_to_write =
-        config.instruction->Execute(config.opcode, *operand_);
+    uint8_t data_to_write = config.instruction->Execute(*operand_);
 
     // Write the operand on the last cycle (optional).
-    if (config.operation == Instruction2::Operation::kWrite ||
-        config.operation == Instruction2::Operation::kReadWrite) {
-      if (config.mode == Instruction2::Mode::kImplied) {
+    if (config.operation == Instruction::Operation::kWrite ||
+        config.operation == Instruction::Operation::kReadWrite) {
+      if (config.mode == Instruction::Mode::kImplied) {
         reg_.acc = data_to_write;
       } else {
         if (!address_.has_value()) {
@@ -114,7 +113,7 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
   return true;
 }
 
-Addressing::Result Addressing::Immediate(Instruction2::Operation operation) {
+Addressing::Result Addressing::Immediate(Instruction::Operation operation) {
   return {
       .data = reg_.pc++,
       .cycles = 2,
@@ -122,7 +121,7 @@ Addressing::Result Addressing::Immediate(Instruction2::Operation operation) {
 }
 
 Addressing::Result Addressing::ImmediateAddress(
-    Instruction2::Operation operation) {
+    Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
@@ -135,14 +134,14 @@ Addressing::Result Addressing::ImmediateAddress(
   };
 }
 
-Addressing::Result Addressing::ZeroPage(Instruction2::Operation operation) {
+Addressing::Result Addressing::ZeroPage(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
   uint16_t data = address;
   reg_.pc++;
 
   int cycles = 3;
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 5;
   }
 
@@ -152,14 +151,14 @@ Addressing::Result Addressing::ZeroPage(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::ZeroPageX(Instruction2::Operation operation) {
+Addressing::Result Addressing::ZeroPageX(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
   uint16_t data = address + reg_.x;
   reg_.pc++;
 
   int cycles = 4;
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 6;
   }
 
@@ -169,14 +168,14 @@ Addressing::Result Addressing::ZeroPageX(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::ZeroPageY(Instruction2::Operation operation) {
+Addressing::Result Addressing::ZeroPageY(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
   uint16_t data = address + reg_.y;
   reg_.pc++;
 
   int cycles = 4;
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 6;
   }
 
@@ -186,7 +185,7 @@ Addressing::Result Addressing::ZeroPageY(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::Absolute(Instruction2::Operation operation) {
+Addressing::Result Addressing::Absolute(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
@@ -194,7 +193,7 @@ Addressing::Result Addressing::Absolute(Instruction2::Operation operation) {
   reg_.pc += 2;
 
   int cycles = 4;
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 6;
   }
 
@@ -204,7 +203,7 @@ Addressing::Result Addressing::Absolute(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::AbsoluteX(Instruction2::Operation operation) {
+Addressing::Result Addressing::AbsoluteX(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
@@ -212,7 +211,7 @@ Addressing::Result Addressing::AbsoluteX(Instruction2::Operation operation) {
   reg_.pc += 2;
 
   int cycles = 5;  // TODO: This is sometimes 4 for Read operations.
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 7;
   }
 
@@ -222,7 +221,7 @@ Addressing::Result Addressing::AbsoluteX(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::AbsoluteY(Instruction2::Operation operation) {
+Addressing::Result Addressing::AbsoluteY(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
@@ -230,7 +229,7 @@ Addressing::Result Addressing::AbsoluteY(Instruction2::Operation operation) {
   reg_.pc += 2;
 
   int cycles = 5;  // TODO: This is sometimes 4 for Read operations.
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 7;
   }
 
@@ -240,7 +239,7 @@ Addressing::Result Addressing::AbsoluteY(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::Indirect(Instruction2::Operation operation) {
+Addressing::Result Addressing::Indirect(Instruction::Operation operation) {
   uint8_t lower, upper;
   bus_.Read(reg_.pc, &lower);
   bus_.Read(reg_.pc + 1, &upper);
@@ -260,7 +259,7 @@ Addressing::Result Addressing::Indirect(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::IndirectX(Instruction2::Operation operation) {
+Addressing::Result Addressing::IndirectX(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
   reg_.pc++;
@@ -271,7 +270,7 @@ Addressing::Result Addressing::IndirectX(Instruction2::Operation operation) {
   uint16_t data = (upper << 8) | lower;
 
   int cycles = 6;
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 8;
   }
 
@@ -281,7 +280,7 @@ Addressing::Result Addressing::IndirectX(Instruction2::Operation operation) {
   };
 }
 
-Addressing::Result Addressing::IndirectY(Instruction2::Operation operation) {
+Addressing::Result Addressing::IndirectY(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
   reg_.pc++;
@@ -292,7 +291,7 @@ Addressing::Result Addressing::IndirectY(Instruction2::Operation operation) {
   uint16_t data = ((upper << 8) | lower) + reg_.y;
 
   int cycles = 6;  // TODO: This is sometimes 5 for Read operations.
-  if (operation == Instruction2::Operation::kReadWrite) {
+  if (operation == Instruction::Operation::kReadWrite) {
     cycles = 8;
   }
 

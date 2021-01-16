@@ -5,17 +5,17 @@
 #include "src/engine/public/event_logger.h"
 
 // No Operation
-class NOP : public Instruction2 {
+class NOP : public Instruction {
  public:
-  using Instruction2::Instruction2;
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  using Instruction::Instruction;
+  uint8_t Execute(uint16_t operand) override;
 };
 
 // Break (used for e2e tests)
-class BRK : public Instruction2 {
+class BRK : public Instruction {
  public:
   explicit BRK(Bus& bus, Registers& reg, EventLogger& event_logger);
-  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
+  uint8_t Execute(uint16_t operand) override;
 
  private:
   EventLogger& event_logger_;

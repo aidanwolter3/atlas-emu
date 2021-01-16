@@ -36,8 +36,7 @@ class MockBus : public Bus {
 class MockInstruction : public Instruction {
  public:
   using Instruction::Instruction;
-  MOCK_METHOD1(ExecuteInternal, void(uint8_t opcode));
-  SET_LOG_NAME("mock");
+  MOCK_METHOD1(Execute, uint8_t(uint16_t operand));
 };
 
 void ExpectReadStartAddress(MockBus& bus, uint16_t address) {
@@ -63,8 +62,8 @@ TEST(CpuTest, RunUntilSegfault) {
   MockInstruction mock_instruction(bus, reg);
   cpu.RegisterInstruction({
       .opcode = kFakeOpcode,
-      .mode = Instruction2::Mode::kImplied,
-      .operation = Instruction2::Operation::kNone,
+      .mode = Instruction::Mode::kImplied,
+      .operation = Instruction::Operation::kNone,
       .instruction = &mock_instruction,
   });
 
@@ -72,7 +71,7 @@ TEST(CpuTest, RunUntilSegfault) {
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   cpu.Tick();
-  EXPECT_CALL(mock_instruction, ExecuteInternal(kFakeOpcode));
+  EXPECT_CALL(mock_instruction, Execute(_));
   cpu.Tick();
   EXPECT_EQ(0xBBAB, reg.pc);
 
@@ -80,7 +79,7 @@ TEST(CpuTest, RunUntilSegfault) {
       .WillOnce(
           DoAll(SetArgPointee<1>(kFakeOpcode), Return(Peripheral::Status::OK)));
   cpu.Tick();
-  EXPECT_CALL(mock_instruction, ExecuteInternal(kFakeOpcode));
+  EXPECT_CALL(mock_instruction, Execute(_));
   cpu.Tick();
   EXPECT_EQ(0xBBAC, reg.pc);
 

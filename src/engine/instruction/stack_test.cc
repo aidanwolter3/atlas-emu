@@ -9,7 +9,7 @@ using testing::DoAll;
 using testing::Return;
 using testing::SetArgPointee;
 
-class StackTest : public Instruction2TestBase {};
+class StackTest : public InstructionTestBase {};
 
 TEST_F(StackTest, PHA) {
   reg_.sp = 0xFF;
@@ -17,7 +17,7 @@ TEST_F(StackTest, PHA) {
   PHA pha(bus_, reg_);
   EXPECT_CALL(bus_, Write(0x01FF, 0xAB))
       .WillOnce(Return(Peripheral::Status::OK));
-  pha.Execute(0, 0);
+  pha.Execute(0);
   EXPECT_EQ(reg_.sp, 0xFE);
 }
 
@@ -27,7 +27,7 @@ TEST_F(StackTest, PLA) {
   PLA pla(bus_, reg_);
   EXPECT_CALL(bus_, Read(0x01FF, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
-  pla.Execute(0, 0);
+  pla.Execute(0);
   EXPECT_EQ(reg_.sp, 0xFF);
   EXPECT_EQ(reg_.acc, 0xAB);
 }
@@ -38,7 +38,7 @@ TEST_F(StackTest, PHP) {
   PHP php(bus_, reg_);
   EXPECT_CALL(bus_, Write(0x01FF, 0xAB))
       .WillOnce(Return(Peripheral::Status::OK));
-  php.Execute(0, 0);
+  php.Execute(0);
   EXPECT_EQ(reg_.sp, 0xFE);
 }
 
@@ -48,7 +48,7 @@ TEST_F(StackTest, PLP) {
   PLP plp(bus_, reg_);
   EXPECT_CALL(bus_, Read(0x01FF, _))
       .WillOnce(DoAll(SetArgPointee<1>(0xAB), Return(Peripheral::Status::OK)));
-  plp.Execute(0, 0);
+  plp.Execute(0);
   EXPECT_EQ(reg_.sp, 0xFF);
   EXPECT_EQ(reg_.status, 0xAB);
 }
