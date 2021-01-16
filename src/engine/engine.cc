@@ -206,10 +206,29 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<INY>(0xC8);
 
   // shift
-  RegisterInstruction<ASL>({0x0A, 0x06, 0x16, 0x0E, 0x1E});
-  RegisterInstruction<LSR>({0x4A, 0x46, 0x56, 0x4E, 0x5E});
-  RegisterInstruction<ROL>({0x2A, 0x26, 0x36, 0x2E, 0x3E});
-  RegisterInstruction<ROR>({0x6A, 0x66, 0x76, 0x6E, 0x7E});
+  RegisterInstruction<ASL>(0x0A, Mode::kImplied, Operation::kReadWrite);
+  RegisterInstruction<ASL>(0x06, Mode::kZeroPage, Operation::kReadWrite);
+  RegisterInstruction<ASL>(0x16, Mode::kZeroPageX, Operation::kReadWrite);
+  RegisterInstruction<ASL>(0x0E, Mode::kAbsolute, Operation::kReadWrite);
+  RegisterInstruction<ASL>(0x1E, Mode::kAbsoluteX, Operation::kReadWrite);
+
+  RegisterInstruction<LSR>(0x4A, Mode::kImplied, Operation::kReadWrite);
+  RegisterInstruction<LSR>(0x46, Mode::kZeroPage, Operation::kReadWrite);
+  RegisterInstruction<LSR>(0x56, Mode::kZeroPageX, Operation::kReadWrite);
+  RegisterInstruction<LSR>(0x4E, Mode::kAbsolute, Operation::kReadWrite);
+  RegisterInstruction<LSR>(0x5E, Mode::kAbsoluteX, Operation::kReadWrite);
+
+  RegisterInstruction<ROL>(0x2A, Mode::kImplied, Operation::kReadWrite);
+  RegisterInstruction<ROL>(0x26, Mode::kZeroPage, Operation::kReadWrite);
+  RegisterInstruction<ROL>(0x36, Mode::kZeroPageX, Operation::kReadWrite);
+  RegisterInstruction<ROL>(0x2E, Mode::kAbsolute, Operation::kReadWrite);
+  RegisterInstruction<ROL>(0x3E, Mode::kAbsoluteX, Operation::kReadWrite);
+
+  RegisterInstruction<ROR>(0x6A, Mode::kImplied, Operation::kReadWrite);
+  RegisterInstruction<ROR>(0x66, Mode::kZeroPage, Operation::kReadWrite);
+  RegisterInstruction<ROR>(0x76, Mode::kZeroPageX, Operation::kReadWrite);
+  RegisterInstruction<ROR>(0x6E, Mode::kAbsolute, Operation::kReadWrite);
+  RegisterInstruction<ROR>(0x7E, Mode::kAbsoluteX, Operation::kReadWrite);
 
   // jump
   RegisterInstruction<JMP>(0x4C, Mode::kImmediateAddress);

@@ -4,35 +4,31 @@
 #include "src/engine/instruction/instruction.h"
 
 // Arithmetic Shift Left
-class ASL : public Instruction {
+class ASL : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("ASL");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Logical Shift Right
-class LSR : public Instruction {
+class LSR : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("LSR");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Rotate Left
-class ROL : public Instruction {
+class ROL : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("ROL");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Rotate Right
-class ROR : public Instruction {
+class ROR : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("ROR");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_SHIFT_H_

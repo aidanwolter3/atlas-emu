@@ -10,12 +10,10 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
   // Execute the instruction.
   if (cycle == 2) {
     // Get the address of interest, and in some cases, the operand.
-    Addressing::Result result = {
-        .data = 0,
-        .cycles = 0,
-    };
+    Addressing::Result result;
     switch (config.mode) {
       case Instruction2::Mode::kImplied:
+        result.cycles = 2;
         operand_ = 0;
         break;
       case Instruction2::Mode::kImmediate:
@@ -74,16 +72,20 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
     // address.
     if (config.operation == Instruction2::Operation::kRead ||
         config.operation == Instruction2::Operation::kReadWrite) {
-      if (!address_) {
-        std::cout << "Address is not set!" << std::endl;
-        return true;
+      if (config.mode == Instruction2::Mode::kImplied) {
+        operand_ = reg_.acc;
+      } else {
+        if (!address_.has_value()) {
+          std::cout << "Address is not set!" << std::endl;
+          return true;
+        }
+        uint8_t byte;
+        bus_.Read(*address_, &byte);
+        operand_ = byte;
       }
-      uint8_t byte;
-      bus_.Read(*address_, &byte);
-      operand_ = byte;
     }
 
-    if (!operand_) {
+    if (!operand_.has_value()) {
       std::cout << "Operand is not set!" << std::endl;
       return true;
     }
@@ -93,9 +95,18 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
         config.instruction->Execute(config.opcode, *operand_);
 
     // Write the operand on the last cycle (optional).
-    if (address_ && (config.operation == Instruction2::Operation::kWrite ||
-                     config.operation == Instruction2::Operation::kReadWrite)) {
-      bus_.Write(*address_, data_to_write);
+    if (config.operation == Instruction2::Operation::kWrite ||
+        config.operation == Instruction2::Operation::kReadWrite) {
+      if (config.mode == Instruction2::Mode::kImplied) {
+        reg_.acc = data_to_write;
+      } else {
+        if (!address_.has_value()) {
+          std::cout << "Address is not set!" << std::endl;
+          return true;
+        }
+
+        bus_.Write(*address_, data_to_write);
+      }
     }
   }
 
