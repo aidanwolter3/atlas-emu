@@ -122,13 +122,44 @@ void Engine::RegisterInstructions() {
   RegisterInstruction<PHP>(0x08);
   RegisterInstruction<PLP>(0x28);
 
-  // load / store
-  RegisterInstruction<LDA>({0xA9, 0xA5, 0xB5, 0xA1, 0xB1, 0xAD, 0xBD, 0xB9});
-  RegisterInstruction<LDX>({0xA2, 0xA6, 0xB6, 0xAE, 0xBE});
-  RegisterInstruction<LDY>({0xA0, 0xA4, 0xB4, 0xAC, 0xBC});
-  RegisterInstruction<STA>({0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91});
-  RegisterInstruction<STX>({0x86, 0x96, 0x8E});
-  RegisterInstruction<STY>({0x84, 0x94, 0x8C});
+  // load
+  RegisterInstruction<LDA>(0xA9, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<LDA>(0xA5, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<LDA>(0xB5, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<LDA>(0xAD, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<LDA>(0xBD, Mode::kAbsoluteX, Operation::kRead);
+  RegisterInstruction<LDA>(0xB9, Mode::kAbsoluteY, Operation::kRead);
+  RegisterInstruction<LDA>(0xA1, Mode::kIndirectX, Operation::kRead);
+  RegisterInstruction<LDA>(0xB1, Mode::kIndirectY, Operation::kRead);
+
+  RegisterInstruction<LDX>(0xA2, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<LDX>(0xA6, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<LDX>(0xB6, Mode::kZeroPageY, Operation::kRead);
+  RegisterInstruction<LDX>(0xAE, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<LDX>(0xBE, Mode::kAbsoluteY, Operation::kRead);
+
+  RegisterInstruction<LDY>(0xA0, Mode::kImmediate, Operation::kRead);
+  RegisterInstruction<LDY>(0xA4, Mode::kZeroPage, Operation::kRead);
+  RegisterInstruction<LDY>(0xB4, Mode::kZeroPageX, Operation::kRead);
+  RegisterInstruction<LDY>(0xAC, Mode::kAbsolute, Operation::kRead);
+  RegisterInstruction<LDY>(0xBC, Mode::kAbsoluteX, Operation::kRead);
+
+  // store
+  RegisterInstruction<STA>(0x85, Mode::kZeroPage, Operation::kWrite);
+  RegisterInstruction<STA>(0x95, Mode::kZeroPageX, Operation::kWrite);
+  RegisterInstruction<STA>(0x8D, Mode::kAbsolute, Operation::kWrite);
+  RegisterInstruction<STA>(0x9D, Mode::kAbsoluteX, Operation::kWrite);
+  RegisterInstruction<STA>(0x99, Mode::kAbsoluteY, Operation::kWrite);
+  RegisterInstruction<STA>(0x81, Mode::kIndirectX, Operation::kWrite);
+  RegisterInstruction<STA>(0x91, Mode::kIndirectY, Operation::kWrite);
+
+  RegisterInstruction<STX>(0x86, Mode::kZeroPage, Operation::kWrite);
+  RegisterInstruction<STX>(0x96, Mode::kZeroPageY, Operation::kWrite);
+  RegisterInstruction<STX>(0x8E, Mode::kAbsolute, Operation::kWrite);
+
+  RegisterInstruction<STY>(0x84, Mode::kZeroPage, Operation::kWrite);
+  RegisterInstruction<STY>(0x94, Mode::kZeroPageX, Operation::kWrite);
+  RegisterInstruction<STY>(0x8C, Mode::kAbsolute, Operation::kWrite);
 
   // logic
   RegisterInstruction<EOR>(0x49, Mode::kImmediate, Operation::kRead);

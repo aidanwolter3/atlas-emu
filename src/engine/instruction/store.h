@@ -4,27 +4,24 @@
 #include "src/engine/instruction/instruction.h"
 
 // Store Accumulator
-class STA : public Instruction {
+class STA : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("STA");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Store Index X
-class STX : public Instruction {
+class STX : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("STX");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 // Store Index Y
-class STY : public Instruction {
+class STY : public Instruction2 {
  public:
-  using Instruction::Instruction;
-  void ExecuteInternal(uint8_t opcode) override;
-  SET_LOG_NAME("STY");
+  using Instruction2::Instruction2;
+  uint8_t Execute(uint8_t opcode, uint16_t operand) override;
 };
 
 #endif  // ENGINE_INSTRUCTION_STORE_H_

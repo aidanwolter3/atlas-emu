@@ -11,10 +11,10 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
   if (cycle == 2) {
     // Get the address of interest, and in some cases, the operand.
     Addressing::Result result;
+    operand_ = 0;
     switch (config.mode) {
       case Instruction2::Mode::kImplied:
         result.cycles = 2;
-        operand_ = 0;
         break;
       case Instruction2::Mode::kImmediate:
         result = Immediate(config.operation);
@@ -54,11 +54,11 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
         break;
       case Instruction2::Mode::kIndirectX:
         result = IndirectX(config.operation);
-        operand_ = result.data;
+        address_ = result.data;
         break;
       case Instruction2::Mode::kIndirectY:
         result = IndirectY(config.operation);
-        operand_ = result.data;
+        address_ = result.data;
         break;
       default:
         std::cout << "Invalid addressing mode: " << (int)config.mode
@@ -83,11 +83,6 @@ bool Addressing::Execute(Instruction2::Config& config, int cycle) {
         bus_.Read(*address_, &byte);
         operand_ = byte;
       }
-    }
-
-    if (!operand_.has_value()) {
-      std::cout << "Operand is not set!" << std::endl;
-      return true;
     }
 
     // Run the instruction with the operand.
