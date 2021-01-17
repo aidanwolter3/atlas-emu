@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 
-#include "src/engine/public/constants.h"
+#include "src/engine/base/constants.h"
 
 namespace {
 

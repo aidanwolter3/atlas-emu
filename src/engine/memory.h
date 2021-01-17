@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "src/engine/public/bus.h"
+#include "src/engine/base/bus.h"
 
 // An interface is helpful for mocking in tests.
 class Memory : public Peripheral {};

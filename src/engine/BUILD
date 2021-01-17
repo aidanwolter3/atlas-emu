@@ -21,8 +21,8 @@ cc_library(
         "ppu.cc",
     ],
     deps = [
+        "//src/engine/base",
         "//src/engine/instruction",
-        "//src/engine/public",
         "//src/input",
         "//src/ui",
     ],
@@ -35,7 +35,7 @@ cc_library(
     srcs = ["engine.cc"],
     deps = [
         ":engine_core",
-        "//src/engine/public",
+        "//src/engine/base",
         "//src/ui",
     ],
 )

@@ -156,6 +156,7 @@ void Background::SetVerticalSplit(int scanline, int x, int y) {
     vertical_split_scanline_ = 0;
     RefreshElements();
   } else if (scanline != 0) {
+    std::cout << "scanline=" << scanline << std::endl;
     vertical_split_scanline_ = scanline;
     vertical_split_scroll_x_ = x;
     vertical_split_scroll_y_ = y;

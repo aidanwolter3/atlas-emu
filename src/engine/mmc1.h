@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include "src/engine/base/bus.h"
 #include "src/engine/ppu.h"
-#include "src/engine/public/bus.h"
 
 // An interface is helpful for mocking in tests.
 class MMC1 : public Peripheral {};

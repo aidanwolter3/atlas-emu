@@ -5,8 +5,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "src/engine/base/bus.h"
 #include "src/engine/cpu.h"
-#include "src/engine/public/bus.h"
 #include "src/ui/renderer.h"
 
 class Ppu {

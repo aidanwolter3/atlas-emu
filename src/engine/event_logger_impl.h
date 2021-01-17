@@ -4,7 +4,7 @@
 #include <optional>
 #include <vector>
 
-#include "src/engine/public/event_logger.h"
+#include "src/engine/base/event_logger.h"
 
 class EventLoggerImpl : public EventLogger {
  public:

@@ -1,6 +1,6 @@
 #include "src/engine/instruction/jump.h"
 
-#include "src/engine/public/constants.h"
+#include "src/engine/base/constants.h"
 
 uint8_t JMP::Execute(uint16_t operand) {
   reg_.pc = operand;

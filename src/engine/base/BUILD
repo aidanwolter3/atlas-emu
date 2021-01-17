@@ -1,5 +1,5 @@
 cc_library(
-    name = "public",
+    name = "base",
     visibility = ["//src/engine:__subpackages__"],
     hdrs = [
         "bus.h",

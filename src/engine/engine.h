@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "src/engine/base/registers.h"
 #include "src/engine/bus_impl.h"
 #include "src/engine/cpu.h"
 #include "src/engine/event_logger_impl.h"
@@ -15,7 +16,6 @@
 #include "src/engine/mmc1.h"
 #include "src/engine/oamdma.h"
 #include "src/engine/ppu.h"
-#include "src/engine/public/registers.h"
 #include "src/input/input.h"
 #include "src/ui/renderer.h"
 

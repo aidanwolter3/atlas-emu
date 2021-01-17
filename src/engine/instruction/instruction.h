@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "src/engine/public/bus.h"
-#include "src/engine/public/registers.h"
+#include "src/engine/base/bus.h"
+#include "src/engine/base/registers.h"
 
 class Instruction {
  public:

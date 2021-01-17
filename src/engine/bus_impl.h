@@ -6,7 +6,7 @@
 #include <optional>
 #include <utility>
 
-#include "src/engine/public/bus.h"
+#include "src/engine/base/bus.h"
 
 class BusImpl : public Bus {
  public:

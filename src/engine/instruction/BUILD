@@ -33,7 +33,7 @@ cc_library(
         "transfer.cc",
     ],
     deps = [
-        "//src/engine/public",
+        "//src/engine/base",
     ]
 )
 

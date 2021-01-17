@@ -1,8 +1,8 @@
 #ifndef ENGINE_INSTRUCTION_MISC_H_
 #define ENGINE_INSTRUCTION_MISC_H_
 
+#include "src/engine/base/event_logger.h"
 #include "src/engine/instruction/instruction.h"
-#include "src/engine/public/event_logger.h"
 
 // No Operation
 class NOP : public Instruction {

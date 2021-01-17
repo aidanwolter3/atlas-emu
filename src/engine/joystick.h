@@ -1,7 +1,7 @@
 #ifndef ENGINE_JOYSTICK_H_
 #define ENGINE_JOYSTICK_H_
 
-#include "src/engine/public/bus.h"
+#include "src/engine/base/bus.h"
 #include "src/input/input.h"
 
 class Joystick : public Peripheral {
