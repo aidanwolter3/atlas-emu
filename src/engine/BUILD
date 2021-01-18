@@ -3,7 +3,6 @@ cc_library(
     hdrs = [
         "bus_impl.h",
         "cpu.h",
-        "event_logger_impl.h",
         "joystick.h",
         "memory.h",
         "mmc1.h",
@@ -13,7 +12,6 @@ cc_library(
     srcs = [
         "bus_impl.cc",
         "cpu.cc",
-        "event_logger_impl.cc",
         "joystick.cc",
         "memory.cc",
         "mmc1.cc",

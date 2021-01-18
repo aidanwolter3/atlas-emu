@@ -6,6 +6,7 @@
 #include <string>
 
 #include "src/engine/base/constants.h"
+#include "src/engine/base/log.h"
 
 namespace {
 
@@ -17,11 +18,8 @@ std::string IntToHexString(int num) {
 
 }  // namespace
 
-Cpu::Cpu(EventLogger& event_logger, Bus& bus, Registers& reg)
-    : event_logger_(event_logger),
-      bus_(bus),
-      reg_(reg),
-      addressing_(bus_, reg_) {}
+Cpu::Cpu(Bus& bus, Registers& reg)
+    : bus_(bus), reg_(reg), addressing_(bus_, reg_) {}
 
 void Cpu::Reset() {
   state_ = State::kFetchOpcode;
@@ -93,19 +91,13 @@ void Cpu::RegisterInstruction(Instruction::Config config) {
 void Cpu::FetchOpcode() {
   auto status = bus_.Read(reg_.pc, &opcode_);
   if (status != Peripheral::Status::OK) {
-    std::string event_name =
-        "Failed to read the opcode at address: " + IntToHexString(reg_.pc);
-    event_logger_.LogEvent(
-        {.type = EventLogger::EventType::kError, .name = event_name});
+    LOG(ERROR) << "Failed to read the opcode at address: " << Log::Hex(reg_.pc);
     return;
   }
   reg_.pc++;
 
   if (!instructions_.count(opcode_)) {
-    std::string event_name =
-        "Failed to decode: unknown instruction: " + IntToHexString(opcode_);
-    event_logger_.LogEvent(
-        {.type = EventLogger::EventType::kError, .name = event_name});
+    LOG(ERROR) << "Failed to decode: unkown instruction: " << Log::Hex(opcode_);
     return;
   }
 }
@@ -132,10 +124,8 @@ uint16_t Cpu::ReadAddressFromVectorTable(uint16_t address) {
   status_high = bus_.Read(address + 1, &start_address_high);
   if (status_low != Peripheral::Status::OK ||
       status_high != Peripheral::Status::OK) {
-    std::string event_name =
-        "Failed to read from vector table address: " + IntToHexString(address);
-    event_logger_.LogEvent(
-        {.type = EventLogger::EventType::kError, .name = event_name});
+    LOG(ERROR) << "Failed to read from vector table address: "
+               << Log::Hex(address);
     return 0;
   }
   return (start_address_high << 8) | start_address_low;

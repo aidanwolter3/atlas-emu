@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "src/engine/base/log.h"
 #include "src/engine/cpu.h"
 #include "src/engine/instruction/branch.h"
 #include "src/engine/instruction/compare.h"
@@ -22,7 +23,7 @@
 Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
     : oamdma_(bus_), joystick_(input) {
   // Connect all the peripherals to the bus.
-  cpu_ = std::make_unique<Cpu>(event_logger_, bus_, reg_);
+  cpu_ = std::make_unique<Cpu>(bus_, reg_);
   mem_ = std::make_unique<MemoryImpl>(/*size=*/0x800, /*mirror_count=*/4);
   ppu_ = std::make_unique<PpuImpl>(*cpu_, renderer);
   mmc1_mem_ = std::make_unique<MemoryImpl>(/*size=*/0x2000);
@@ -34,9 +35,7 @@ Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
   bus_.RegisterPeripheral(*mmc1_mem_, 0x6000);
   bus_.RegisterPeripheral(*mmc1_, 0x8000);
 
-  // Put the CPU into a ready state.
-  cpu_->Reset();
-
+  Reset();
   RegisterInstructions();
 }
 
@@ -54,21 +53,20 @@ Engine::RunResult Engine::Run(int num_ticks) {
     ppu_->Tick();
     cpu_->Tick();
 
-    // Check for errors.
-    std::optional<EventLogger::Event> error = event_logger_.GetError();
-    if (error) {
+    if (Log::FoundLogWithLevel(Log::Level::ERROR)) {
       result.can_run = false;
       result.has_error = true;
       break;
     }
 
-    // Check for test results.
-    std::optional<EventLogger::Event> test_result =
-        event_logger_.GetTestResult();
-    if (test_result) {
-      if (test_result->type == EventLogger::EventType::kTestFailed) {
-        result.has_error = true;
-      }
+    if (Log::FoundLogWithLevel(Log::Level::TEST_FAILED)) {
+      result.has_error = true;
+      result.can_run = false;
+      break;
+    }
+
+    if (Log::FoundLogWithLevel(Log::Level::TEST_PASSED)) {
+      result.has_error = false;
       result.can_run = false;
       break;
     }
@@ -83,29 +81,20 @@ Engine::RunResult Engine::Run(int num_ticks) {
 }
 
 void Engine::Reset() {
-  event_logger_.Reset();
+  Log::Reset();
+  Log::Init(Log::Level::TEST_PASSED);
   cpu_->Reset();
 }
 
 void Engine::DumpState() {
-  event_logger_.PrintLogs();
   cpu_->DumpRegisters();
   mmc1_->DumpRegisters();
   ppu_->DumpRegisters();
 }
 
 void Engine::RegisterInstructions() {
-  // BRK has a custom constructor, therefore we cannot use
-  // RegisterInstruction<>.
-  instructions_[0x00] = std::make_unique<BRK>(bus_, reg_, event_logger_);
-  cpu_->RegisterInstruction({
-      .opcode = 0x00,
-      .mode = Mode::kImplied,
-      .operation = Operation::kNone,
-      .instruction = instructions_[0x00].get(),
-  });
-
   RegisterInstruction<NOP>(0xEA);
+  RegisterInstruction<BRK>(0x00);
 
   // status
   RegisterInstruction<CLC>(0x18);

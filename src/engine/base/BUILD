@@ -4,7 +4,10 @@ cc_library(
     hdrs = [
         "bus.h",
         "constants.h",
-        "event_logger.h",
+        "log.h",
         "registers.h",
-    ]
+    ],
+    srcs = [
+        "log.cc",
+    ],
 )

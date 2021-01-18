@@ -7,13 +7,12 @@
 #include <vector>
 
 #include "src/engine/base/bus.h"
-#include "src/engine/base/event_logger.h"
 #include "src/engine/base/registers.h"
 #include "src/engine/instruction/addressing.h"
 
 class Cpu {
  public:
-  Cpu(EventLogger& event_logger, Bus& bus, Registers& reg);
+  Cpu(Bus& bus, Registers& reg);
 
   void Reset();
   void NMI();
@@ -38,7 +37,6 @@ class Cpu {
   bool PerformNMI();
   uint16_t ReadAddressFromVectorTable(uint16_t address);
 
-  EventLogger& event_logger_;
   Bus& bus_;
   Registers& reg_;
   Addressing addressing_;

@@ -3,7 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "src/engine/base/bus.h"
-#include "src/engine/base/event_logger.h"
+#include "src/engine/base/log.h"
 #include "src/engine/base/registers.h"
 #include "src/engine/instruction/addressing.h"
 #include "src/engine/instruction/instruction.h"
@@ -18,12 +18,6 @@ using testing::SaveArg;
 using testing::SetArgPointee;
 
 const uint8_t kFakeOpcode = 0x12;
-
-class MockEventLogger : public EventLogger {
- public:
-  MOCK_METHOD(void, LogEvent, (Event event), (override));
-  MOCK_METHOD(void, PrintLogs, (), (override));
-};
 
 class MockBus : public Bus {
  public:
@@ -48,14 +42,19 @@ void ExpectReadStartAddress(MockBus& bus, uint16_t address) {
                       Return(Peripheral::Status::OK)));
 }
 
-TEST(CpuTest, RunUntilSegfault) {
-  MockEventLogger event_logger;
+class CpuTest : public testing::Test {
+ public:
+  void SetUp() override { Log::Init(Log::Level::ERROR); }
+  void TearDown() override { Log::Reset(); }
+};
+
+TEST_F(CpuTest, RunUntilSegfault) {
   MockBus bus;
   Registers reg;
 
   // Prepare the Cpu
   ExpectReadStartAddress(bus, 0xBBAA);
-  Cpu cpu(event_logger, bus, reg);
+  Cpu cpu(bus, reg);
   cpu.Reset();
 
   // Add a mock instruction
@@ -85,20 +84,18 @@ TEST(CpuTest, RunUntilSegfault) {
 
   EXPECT_CALL(bus, Read(0xBBAC, _))
       .WillOnce(Return(Peripheral::Status::OUT_OF_BOUNDS));
-  EXPECT_CALL(event_logger, LogEvent(Field(&EventLogger::Event::type,
-                                           EventLogger::EventType::kError)));
   cpu.Tick();
+  EXPECT_TRUE(Log::FoundLogWithLevel(Log::Level::ERROR));
   EXPECT_EQ(0xBBAC, reg.pc);
 }
 
-TEST(CpuTest, InitialStateOfStatusRegister) {
-  MockEventLogger event_logger;
+TEST_F(CpuTest, InitialStateOfStatusRegister) {
   MockBus bus;
   Registers reg;
 
   // Prepare the Cpu
   ExpectReadStartAddress(bus, 0xBBAA);
-  Cpu cpu(event_logger, bus, reg);
+  Cpu cpu(bus, reg);
   cpu.Reset();
 
   EXPECT_FALSE(reg.status.test(Status::kCarry));
