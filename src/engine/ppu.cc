@@ -174,18 +174,18 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
       }
 
       *byte = *data_location;
-      LOG(INFO) << "ppu read data: " << Log::Hex(data_address_) << "="
-                << Log::Hex(*byte);
+      LOG(DEBUG) << "ppu read data: " << Log::Hex(data_address_) << "="
+                 << Log::Hex(*byte);
       data_address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }
-  LOG(INFO) << "ppu read: " << Log::Hex(address) << "=" << Log::Hex(*byte);
+  LOG(DEBUG) << "ppu read: " << Log::Hex(address) << "=" << Log::Hex(*byte);
   return Peripheral::Status::OK;
 }
 
 Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
   last_write_value_ = byte;
-  LOG(INFO) << "ppu write: " << Log::Hex(address) << "=" << Log::Hex(byte);
+  LOG(DEBUG) << "ppu write: " << Log::Hex(address) << "=" << Log::Hex(byte);
 
   // We only have 8 registers.
   address = address % 0x08;
@@ -323,8 +323,8 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       }
 
       *data_location = byte;
-      LOG(INFO) << "ppu write data: " << Log::Hex(data_address_) << "="
-                << Log::Hex(byte);
+      LOG(DEBUG) << "ppu write data: " << Log::Hex(data_address_) << "="
+                 << Log::Hex(byte);
       data_address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }

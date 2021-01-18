@@ -124,8 +124,8 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
     // Set the control to mode 3.
     control_ |= 0x0C;
 
-    LOG(INFO) << "mmc1 reset";
-    LOG(INFO) << "mmc1 control=" << std::bitset<5>(control_);
+    LOG(DEBUG) << "mmc1 reset";
+    LOG(DEBUG) << "mmc1 control=" << std::bitset<5>(control_);
     return Peripheral::Status::OK;
   }
 
@@ -147,22 +147,22 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
       case 0:
         control_ = data;
         ppu_.SetMirroringMode(MirroringModeFromControl(control_));
-        LOG(INFO) << "mmc1 control=" << std::bitset<5>(control_);
+        LOG(DEBUG) << "mmc1 control=" << std::bitset<5>(control_);
         break;
       case 1:
         chr_bank_0_ = data;
-        LOG(INFO) << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_);
+        LOG(DEBUG) << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_);
         break;
       case 2:
         chr_bank_1_ = data;
-        LOG(INFO) << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_);
+        LOG(DEBUG) << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_);
         break;
       case 3:
         prg_bank_ = data;
-        LOG(INFO) << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_);
+        LOG(DEBUG) << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_);
         break;
       default:
-        LOG(INFO) << "MMC1 write to unexpected register: " << register_num;
+        LOG(DEBUG) << "MMC1 write to unexpected register: " << register_num;
         break;
     }
     // Reset the shift.

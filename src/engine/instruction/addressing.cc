@@ -23,7 +23,7 @@ bool Addressing::Execute(Instruction::Config& config, int cycle) {
 
     // Log the instruction.
     std::string operand_log = ConstructOperandLog(config);
-    LOG(INFO) << config.instruction->GetLogName() << " " << operand_log;
+    LOG(DEBUG) << config.instruction->GetLogName() << " " << operand_log;
   }
 
   // Wait for the appropriate amount of cycles.

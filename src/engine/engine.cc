@@ -82,7 +82,7 @@ Engine::RunResult Engine::Run(int num_ticks) {
 
 void Engine::Reset() {
   Log::Reset();
-  Log::Init(Log::Level::TEST_PASSED);
+  Log::Init(Log::Level::INFO);
   cpu_->Reset();
 }
 

@@ -15,8 +15,9 @@ class Log {
     TEST_PASSED = 2,
     WARNING = 3,
     INFO = 4,
+    DEBUG = 5,
 
-    NUM_LEVELS = INFO + 1,
+    NUM_LEVELS = DEBUG + 1,
   };
 
   // Initialize the logger by setting the maximum log level.

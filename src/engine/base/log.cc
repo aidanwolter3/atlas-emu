@@ -57,6 +57,9 @@ Log::~Log() {
     case Level::INFO:
       prefix = "INFO:  ";
       break;
+    case Level::DEBUG:
+      prefix = "DEBUG: ";
+      break;
     default:
       prefix = "????:  ";
       break;
