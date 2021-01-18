@@ -8,16 +8,6 @@
 #include "src/engine/base/constants.h"
 #include "src/engine/base/log.h"
 
-namespace {
-
-std::string IntToHexString(int num) {
-  std::stringstream ss;
-  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << num;
-  return ss.str();
-}
-
-}  // namespace
-
 Cpu::Cpu(Bus& bus, Registers& reg)
     : bus_(bus), reg_(reg), addressing_(bus_, reg_) {}
 
@@ -63,25 +53,24 @@ void Cpu::Tick() {
 }
 
 void Cpu::DumpRegisters() {
-  std::cout << "-- CPU --" << std::endl;
-  std::cout << "PC=" << IntToHexString(reg_.pc) << std::endl;
-  std::cout << "SP=" << IntToHexString(reg_.sp) << std::endl;
-  std::cout << "Status=" << reg_.status << std::endl;
-  std::cout << "ACC=" << IntToHexString(reg_.acc) << std::endl;
-  std::cout << "X=" << IntToHexString(reg_.x) << std::endl;
-  std::cout << "Y=" << IntToHexString(reg_.y) << std::endl;
-  std::cout << "---------" << std::endl;
+  LOG(INFO) << "-- CPU --";
+  LOG(INFO) << "PC=" << Log::Hex(reg_.pc);
+  LOG(INFO) << "SP=" << Log::Hex(reg_.sp);
+  LOG(INFO) << "Status=" << reg_.status;
+  LOG(INFO) << "ACC=" << Log::Hex(reg_.acc);
+  LOG(INFO) << "X=" << Log::Hex(reg_.x);
+  LOG(INFO) << "Y=" << Log::Hex(reg_.y);
+  LOG(INFO) << "---------";
 
   // Dump the stack
-  std::cout << "-- Stack --" << std::endl;
+  LOG(INFO) << "-- Stack --";
   for (uint16_t addr = kStackStartAddress + reg_.sp + 1;
        addr < kStackStartAddress + 0x100; ++addr) {
     uint8_t stack_data;
     bus_.Read(addr, &stack_data);
-    std::cout << IntToHexString(addr) << ": " << IntToHexString(stack_data)
-              << std::endl;
+    LOG(INFO) << Log::Hex(addr) << ": " << Log::Hex(stack_data);
   }
-  std::cout << "-----------" << std::endl;
+  LOG(INFO) << "-----------";
 }
 
 void Cpu::RegisterInstruction(Instruction::Config config) {

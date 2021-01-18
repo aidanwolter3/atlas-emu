@@ -1,6 +1,6 @@
 #include "src/engine/instruction/addressing.h"
 
-#include <iostream>
+#include "src/engine/base/log.h"
 
 Addressing::Addressing(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
 
@@ -61,8 +61,7 @@ bool Addressing::Execute(Instruction::Config& config, int cycle) {
         address_ = result.data;
         break;
       default:
-        std::cout << "Invalid addressing mode: " << (int)config.mode
-                  << std::endl;
+        LOG(ERROR) << "Invalid addressing mode: " << (int)config.mode;
         return true;
     }
     cycles_ = result.cycles;
@@ -76,7 +75,7 @@ bool Addressing::Execute(Instruction::Config& config, int cycle) {
         operand_ = reg_.acc;
       } else {
         if (!address_.has_value()) {
-          std::cout << "Address is not set!" << std::endl;
+          LOG(WARNING) << "Address is not set!";
           return true;
         }
         uint8_t byte;
@@ -95,7 +94,7 @@ bool Addressing::Execute(Instruction::Config& config, int cycle) {
         reg_.acc = data_to_write;
       } else {
         if (!address_.has_value()) {
-          std::cout << "Address is not set!" << std::endl;
+          LOG(WARNING) << "Address is not set!";
           return true;
         }
 

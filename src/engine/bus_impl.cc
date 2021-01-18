@@ -1,6 +1,6 @@
 #include "src/engine/bus_impl.h"
 
-#include <iostream>
+#include "src/engine/base/log.h"
 
 namespace {
 
@@ -13,8 +13,8 @@ BusImpl::BusImpl() = default;
 
 void BusImpl::RegisterPeripheral(Peripheral& peripheral, uint16_t start) {
   if ((kBusSize - start) < peripheral.GetAddressLength()) {
-    std::cout << "Cannot register peripheral: "
-              << "address range exceeds the bus address range." << std::endl;
+    LOG(ERROR) << "Cannot register peripheral: "
+               << "address range exceeds the bus address range.";
     return;
   }
 
@@ -28,8 +28,8 @@ void BusImpl::RegisterPeripheral(Peripheral& peripheral, uint16_t start) {
   // Another peripheral has the same start range, so we can quickly determine
   // that the addresse ranges collide.
   if (peripherals_.count(start) != 0) {
-    std::cout << "Cannot register peripheral: "
-              << "address range overlaps another peripheral." << std::endl;
+    LOG(ERROR) << "Cannot register peripheral: "
+               << "address range overlaps another peripheral.";
     return;
   }
 
@@ -47,8 +47,8 @@ void BusImpl::RegisterPeripheral(Peripheral& peripheral, uint16_t start) {
   // Check if the lower Peripheral has an overlapping address range.
   if (lower_it != peripherals_.end()) {
     if (start < lower_it->first + lower_it->second.GetAddressLength()) {
-      std::cout << "Cannot register peripheral: "
-                << "address range overlaps another peripheral." << std::endl;
+      LOG(ERROR) << "Cannot register peripheral: "
+                 << "address range overlaps another peripheral.";
       return;
     }
   }
@@ -61,8 +61,8 @@ void BusImpl::RegisterPeripheral(Peripheral& peripheral, uint16_t start) {
   }
   if (upper_it != peripherals_.end()) {
     if (start + peripheral.GetAddressLength() > upper_it->first) {
-      std::cout << "Cannot register peripheral: "
-                << "address range overlaps another peripheral." << std::endl;
+      LOG(ERROR) << "Cannot register peripheral: "
+                 << "address range overlaps another peripheral.";
       return;
     }
   }

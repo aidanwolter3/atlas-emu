@@ -1,27 +1,15 @@
 #include "src/engine/mmc1.h"
 
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-
+#include "src/engine/base/log.h"
 #include "src/ui/renderer.h"
 
 namespace {
-
-constexpr bool kDebug = false;
 
 const uint16_t kHeaderSize = 0x0010;
 // A single PRG is only 0x4000 bytes.
 const uint16_t kPRGSize = 0x4000;
 // But we may have to PRGs, or the first PRG could be mirrored.
 const uint16_t kMMC1Size = 0x8000;
-
-std::string IntToHexString(int num) {
-  std::stringstream ss;
-  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << num;
-  return ss.str();
-}
 
 MirroringMode MirroringModeFromControl(uint8_t control) {
   switch (control & 0x03) {
@@ -67,7 +55,7 @@ class MMC1Impl::Header {
 MMC1Impl::MMC1Impl(Ppu& ppu, std::vector<uint8_t> data)
     : ppu_(ppu), header_(std::make_unique<Header>(data)) {
   if (!header_->IsValid()) {
-    std::cout << "Header is invalid" << std::endl;
+    LOG(ERROR) << "Header is invalid";
     return;
   }
 
@@ -80,12 +68,12 @@ MMC1Impl::MMC1Impl(Ppu& ppu, std::vector<uint8_t> data)
 MMC1Impl::~MMC1Impl() = default;
 
 void MMC1Impl::DumpRegisters() {
-  std::cout << "-- mmc1 --" << std::endl;
-  std::cout << "MMC1_CTRL=" << IntToHexString(control_) << std::endl;
-  std::cout << "MMC1_CHR_0=" << IntToHexString(chr_bank_0_) << std::endl;
-  std::cout << "MMC1_CHR_1=" << IntToHexString(chr_bank_1_) << std::endl;
-  std::cout << "MMC1_PRG=" << IntToHexString(prg_bank_) << std::endl;
-  std::cout << "----------" << std::endl;
+  LOG(INFO) << "-- mmc1 --";
+  LOG(INFO) << "MMC1_CTRL=" << Log::Hex(control_);
+  LOG(INFO) << "MMC1_CHR_0=" << Log::Hex(chr_bank_0_);
+  LOG(INFO) << "MMC1_CHR_1=" << Log::Hex(chr_bank_1_);
+  LOG(INFO) << "MMC1_PRG=" << Log::Hex(prg_bank_);
+  LOG(INFO) << "----------";
 }
 
 Peripheral::Status MMC1Impl::Read(uint16_t address, uint8_t* byte) {
@@ -136,10 +124,8 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
     // Set the control to mode 3.
     control_ |= 0x0C;
 
-    if (kDebug) {
-      std::cout << "mmc1 reset" << std::endl;
-      std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
-    }
+    LOG(INFO) << "mmc1 reset";
+    LOG(INFO) << "mmc1 control=" << std::bitset<5>(control_);
     return Peripheral::Status::OK;
   }
 
@@ -161,34 +147,22 @@ Peripheral::Status MMC1Impl::Write(uint16_t address, uint8_t byte) {
       case 0:
         control_ = data;
         ppu_.SetMirroringMode(MirroringModeFromControl(control_));
-        if (kDebug) {
-          std::cout << "mmc1 control=" << std::bitset<5>(control_) << std::endl;
-        }
+        LOG(INFO) << "mmc1 control=" << std::bitset<5>(control_);
         break;
       case 1:
         chr_bank_0_ = data;
-        if (kDebug) {
-          std::cout << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_)
-                    << std::endl;
-        }
+        LOG(INFO) << "mmc1 chr-bank1=" << std::bitset<5>(chr_bank_0_);
         break;
       case 2:
         chr_bank_1_ = data;
-        if (kDebug) {
-          std::cout << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_)
-                    << std::endl;
-        }
+        LOG(INFO) << "mmc1 chr-bank2=" << std::bitset<5>(chr_bank_1_);
         break;
       case 3:
         prg_bank_ = data;
-        if (kDebug) {
-          std::cout << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_)
-                    << std::endl;
-        }
+        LOG(INFO) << "mmc1 prg-bank=" << std::bitset<5>(prg_bank_);
         break;
       default:
-        std::cout << "MMC1 write to unexpected register: " << register_num
-                  << std::endl;
+        LOG(INFO) << "MMC1 write to unexpected register: " << register_num;
         break;
     }
     // Reset the shift.

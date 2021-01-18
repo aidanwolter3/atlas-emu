@@ -1,10 +1,6 @@
 #include "src/engine/ppu.h"
 
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-
+#include "src/engine/base/log.h"
 #include "src/ui/color.h"
 
 namespace {
@@ -20,13 +16,6 @@ const uint16_t kOamData = 4;
 const uint16_t kPpuScroll = 5;
 const uint16_t kPpuAddress = 6;
 const uint16_t kPpuData = 7;
-
-// TODO: Move this to a shared utility class.
-std::string IntToHexString(int num) {
-  std::stringstream ss;
-  ss << std::setfill('0') << std::setw(2) << std::hex << num;
-  return ss.str();
-}
 
 int AdjustTableNumForMirroring(int table_num, MirroringMode mode) {
   // TODO: Implement one-screen mirroring.
@@ -103,14 +92,14 @@ void PpuImpl::Tick() {
 }
 
 void PpuImpl::DumpRegisters() {
-  std::cout << "-- PPU --" << std::endl;
-  std::cout << "PPU_CTRL=" << IntToHexString(ctrl_) << std::endl;
-  std::cout << "PPU_MASK=" << IntToHexString(mask_) << std::endl;
-  std::cout << "PPU_OAM_ADDR=" << IntToHexString(oam_address_) << std::endl;
-  std::cout << "PPU_SCROLL_X=" << IntToHexString(scroll_x_) << std::endl;
-  std::cout << "PPU_SCROLL_Y=" << IntToHexString(scroll_y_) << std::endl;
-  std::cout << "PPU_DATA_ADDR=" << IntToHexString(data_address_) << std::endl;
-  std::cout << "---------" << std::endl;
+  LOG(INFO) << "-- PPU --";
+  LOG(INFO) << "PPU_CTRL=" << Log::Hex(ctrl_);
+  LOG(INFO) << "PPU_MASK=" << Log::Hex(mask_);
+  LOG(INFO) << "PPU_OAM_ADDR=" << Log::Hex(oam_address_);
+  LOG(INFO) << "PPU_SCROLL_X=" << Log::Hex(scroll_x_);
+  LOG(INFO) << "PPU_SCROLL_Y=" << Log::Hex(scroll_y_);
+  LOG(INFO) << "PPU_DATA_ADDR=" << Log::Hex(data_address_);
+  LOG(INFO) << "---------";
 }
 
 void PpuImpl::SetMirroringMode(MirroringMode mode) {
@@ -143,7 +132,7 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
       break;
     case kPpuData:
       if (data_address_ >= 0x4000) {
-        std::cout << "ppu error: Address is too large!" << std::endl;
+        LOG(ERROR) << "ppu error: Address is too large!";
         return Peripheral::Status::OUT_OF_BOUNDS;
       }
 
@@ -185,20 +174,18 @@ Peripheral::Status PpuImpl::Read(uint16_t address, uint8_t* byte) {
       }
 
       *byte = *data_location;
-      // std::cout << "ppu read data: " << IntToHexString(data_address_) << "="
-      //          << IntToHexString(*byte) << std::endl;
+      LOG(INFO) << "ppu read data: " << Log::Hex(data_address_) << "="
+                << Log::Hex(*byte);
       data_address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }
-  // std::cout << "ppu read: " << IntToHexString(address) << "="
-  //          << IntToHexString(*byte) << std::endl;
+  LOG(INFO) << "ppu read: " << Log::Hex(address) << "=" << Log::Hex(*byte);
   return Peripheral::Status::OK;
 }
 
 Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
   last_write_value_ = byte;
-  // std::cout << "ppu write: " << IntToHexString(address) << "="
-  //          << IntToHexString(byte) << std::endl;
+  LOG(INFO) << "ppu write: " << Log::Hex(address) << "=" << Log::Hex(byte);
 
   // We only have 8 registers.
   address = address % 0x08;
@@ -292,7 +279,7 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       break;
     case kPpuData:
       if (data_address_ >= 0x4000) {
-        std::cout << "ppu error: Address is too large!" << std::endl;
+        LOG(ERROR) << "ppu error: Address is too large!";
         return Peripheral::Status::OUT_OF_BOUNDS;
       }
 
@@ -336,8 +323,8 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       }
 
       *data_location = byte;
-      // std::cout << "ppu write data: " << IntToHexString(data_address_) << "="
-      //          << IntToHexString(byte) << std::endl;
+      LOG(INFO) << "ppu write data: " << Log::Hex(data_address_) << "="
+                << Log::Hex(byte);
       data_address_ += (ctrl_ & 0x04) ? 32 : 1;
       break;
   }
@@ -521,7 +508,7 @@ void PpuImpl::DetectSprite0HitAtCoordinate(int x, int y) {
   } else if (mirroring_mode_ == MirroringMode::kVertical) {
     table_num = (bg_origin_x % 0x200) / 0x100;
   } else {
-    std::cout << "Unsupported mirroring mode" << std::endl;
+    LOG(ERROR) << "Unsupported mirroring mode";
   }
 
   // Calculate the offset into the background.

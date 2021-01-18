@@ -48,7 +48,6 @@ Peripheral::Status Joystick::Write(uint16_t address, uint8_t byte) {
 
   // High to Low transition.
   if ((strobe_ & 0x01) && !(byte & 0x01)) {
-    // std::cout << "Joystick: latch data" << std::endl;
     read_count_ = 0;
   }
   strobe_ = byte;
