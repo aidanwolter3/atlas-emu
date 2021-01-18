@@ -8,6 +8,7 @@ class NOP : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("NOP");
 };
 
 // Break (used for e2e tests)
@@ -15,6 +16,7 @@ class BRK : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("BRK");
 };
 
 #endif  // ENGINE_INSTRUCTION_MISC_H_

@@ -2,9 +2,13 @@
 #define ENGINE_INSTRUCTION_INSTRUCTION_H_
 
 #include <cstdint>
+#include <string>
 
 #include "src/engine/base/bus.h"
 #include "src/engine/base/registers.h"
+
+#define SET_LOG_NAME(n) \
+  std::string GetLogName() override { return n; }
 
 class Instruction {
  public:
@@ -40,6 +44,10 @@ class Instruction {
   Instruction(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
   virtual ~Instruction() {}
   virtual uint8_t Execute(uint16_t operand) = 0;
+
+  // Rather than overriding this method, Instructions should use the
+  // SET_LOG_NAME macro in their header to provde the Instruction name to log.
+  virtual std::string GetLogName() { return "TBD"; }
 
  protected:
   Bus& bus_;

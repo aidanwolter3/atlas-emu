@@ -2,243 +2,275 @@
 
 #include "src/engine/base/log.h"
 
-Addressing::Addressing(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
+Addressing::Addressing(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {
+  ResetExecuteData();
+}
 
 bool Addressing::Execute(Instruction::Config& config, int cycle) {
   if (cycle < 2) return false;
 
-  // Execute the instruction.
   if (cycle == 2) {
-    // Get the address of interest, and in some cases, the operand.
-    Addressing::Result result;
-    operand_ = 0;
-    switch (config.mode) {
-      case Instruction::Mode::kImplied:
-        result.cycles = 2;
-        break;
-      case Instruction::Mode::kImmediate:
-        result = Immediate(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kImmediateAddress:
-        result = ImmediateAddress(config.operation);
-        operand_ = result.data;
-        break;
-      case Instruction::Mode::kZeroPage:
-        result = ZeroPage(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kZeroPageX:
-        result = ZeroPageX(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kZeroPageY:
-        result = ZeroPageY(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kAbsolute:
-        result = Absolute(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kAbsoluteX:
-        result = AbsoluteX(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kAbsoluteY:
-        result = AbsoluteY(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kIndirect:
-        result = Indirect(config.operation);
-        operand_ = result.data;
-        break;
-      case Instruction::Mode::kIndirectX:
-        result = IndirectX(config.operation);
-        address_ = result.data;
-        break;
-      case Instruction::Mode::kIndirectY:
-        result = IndirectY(config.operation);
-        address_ = result.data;
-        break;
-      default:
-        LOG(ERROR) << "Invalid addressing mode: " << (int)config.mode;
-        return true;
-    }
-    cycles_ = result.cycles;
+    bool success = true;
+    success = FetchExecuteData(config);
+    if (!success) return true;
+    success = MaybeReadData(config);
+    if (!success) return true;
 
-    // Read the operand on the post-opcode first cycle (optional).
-    // For ImmediateAddress/Indirect we do not read, as the operand _is_ the
-    // address.
-    if (config.operation == Instruction::Operation::kRead ||
-        config.operation == Instruction::Operation::kReadWrite) {
-      if (config.mode == Instruction::Mode::kImplied) {
-        operand_ = reg_.acc;
-      } else {
-        if (!address_.has_value()) {
-          LOG(WARNING) << "Address is not set!";
-          return true;
-        }
-        uint8_t byte;
-        bus_.Read(*address_, &byte);
-        operand_ = byte;
-      }
-    }
+    // Execute the instruction.
+    uint8_t new_data = config.instruction->Execute(data_.data.value_or(0));
+    success = MaybeWriteData(new_data, config);
+    if (!success) return true;
 
-    // Run the instruction with the operand.
-    uint8_t data_to_write = config.instruction->Execute(*operand_);
-
-    // Write the operand on the last cycle (optional).
-    if (config.operation == Instruction::Operation::kWrite ||
-        config.operation == Instruction::Operation::kReadWrite) {
-      if (config.mode == Instruction::Mode::kImplied) {
-        reg_.acc = data_to_write;
-      } else {
-        if (!address_.has_value()) {
-          LOG(WARNING) << "Address is not set!";
-          return true;
-        }
-
-        bus_.Write(*address_, data_to_write);
-      }
-    }
+    // Log the instruction.
+    std::string operand_log = ConstructOperandLog(config);
+    LOG(INFO) << config.instruction->GetLogName() << " " << operand_log;
   }
 
   // Wait for the appropriate amount of cycles.
-  if (cycle < cycles_) return false;
+  if (cycle < data_.cycles) return false;
 
-  address_.reset();
-  operand_.reset();
-  cycles_ = 0;
+  ResetExecuteData();
   return true;
 }
 
-Addressing::Result Addressing::Immediate(Instruction::Operation operation) {
-  return {
-      .data = reg_.pc++,
-      .cycles = 2,
-  };
+void Addressing::ResetExecuteData() {
+  data_.operand.reset();
+  data_.address.reset();
+  data_.data.reset();
+  data_.cycles = 2;
 }
 
-Addressing::Result Addressing::ImmediateAddress(
-    Instruction::Operation operation) {
+bool Addressing::FetchExecuteData(Instruction::Config& config) {
+  switch (config.mode) {
+    case Instruction::Mode::kImplied:
+      Implied(config.operation);
+      return true;
+    case Instruction::Mode::kImmediate:
+      Immediate(config.operation);
+      return true;
+    case Instruction::Mode::kImmediateAddress:
+      ImmediateAddress(config.operation);
+      return true;
+    case Instruction::Mode::kZeroPage:
+      ZeroPage(config.operation);
+      return true;
+    case Instruction::Mode::kZeroPageX:
+      ZeroPageX(config.operation);
+      return true;
+    case Instruction::Mode::kZeroPageY:
+      ZeroPageY(config.operation);
+      return true;
+    case Instruction::Mode::kAbsolute:
+      Absolute(config.operation);
+      return true;
+    case Instruction::Mode::kAbsoluteX:
+      AbsoluteX(config.operation);
+      return true;
+    case Instruction::Mode::kAbsoluteY:
+      AbsoluteY(config.operation);
+      return true;
+    case Instruction::Mode::kIndirect:
+      Indirect(config.operation);
+      return true;
+    case Instruction::Mode::kIndirectX:
+      IndirectX(config.operation);
+      return true;
+    case Instruction::Mode::kIndirectY:
+      IndirectY(config.operation);
+      return true;
+    default:
+      LOG(ERROR) << "Invalid addressing mode: "
+                 << static_cast<int>(config.mode);
+      return false;
+  }
+}
+
+bool Addressing::MaybeReadData(Instruction::Config& config) {
+  // Only read if we do not have |data| already.
+  if (data_.data.has_value()) {
+    return true;
+  }
+
+  if (config.operation != Instruction::Operation::kRead &&
+      config.operation != Instruction::Operation::kReadWrite) {
+    return true;
+  }
+
+  // Implied instructions get the ACC.
+  if (config.mode == Instruction::Mode::kImplied) {
+    data_.data = reg_.acc;
+    return true;
+  }
+
+  if (!data_.address.has_value()) {
+    LOG(ERROR) << "Address is not set!";
+    return false;
+  }
+
+  uint8_t data;
+  bus_.Read(data_.address.value(), &data);
+  data_.data = data;
+  return true;
+}
+
+bool Addressing::MaybeWriteData(uint8_t data, Instruction::Config& config) {
+  if (config.operation != Instruction::Operation::kWrite &&
+      config.operation != Instruction::Operation::kReadWrite) {
+    return true;
+  }
+
+  // Implied instructions use the ACC.
+  if (config.mode == Instruction::Mode::kImplied) {
+    reg_.acc = data;
+    return true;
+  }
+
+  if (!data_.address.has_value()) {
+    LOG(ERROR) << "Address is not set!";
+    return false;
+  }
+
+  bus_.Write(data_.address.value(), data);
+  return true;
+}
+
+std::string Addressing::ConstructOperandLog(Instruction::Config& config) {
+  if (!data_.operand.has_value()) {
+    return "";
+  }
+
+  switch (config.mode) {
+    case Instruction::Mode::kImmediate:
+      return "#" + Log::Hex(data_.operand.value());
+    case Instruction::Mode::kImmediateAddress:
+    case Instruction::Mode::kZeroPage:
+    case Instruction::Mode::kAbsolute:
+    case Instruction::Mode::kIndirect:
+      return "$" + Log::Hex(data_.operand.value());
+    case Instruction::Mode::kZeroPageX:
+    case Instruction::Mode::kAbsoluteX:
+      return "$" + Log::Hex(data_.operand.value()) + ", X";
+    case Instruction::Mode::kZeroPageY:
+    case Instruction::Mode::kAbsoluteY:
+      return "$" + Log::Hex(data_.operand.value()) + ", Y";
+    case Instruction::Mode::kIndirectX:
+      return "(" + Log::Hex(data_.operand.value()) + ", X)";
+    case Instruction::Mode::kIndirectY:
+      return "(" + Log::Hex(data_.operand.value()) + "), Y";
+    default:
+      LOG(ERROR) << "Invalid addressing mode: "
+                 << static_cast<int>(config.mode);
+      return "";
+  }
+}
+
+void Addressing::Implied(Instruction::Operation operation) { data_.cycles = 2; }
+
+void Addressing::Immediate(Instruction::Operation operation) {
+  uint8_t operand;
+  bus_.Read(reg_.pc++, &operand);
+
+  data_.operand = operand;
+  data_.data = data_.operand;
+  data_.cycles = 2;
+}
+
+void Addressing::ImmediateAddress(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
-  uint16_t data = (address_upper << 8) | address_lower;
   reg_.pc += 2;
 
-  return {
-      .data = data,
-      .cycles = 3,
-  };
+  data_.operand = (address_upper << 8) | address_lower;
+  data_.data = data_.operand;
+  data_.cycles = 3;
 }
 
-Addressing::Result Addressing::ZeroPage(Instruction::Operation operation) {
+void Addressing::ZeroPage(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
-  uint16_t data = address;
   reg_.pc++;
 
-  int cycles = 3;
+  data_.operand = address;
+  data_.address = address;
+  data_.cycles = 3;
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 5;
+    data_.cycles = 5;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::ZeroPageX(Instruction::Operation operation) {
+void Addressing::ZeroPageX(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
-  uint16_t data = address + reg_.x;
   reg_.pc++;
 
-  int cycles = 4;
+  data_.operand = address;
+  data_.address = address + reg_.x;
+  data_.cycles = 4;
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 6;
+    data_.cycles = 6;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::ZeroPageY(Instruction::Operation operation) {
+void Addressing::ZeroPageY(Instruction::Operation operation) {
   uint8_t address;
   bus_.Read(reg_.pc, &address);
-  uint16_t data = address + reg_.y;
   reg_.pc++;
 
-  int cycles = 4;
+  data_.operand = address;
+  data_.address = address + reg_.y;
+  data_.cycles = 4;
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 6;
+    data_.cycles = 6;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::Absolute(Instruction::Operation operation) {
+void Addressing::Absolute(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
-  uint16_t data = (address_upper << 8) | address_lower;
+  uint16_t address = (address_upper << 8) | address_lower;
   reg_.pc += 2;
 
-  int cycles = 4;
+  data_.operand = address;
+  data_.address = address;
+  data_.cycles = 4;
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 6;
+    data_.cycles = 6;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::AbsoluteX(Instruction::Operation operation) {
+void Addressing::AbsoluteX(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
-  uint16_t data = ((address_upper << 8) | address_lower) + reg_.x;
+  uint16_t address = ((address_upper << 8) | address_lower);
   reg_.pc += 2;
 
-  int cycles = 5;  // TODO: This is sometimes 4 for Read operations.
+  data_.operand = address;
+  data_.address = address + reg_.x;
+  data_.cycles = 5;  // TODO: This is sometimes 4 for Read operations.
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 7;
+    data_.cycles = 7;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::AbsoluteY(Instruction::Operation operation) {
+void Addressing::AbsoluteY(Instruction::Operation operation) {
   uint8_t address_lower, address_upper;
   bus_.Read(reg_.pc, &address_lower);
   bus_.Read(reg_.pc + 1, &address_upper);
-  uint16_t data = ((address_upper << 8) | address_lower) + reg_.y;
+  uint16_t address = ((address_upper << 8) | address_lower);
   reg_.pc += 2;
 
-  int cycles = 5;  // TODO: This is sometimes 4 for Read operations.
+  data_.operand = address;
+  data_.address = address + reg_.y;
+  data_.cycles = 5;  // TODO: This is sometimes 4 for Read operations.
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 7;
+    data_.cycles = 7;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::Indirect(Instruction::Operation operation) {
+void Addressing::Indirect(Instruction::Operation operation) {
   uint8_t lower, upper;
   bus_.Read(reg_.pc, &lower);
   bus_.Read(reg_.pc + 1, &upper);
@@ -252,50 +284,43 @@ Addressing::Result Addressing::Indirect(Instruction::Operation operation) {
   bus_.Read(address_location_2, &upper);
   uint16_t data = (upper << 8) | lower;
 
-  return {
-      .data = data,
-      .cycles = 5,
-  };
+  data_.operand = data;
+  data_.data = data;
+  data_.cycles = 5;
 }
 
-Addressing::Result Addressing::IndirectX(Instruction::Operation operation) {
-  uint8_t address;
-  bus_.Read(reg_.pc, &address);
+void Addressing::IndirectX(Instruction::Operation operation) {
+  uint8_t operand;
+  bus_.Read(reg_.pc, &operand);
   reg_.pc++;
 
   uint8_t lower, upper;
-  bus_.Read(address + reg_.x, &lower);
-  bus_.Read(address + reg_.x + 1, &upper);
-  uint16_t data = (upper << 8) | lower;
+  bus_.Read(operand + reg_.x, &lower);
+  bus_.Read(operand + reg_.x + 1, &upper);
+  uint16_t address = (upper << 8) | lower;
 
-  int cycles = 6;
+  data_.operand = operand;
+  data_.address = address;
+  data_.cycles = 6;
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 8;
+    data_.cycles = 8;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }
 
-Addressing::Result Addressing::IndirectY(Instruction::Operation operation) {
-  uint8_t address;
-  bus_.Read(reg_.pc, &address);
+void Addressing::IndirectY(Instruction::Operation operation) {
+  uint8_t operand;
+  bus_.Read(reg_.pc, &operand);
   reg_.pc++;
 
   uint8_t lower, upper;
-  bus_.Read(address, &lower);
-  bus_.Read(address + 1, &upper);
-  uint16_t data = ((upper << 8) | lower) + reg_.y;
+  bus_.Read(operand, &lower);
+  bus_.Read(operand + 1, &upper);
+  uint16_t address = ((upper << 8) | lower) + reg_.y;
 
-  int cycles = 6;  // TODO: This is sometimes 5 for Read operations.
+  data_.operand = operand;
+  data_.address = address;
+  data_.cycles = 6;  // TODO: This is sometimes 5 for Read operations.
   if (operation == Instruction::Operation::kReadWrite) {
-    cycles = 8;
+    data_.cycles = 8;
   }
-
-  return {
-      .data = data,
-      .cycles = cycles,
-  };
 }

@@ -8,6 +8,7 @@ class AND : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("AND");
 };
 
 // OR Accumulator
@@ -15,6 +16,7 @@ class ORA : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("ORA");
 };
 
 // Exclusive OR Accumulator
@@ -22,6 +24,7 @@ class EOR : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("EOR");
 };
 
 // Bit Test
@@ -29,6 +32,7 @@ class BIT : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("BIT");
 };
 
 #endif  // ENGINE_INSTRUCTION_LOGIC_H_

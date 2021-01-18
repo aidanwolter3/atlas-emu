@@ -8,6 +8,7 @@ class JMP : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("JMP");
 };
 
 // Jump Subroutine
@@ -15,6 +16,7 @@ class JSR : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("JSR");
 };
 
 // Return From Subroutine
@@ -22,6 +24,7 @@ class RTS : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("RTS");
 };
 
 // Return From Interrupt
@@ -29,6 +32,7 @@ class RTI : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("RTI");
 };
 
 #endif  // ENGINE_INSTRUCTION_JUMP_H_

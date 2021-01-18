@@ -14,28 +14,40 @@ class Addressing {
   bool Execute(Instruction::Config& config, int cycle);
 
  private:
-  struct Result {
-    uint16_t data;
+  struct ExecuteData {
+    // The byte(s) immediately following the opcode.
+    std::optional<uint16_t> operand;
+    // The effective address computed using the |operand|.
+    std::optional<uint16_t> address;
+    // The byte(s) sent to the instruction for execution.
+    // This is often the data found at |address|.
+    std::optional<uint16_t> data;
+    // How many cycles this instruction should take.
     int cycles;
   };
 
-  Result Immediate(Instruction::Operation operation);
-  Result ImmediateAddress(Instruction::Operation operation);
-  Result ZeroPage(Instruction::Operation operation);
-  Result ZeroPageX(Instruction::Operation operation);
-  Result ZeroPageY(Instruction::Operation operation);
-  Result Absolute(Instruction::Operation operation);
-  Result AbsoluteX(Instruction::Operation operation);
-  Result AbsoluteY(Instruction::Operation operation);
-  Result Indirect(Instruction::Operation operation);
-  Result IndirectX(Instruction::Operation operation);
-  Result IndirectY(Instruction::Operation operation);
+  void ResetExecuteData();
+  bool FetchExecuteData(Instruction::Config& config);
+  bool MaybeReadData(Instruction::Config& config);
+  bool MaybeWriteData(uint8_t data, Instruction::Config& config);
+  std::string ConstructOperandLog(Instruction::Config& config);
+
+  void Implied(Instruction::Operation operation);
+  void Immediate(Instruction::Operation operation);
+  void ImmediateAddress(Instruction::Operation operation);
+  void ZeroPage(Instruction::Operation operation);
+  void ZeroPageX(Instruction::Operation operation);
+  void ZeroPageY(Instruction::Operation operation);
+  void Absolute(Instruction::Operation operation);
+  void AbsoluteX(Instruction::Operation operation);
+  void AbsoluteY(Instruction::Operation operation);
+  void Indirect(Instruction::Operation operation);
+  void IndirectX(Instruction::Operation operation);
+  void IndirectY(Instruction::Operation operation);
 
   Bus& bus_;
   Registers& reg_;
-  std::optional<uint16_t> address_;
-  std::optional<uint16_t> operand_;
-  int cycles_;
+  ExecuteData data_;
 };
 
 #endif  // ENGINE_INSTRUCTION_ADDRESSING_H_

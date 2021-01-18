@@ -8,6 +8,7 @@ class LDA : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("LDA");
 };
 
 // Load Index X
@@ -15,6 +16,7 @@ class LDX : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("LDX");
 };
 
 // Load Index Y
@@ -22,6 +24,7 @@ class LDY : public Instruction {
  public:
   using Instruction::Instruction;
   uint8_t Execute(uint16_t operand) override;
+  SET_LOG_NAME("LDY");
 };
 
 #endif  // ENGINE_INSTRUCTION_LOAD_H_

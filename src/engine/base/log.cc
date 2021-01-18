@@ -34,8 +34,7 @@ bool Log::FoundLogWithLevel(Level level) {
 // static
 std::string Log::Hex(int num) {
   std::stringstream ss;
-  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << std::uppercase
-     << num;
+  ss << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << num;
   return ss.str();
 }
 
