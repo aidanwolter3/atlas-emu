@@ -7,7 +7,7 @@
 class CLC : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CLC");
 };
 
@@ -15,7 +15,7 @@ class CLC : public Instruction {
 class SEC : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("SEC");
 };
 
@@ -23,7 +23,7 @@ class SEC : public Instruction {
 class CLI : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CLI");
 };
 
@@ -31,7 +31,7 @@ class CLI : public Instruction {
 class SEI : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("SEI");
 };
 
@@ -39,7 +39,7 @@ class SEI : public Instruction {
 class CLV : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CLV");
 };
 
@@ -47,7 +47,7 @@ class CLV : public Instruction {
 class CLD : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CLD");
 };
 
@@ -55,7 +55,7 @@ class CLD : public Instruction {
 class SED : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("SED");
 };
 

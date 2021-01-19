@@ -58,6 +58,10 @@ void PpuImpl::Tick() {
     // Detect if sprite 0 has a hit anywhere on this scanline.
     if (!sprite_0_hit_ && cycle_ > 1 && cycle_ <= 256) {
       DetectSprite0HitAtCoordinate(cycle_ - 2, scanline_);
+      if (sprite_0_hit_) {
+        LOG(DEBUG) << "Sprite Hit: cycle=" << cycle_
+                   << ", scanline=" << scanline_;
+      }
     }
   }
 
@@ -239,6 +243,8 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       // Scroll is modified during the visible scanlines, which means a split
       // is occuring.
       if (scanline_ < 241) {
+        LOG(DEBUG) << "Set Scroll: x=" << Log::Hex(scroll_x_)
+                   << ", y=" << Log::Hex(scroll_y_);
         vertical_split_scanline_ = scanline_ + 1;
         vertical_split_scroll_x_ = scroll_x_;
         vertical_split_scroll_y_ = scroll_y_ + vertical_split_scanline_;

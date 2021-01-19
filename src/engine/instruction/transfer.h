@@ -7,7 +7,7 @@
 class TAX : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("TAX");
 };
 
@@ -15,7 +15,7 @@ class TAX : public Instruction {
 class TXA : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("TXA");
 };
 
@@ -23,7 +23,7 @@ class TXA : public Instruction {
 class TAY : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("TAY");
 };
 
@@ -31,7 +31,7 @@ class TAY : public Instruction {
 class TYA : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("TYA");
 };
 
@@ -39,7 +39,7 @@ class TYA : public Instruction {
 class TXS : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("TXS");
 };
 
@@ -47,7 +47,7 @@ class TXS : public Instruction {
 class TSX : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("TSX");
 };
 

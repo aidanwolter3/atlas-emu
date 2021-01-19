@@ -7,7 +7,7 @@
 class STA : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("STA");
 };
 
@@ -15,7 +15,7 @@ class STA : public Instruction {
 class STX : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("STX");
 };
 
@@ -23,7 +23,7 @@ class STX : public Instruction {
 class STY : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("STY");
 };
 

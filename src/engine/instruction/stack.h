@@ -7,7 +7,7 @@
 class PHA : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("PHA");
 };
 
@@ -15,7 +15,7 @@ class PHA : public Instruction {
 class PLA : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("PLA");
 };
 
@@ -23,7 +23,7 @@ class PLA : public Instruction {
 class PHP : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("PHP");
 };
 
@@ -31,7 +31,7 @@ class PHP : public Instruction {
 class PLP : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("PLP");
 };
 

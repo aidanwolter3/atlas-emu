@@ -7,7 +7,7 @@
 class ASL : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("ASL");
 };
 
@@ -15,7 +15,7 @@ class ASL : public Instruction {
 class LSR : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("LSR");
 };
 
@@ -23,7 +23,7 @@ class LSR : public Instruction {
 class ROL : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("ROL");
 };
 
@@ -31,7 +31,7 @@ class ROL : public Instruction {
 class ROR : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("ROR");
 };
 

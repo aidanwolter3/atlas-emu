@@ -30,7 +30,7 @@ class MockBus : public Bus {
 class MockInstruction : public Instruction {
  public:
   using Instruction::Instruction;
-  MOCK_METHOD1(Execute, uint8_t(uint16_t operand));
+  MOCK_METHOD1(Execute, ExecuteResult(uint16_t operand));
 };
 
 void ExpectReadStartAddress(MockBus& bus, uint16_t address) {

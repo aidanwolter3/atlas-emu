@@ -10,20 +10,30 @@ bool Addressing::Execute(Instruction::Config& config, int cycle) {
   if (cycle < 2) return false;
 
   if (cycle == 2) {
+    uint16_t initial_pc = reg_.pc - 1;
     bool success = true;
+
+    // Based on the mode, fetch the operand/address/data.
     success = FetchExecuteData(config);
     if (!success) return true;
+
+    // If needed, read the data from the operand/address.
     success = MaybeReadData(config);
     if (!success) return true;
 
     // Execute the instruction.
-    uint8_t new_data = config.instruction->Execute(data_.data.value_or(0));
-    success = MaybeWriteData(new_data, config);
+    Instruction::ExecuteResult execute_result =
+        config.instruction->Execute(data_.data.value_or(0));
+    data_.cycles += execute_result.cycles;
+
+    // If needed, write the data back.
+    success = MaybeWriteData(execute_result.data, config);
     if (!success) return true;
 
     // Log the instruction.
-    std::string operand_log = ConstructOperandLog(config);
-    LOG(DEBUG) << config.instruction->GetLogName() << " " << operand_log;
+    LOG(DEBUG) << Log::Hex(initial_pc) << "(" << data_.cycles << ")"
+               << ": " << config.instruction->GetLogName() << " "
+               << ConstructOperandLog(config);
   }
 
   // Wait for the appropriate amount of cycles.

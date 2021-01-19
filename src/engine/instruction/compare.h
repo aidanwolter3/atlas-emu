@@ -7,7 +7,7 @@
 class CMP : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CMP");
 };
 
@@ -15,7 +15,7 @@ class CMP : public Instruction {
 class CPX : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CPX");
 };
 
@@ -23,7 +23,7 @@ class CPX : public Instruction {
 class CPY : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("CPY");
 };
 

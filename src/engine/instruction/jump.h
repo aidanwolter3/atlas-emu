@@ -7,7 +7,7 @@
 class JMP : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("JMP");
 };
 
@@ -15,7 +15,7 @@ class JMP : public Instruction {
 class JSR : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("JSR");
 };
 
@@ -23,7 +23,7 @@ class JSR : public Instruction {
 class RTS : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("RTS");
 };
 
@@ -31,7 +31,7 @@ class RTS : public Instruction {
 class RTI : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("RTI");
 };
 

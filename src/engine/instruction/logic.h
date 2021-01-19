@@ -7,7 +7,7 @@
 class AND : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("AND");
 };
 
@@ -15,7 +15,7 @@ class AND : public Instruction {
 class ORA : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("ORA");
 };
 
@@ -23,7 +23,7 @@ class ORA : public Instruction {
 class EOR : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("EOR");
 };
 
@@ -31,7 +31,7 @@ class EOR : public Instruction {
 class BIT : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("BIT");
 };
 

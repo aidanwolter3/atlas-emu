@@ -4,23 +4,24 @@
 
 namespace {
 
-uint8_t Compare(Registers& reg, uint8_t value, uint8_t comparison) {
+Instruction::ExecuteResult Compare(Registers& reg, uint8_t value,
+                                   uint8_t comparison) {
   reg.status.set(Status::kZero, value == comparison);
   reg.status.set(Status::kSign, comparison > value);
   reg.status.set(Status::kCarry, value >= comparison);
-  return 0;
+  return {};
 }
 
 }  // namespace
 
-uint8_t CMP::Execute(uint16_t operand) {
+Instruction::ExecuteResult CMP::Execute(uint16_t operand) {
   return Compare(reg_, reg_.acc, operand);
 }
 
-uint8_t CPX::Execute(uint16_t operand) {
+Instruction::ExecuteResult CPX::Execute(uint16_t operand) {
   return Compare(reg_, reg_.x, operand);
 }
 
-uint8_t CPY::Execute(uint16_t operand) {
+Instruction::ExecuteResult CPY::Execute(uint16_t operand) {
   return Compare(reg_, reg_.y, operand);
 }

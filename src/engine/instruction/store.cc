@@ -1,7 +1,13 @@
 #include "src/engine/instruction/store.h"
 
-uint8_t STA::Execute(uint16_t operand) { return reg_.acc; }
+Instruction::ExecuteResult STA::Execute(uint16_t operand) {
+  return {.data = reg_.acc};
+}
 
-uint8_t STX::Execute(uint16_t operand) { return reg_.x; }
+Instruction::ExecuteResult STX::Execute(uint16_t operand) {
+  return {.data = reg_.x};
+}
 
-uint8_t STY::Execute(uint16_t operand) { return reg_.y; }
+Instruction::ExecuteResult STY::Execute(uint16_t operand) {
+  return {.data = reg_.y};
+}

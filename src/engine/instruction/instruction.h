@@ -43,7 +43,15 @@ class Instruction {
 
   Instruction(Bus& bus, Registers& reg) : bus_(bus), reg_(reg) {}
   virtual ~Instruction() {}
-  virtual uint8_t Execute(uint16_t operand) = 0;
+
+  struct ExecuteResult {
+    // Data to be written in kReadWrite instructions.
+    uint8_t data = 0;
+    // Additional cycles to consume due to the instruction execution.
+    int cycles = 0;
+  };
+
+  virtual ExecuteResult Execute(uint16_t operand) = 0;
 
   // Rather than overriding this method, Instructions should use the
   // SET_LOG_NAME macro in their header to provde the Instruction name to log.

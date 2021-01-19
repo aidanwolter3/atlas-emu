@@ -25,58 +25,58 @@ void SetStatusFromSummation(Registers& reg, uint16_t a, uint16_t b,
 
 }  // namespace
 
-uint8_t ADC::Execute(uint16_t operand) {
+Instruction::ExecuteResult ADC::Execute(uint16_t operand) {
   uint16_t a = reg_.acc;
   uint8_t b = operand & 0xFF;
   uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
   uint16_t sum = a + b + c;
   SetStatusFromSummation(reg_, a, b, sum);
   reg_.acc = sum;
-  return 0;
+  return {};
 }
 
-uint8_t SBC::Execute(uint16_t operand) {
+Instruction::ExecuteResult SBC::Execute(uint16_t operand) {
   uint16_t a = reg_.acc;
   uint8_t b = ONES_COMPLIMENT(operand & 0xFF);
   uint8_t c = reg_.status.test(Status::kCarry) ? 1 : 0;
   uint16_t sum = a + b + c;
   SetStatusFromSummation(reg_, a, b, sum);
   reg_.acc = sum;
-  return 0;
+  return {};
 }
 
-uint8_t DEC::Execute(uint16_t operand) {
+Instruction::ExecuteResult DEC::Execute(uint16_t operand) {
   uint8_t result = (operand & 0xFF) - 1;
   SetZeroSignStatus(reg_, result);
-  return result;
+  return {.data = result};
 }
 
-uint8_t DEX::Execute(uint16_t operand) {
+Instruction::ExecuteResult DEX::Execute(uint16_t operand) {
   reg_.x -= 1;
   SetZeroSignStatus(reg_, reg_.x);
-  return 0;
+  return {};
 }
 
-uint8_t DEY::Execute(uint16_t operand) {
+Instruction::ExecuteResult DEY::Execute(uint16_t operand) {
   reg_.y -= 1;
   SetZeroSignStatus(reg_, reg_.y);
-  return 0;
+  return {};
 }
 
-uint8_t INC::Execute(uint16_t operand) {
+Instruction::ExecuteResult INC::Execute(uint16_t operand) {
   uint8_t result = (operand & 0xFF) + 1;
   SetZeroSignStatus(reg_, result);
-  return result;
+  return {.data = result};
 }
 
-uint8_t INX::Execute(uint16_t operand) {
+Instruction::ExecuteResult INX::Execute(uint16_t operand) {
   reg_.x += 1;
   SetZeroSignStatus(reg_, reg_.x);
-  return 0;
+  return {};
 }
 
-uint8_t INY::Execute(uint16_t operand) {
+Instruction::ExecuteResult INY::Execute(uint16_t operand) {
   reg_.y += 1;
   SetZeroSignStatus(reg_, reg_.y);
-  return 0;
+  return {};
 }

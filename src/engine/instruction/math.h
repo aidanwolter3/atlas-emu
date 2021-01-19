@@ -7,7 +7,7 @@
 class ADC : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("ADC");
 };
 
@@ -15,7 +15,7 @@ class ADC : public Instruction {
 class SBC : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("SBC");
 };
 
@@ -23,7 +23,7 @@ class SBC : public Instruction {
 class DEC : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("DEC");
 };
 
@@ -31,7 +31,7 @@ class DEC : public Instruction {
 class DEX : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("DEX");
 };
 
@@ -39,7 +39,7 @@ class DEX : public Instruction {
 class DEY : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("DEY");
 };
 
@@ -47,7 +47,7 @@ class DEY : public Instruction {
 class INC : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("INC");
 };
 
@@ -55,7 +55,7 @@ class INC : public Instruction {
 class INX : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("INX");
 };
 
@@ -63,7 +63,7 @@ class INX : public Instruction {
 class INY : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("INY");
 };
 

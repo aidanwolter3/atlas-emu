@@ -112,7 +112,7 @@ TEST_F(MathTest, SBC_OverflowCarry) {
 
 TEST_F(MathTest, DEC_ZeroPage) {
   DEC dec(bus_, reg_);
-  uint8_t result = dec.Execute(0xAA);
+  uint8_t result = dec.Execute(0xAA).data;
 
   EXPECT_EQ(result, 0xA9);
   EXPECT_FALSE(reg_.status.test(Status::kZero));
@@ -121,7 +121,7 @@ TEST_F(MathTest, DEC_ZeroPage) {
 
 TEST_F(MathTest, INC_ZeroPage) {
   INC inc(bus_, reg_);
-  uint8_t result = inc.Execute(0xAA);
+  uint8_t result = inc.Execute(0xAA).data;
 
   EXPECT_EQ(result, 0xAB);
   EXPECT_FALSE(reg_.status.test(Status::kZero));

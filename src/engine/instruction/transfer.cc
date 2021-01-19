@@ -9,36 +9,36 @@ void SetStatusFromData(Registers& reg, uint8_t data) {
 
 }  // namespace
 
-uint8_t TAX::Execute(uint16_t operand) {
+Instruction::ExecuteResult TAX::Execute(uint16_t operand) {
   reg_.x = reg_.acc;
   SetStatusFromData(reg_, reg_.x);
-  return 0;
+  return {};
 }
 
-uint8_t TXA::Execute(uint16_t operand) {
+Instruction::ExecuteResult TXA::Execute(uint16_t operand) {
   reg_.acc = reg_.x;
   SetStatusFromData(reg_, reg_.acc);
-  return 0;
+  return {};
 }
 
-uint8_t TAY::Execute(uint16_t operand) {
+Instruction::ExecuteResult TAY::Execute(uint16_t operand) {
   reg_.y = reg_.acc;
   SetStatusFromData(reg_, reg_.y);
-  return 0;
+  return {};
 }
 
-uint8_t TYA::Execute(uint16_t operand) {
+Instruction::ExecuteResult TYA::Execute(uint16_t operand) {
   reg_.acc = reg_.y;
   SetStatusFromData(reg_, reg_.acc);
-  return 0;
+  return {};
 }
 
-uint8_t TXS::Execute(uint16_t operand) {
+Instruction::ExecuteResult TXS::Execute(uint16_t operand) {
   reg_.sp = reg_.x;
-  return 0;
+  return {};
 }
 
-uint8_t TSX::Execute(uint16_t operand) {
+Instruction::ExecuteResult TSX::Execute(uint16_t operand) {
   reg_.x = reg_.sp;
-  return 0;
+  return {};
 }

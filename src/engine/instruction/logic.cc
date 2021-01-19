@@ -9,31 +9,31 @@ void SetStatusFromData(Registers& reg, uint8_t data) {
 
 }  // namespace
 
-uint8_t AND::Execute(uint16_t operand) {
+Instruction::ExecuteResult AND::Execute(uint16_t operand) {
   uint8_t value = operand & 0xFF;
   reg_.acc &= value;
   SetStatusFromData(reg_, reg_.acc);
-  return 0;
+  return {};
 }
 
-uint8_t ORA::Execute(uint16_t operand) {
+Instruction::ExecuteResult ORA::Execute(uint16_t operand) {
   uint8_t value = operand & 0xFF;
   reg_.acc |= value;
   SetStatusFromData(reg_, reg_.acc);
-  return 0;
+  return {};
 }
 
-uint8_t EOR::Execute(uint16_t operand) {
+Instruction::ExecuteResult EOR::Execute(uint16_t operand) {
   uint8_t value = operand & 0xFF;
   reg_.acc ^= value;
   SetStatusFromData(reg_, reg_.acc);
-  return 0;
+  return {};
 }
 
-uint8_t BIT::Execute(uint16_t operand) {
+Instruction::ExecuteResult BIT::Execute(uint16_t operand) {
   uint8_t value = operand & 0xFF;
   reg_.status.set(Status::kZero, (value & reg_.acc) == 0);
   reg_.status.set(Status::kSign, value & 0x80);
   reg_.status.set(Status::kOverflow, value & 0x40);
-  return 0;
+  return {};
 }

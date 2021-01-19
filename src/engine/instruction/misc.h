@@ -7,7 +7,7 @@
 class NOP : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("NOP");
 };
 
@@ -15,7 +15,7 @@ class NOP : public Instruction {
 class BRK : public Instruction {
  public:
   using Instruction::Instruction;
-  uint8_t Execute(uint16_t operand) override;
+  ExecuteResult Execute(uint16_t operand) override;
   SET_LOG_NAME("BRK");
 };
 

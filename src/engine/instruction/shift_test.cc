@@ -19,25 +19,25 @@ TEST_F(ShiftTest, ASL) {
   uint8_t result = 0b01100101;
   ASL asl(bus_, reg_);
 
-  result = asl.Execute(result);
+  result = asl.Execute(result).data;
   EXPECT_EQ(result, 0b11001010);
   ExpectSignZeroCarry(true, false, false);
 
-  result = asl.Execute(result);
+  result = asl.Execute(result).data;
   EXPECT_EQ(result, 0b10010100);
   ExpectSignZeroCarry(true, false, true);
 
-  result = asl.Execute(result);
+  result = asl.Execute(result).data;
   EXPECT_EQ(result, 0b00101000);
   ExpectSignZeroCarry(false, false, true);
 
   for (int i = 0; i < 5; ++i) {
-    result = asl.Execute(result);
+    result = asl.Execute(result).data;
   }
   EXPECT_EQ(result, 0b00000000);
   ExpectSignZeroCarry(false, true, true);
 
-  result = asl.Execute(result);
+  result = asl.Execute(result).data;
   EXPECT_EQ(result, 0b00000000);
   ExpectSignZeroCarry(false, true, false);
 }
@@ -46,25 +46,25 @@ TEST_F(ShiftTest, LSR_Accumulator) {
   uint8_t result = 0b01100101;
   LSR lsr(bus_, reg_);
 
-  result = lsr.Execute(result);
+  result = lsr.Execute(result).data;
   EXPECT_EQ(result, 0b00110010);
   ExpectSignZeroCarry(false, false, true);
 
-  result = lsr.Execute(result);
+  result = lsr.Execute(result).data;
   EXPECT_EQ(result, 0b00011001);
   ExpectSignZeroCarry(false, false, false);
 
-  result = lsr.Execute(result);
+  result = lsr.Execute(result).data;
   EXPECT_EQ(result, 0b00001100);
   ExpectSignZeroCarry(false, false, true);
 
   for (int i = 0; i < 4; ++i) {
-    result = lsr.Execute(result);
+    result = lsr.Execute(result).data;
   }
   EXPECT_EQ(result, 0b00000000);
   ExpectSignZeroCarry(false, true, true);
 
-  result = lsr.Execute(result);
+  result = lsr.Execute(result).data;
   EXPECT_EQ(result, 0b00000000);
   ExpectSignZeroCarry(false, true, false);
 }
@@ -73,25 +73,25 @@ TEST_F(ShiftTest, ROL_Accumulator) {
   uint8_t result = 0b01100101;
   ROL rol(bus_, reg_);
 
-  result = rol.Execute(result);
+  result = rol.Execute(result).data;
   EXPECT_EQ(result, 0b11001010);
   ExpectSignZeroCarry(true, false, false);
 
-  result = rol.Execute(result);
+  result = rol.Execute(result).data;
   EXPECT_EQ(result, 0b10010100);
   ExpectSignZeroCarry(true, false, true);
 
-  result = rol.Execute(result);
+  result = rol.Execute(result).data;
   EXPECT_EQ(result, 0b00101001);
   ExpectSignZeroCarry(false, false, true);
 
   for (int i = 0; i < 5; ++i) {
-    result = rol.Execute(result);
+    result = rol.Execute(result).data;
   }
   EXPECT_EQ(result, 0b00110010);
   ExpectSignZeroCarry(false, false, true);
 
-  result = rol.Execute(result);
+  result = rol.Execute(result).data;
   EXPECT_EQ(result, 0b01100101);
   ExpectSignZeroCarry(false, false, false);
 }
@@ -100,29 +100,29 @@ TEST_F(ShiftTest, ROR_Accumulator) {
   uint8_t result = 0b01100101;
   ROR ror(bus_, reg_);
 
-  result = ror.Execute(result);
+  result = ror.Execute(result).data;
   EXPECT_EQ(result, 0b00110010);
   ExpectSignZeroCarry(false, false, true);
 
-  result = ror.Execute(result);
+  result = ror.Execute(result).data;
   EXPECT_EQ(result, 0b10011001);
   ExpectSignZeroCarry(true, false, false);
 
-  result = ror.Execute(result);
+  result = ror.Execute(result).data;
   EXPECT_EQ(result, 0b01001100);
   ExpectSignZeroCarry(false, false, true);
 
   for (int i = 0; i < 4; ++i) {
-    result = ror.Execute(result);
+    result = ror.Execute(result).data;
   }
   EXPECT_EQ(result, 0b10010100);
   ExpectSignZeroCarry(true, false, true);
 
-  result = ror.Execute(result);
+  result = ror.Execute(result).data;
   EXPECT_EQ(result, 0b11001010);
   ExpectSignZeroCarry(true, false, false);
 
-  result = ror.Execute(result);
+  result = ror.Execute(result).data;
   EXPECT_EQ(result, 0b01100101);
   ExpectSignZeroCarry(false, false, false);
 }
