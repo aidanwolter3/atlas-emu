@@ -17,17 +17,18 @@ TEST_F(CompareTest, CMP) {
   reg_.acc = 10;
   CMP cmp(bus_, reg_);
 
-  reg_.pc = 0;
   cmp.Execute(10);
   ExpectZeroCarrySign(true, true, false);
 
-  reg_.pc = 0;
   cmp.Execute(20);
   ExpectZeroCarrySign(false, false, true);
 
-  reg_.pc = 0;
   cmp.Execute(0);
   ExpectZeroCarrySign(false, true, false);
+
+  reg_.acc = 0xF0;
+  cmp.Execute(10);
+  ExpectZeroCarrySign(false, true, true);
 }
 
 }  // namespace

@@ -7,7 +7,7 @@ namespace {
 Instruction::ExecuteResult Compare(Registers& reg, uint8_t value,
                                    uint8_t comparison) {
   reg.status.set(Status::kZero, value == comparison);
-  reg.status.set(Status::kSign, comparison > value);
+  reg.status.set(Status::kSign, (value - comparison) & 0xF0);
   reg.status.set(Status::kCarry, value >= comparison);
   return {};
 }
