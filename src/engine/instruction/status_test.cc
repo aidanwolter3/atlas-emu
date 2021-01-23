@@ -4,55 +4,74 @@
 
 namespace {
 
-class StatusTest : public InstructionTestBase {};
+class StatusTest : public InstructionTestBase {
+ protected:
+  CLC clc_{bus_, reg_};
+  SEC sec_{bus_, reg_};
+  CLI cli_{bus_, reg_};
+  SEI sei_{bus_, reg_};
+  CLV clv_{bus_, reg_};
+  CLD cld_{bus_, reg_};
+  SED sed_{bus_, reg_};
+};
 
 TEST_F(StatusTest, CLC) {
   reg_.status.set(Status::kCarry);
-  CLC clc(bus_, reg_);
-  clc.Execute(0);
+  clc_.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kCarry));
 }
 
 TEST_F(StatusTest, SEC) {
   reg_.status.reset(Status::kCarry);
-  SEC sec(bus_, reg_);
-  sec.Execute(0);
+  sec_.Execute(0);
   EXPECT_TRUE(reg_.status.test(Status::kCarry));
 }
 
 TEST_F(StatusTest, CLI) {
   reg_.status.set(Status::kIntDisable);
-  CLI cli(bus_, reg_);
-  cli.Execute(0);
+  cli_.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kIntDisable));
 }
 
 TEST_F(StatusTest, SEI) {
   reg_.status.reset(Status::kIntDisable);
-  SEI sei(bus_, reg_);
-  sei.Execute(0);
+  sei_.Execute(0);
   EXPECT_TRUE(reg_.status.test(Status::kIntDisable));
 }
 
 TEST_F(StatusTest, CLV) {
   reg_.status.set(Status::kOverflow);
-  CLV clv(bus_, reg_);
-  clv.Execute(0);
+  clv_.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kOverflow));
 }
 
 TEST_F(StatusTest, CLD) {
   reg_.status.set(Status::kBCDMode);
-  CLD cld(bus_, reg_);
-  cld.Execute(0);
+  cld_.Execute(0);
   EXPECT_FALSE(reg_.status.test(Status::kBCDMode));
 }
 
 TEST_F(StatusTest, SED) {
   reg_.status.reset(Status::kBCDMode);
-  SED sed(bus_, reg_);
-  sed.Execute(0);
+  sed_.Execute(0);
   EXPECT_TRUE(reg_.status.test(Status::kBCDMode));
+}
+
+TEST_F(StatusTest, Timing) {
+  EXPECT_EQ(2, TimeInstruction(&clc_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
+  EXPECT_EQ(2, TimeInstruction(&sec_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
+  EXPECT_EQ(2, TimeInstruction(&cli_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
+  EXPECT_EQ(2, TimeInstruction(&sei_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
+  EXPECT_EQ(2, TimeInstruction(&clv_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
+  EXPECT_EQ(2, TimeInstruction(&cld_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
+  EXPECT_EQ(2, TimeInstruction(&sed_, Instruction::Mode::kImplied,
+                               Instruction::Operation::kNone));
 }
 
 }  // namespace
