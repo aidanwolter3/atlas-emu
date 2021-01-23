@@ -24,7 +24,7 @@ int AdjustTableNumForMirroring(int table_num, MirroringMode mode) {
       return table_num & 0x01;
     case MirroringMode::kHorizontal:
     default:
-      return table_num >> 1;
+      return (table_num >> 1) & 0x01;
   }
 }
 
@@ -279,5 +279,39 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
 uint16_t PpuImpl::GetAddressLength() { return kPpuSize; }
 
 void PpuImpl::RenderPixel() {
-  // TODO: implement
+  if (cycle_ >= 0x100 || scanline_ >= 0xF0) {
+    return;
+  }
+
+  // TODO: fix the base nametable and index for scroll.
+
+  // Grab the byte from the nametable.
+  int tile_x = cycle_ / 8;
+  int tile_y = scanline_ / 8;
+  int tile_num = (tile_y * 32) + tile_x;
+  int nametable_num =
+      AdjustTableNumForMirroring(base_nametable_, mirroring_mode_);
+  int nametable_byte = nametable_[nametable_num][tile_num];
+
+  // Grab the pattern from the pattern table.
+  const int pattern_table_num = (ctrl_ >> 4) & 0x01;
+  int pattern_index = (nametable_byte * 16) + (scanline_ % 8);
+  int pattern_shift = 7 - (cycle_ % 8);
+  uint8_t pattern_low = pattern_[pattern_table_num][pattern_index];
+  uint8_t pattern_high = pattern_[pattern_table_num][pattern_index + 8];
+  uint8_t pattern = ((pattern_high >> pattern_shift) & 0x01) << 1 |
+                    ((pattern_low >> pattern_shift) & 0x01);
+
+  if (pattern > 3) {
+    LOG(ERROR) << "Invalid pattern";
+    return;
+  }
+
+  int frame_index = ((scanline_ * 0x100) + cycle_) * 3;
+  frame_[frame_index] = 0;
+  frame_[frame_index + 1] = 0;
+  frame_[frame_index + 2] = 0;
+  if (pattern > 0 && pattern <= 3) {
+    frame_[frame_index + pattern - 1] = 0xFF;
+  }
 }
