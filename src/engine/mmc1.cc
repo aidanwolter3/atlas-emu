@@ -1,7 +1,6 @@
 #include "src/engine/mmc1.h"
 
 #include "src/engine/base/log.h"
-#include "src/ui/renderer.h"
 
 namespace {
 

@@ -20,7 +20,7 @@
 #include "src/engine/instruction/transfer.h"
 #include "src/engine/memory.h"
 
-Engine::Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom)
+Engine::Engine(Input& input, Renderer2& renderer, std::vector<uint8_t> rom)
     : oamdma_(bus_), joystick_(input) {
   // Connect all the peripherals to the bus.
   cpu_ = std::make_unique<Cpu>(bus_, reg_);
