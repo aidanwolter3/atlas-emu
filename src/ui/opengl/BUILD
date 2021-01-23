@@ -3,6 +3,7 @@ cc_library(
     visibility = ["//src:__pkg__"],
     hdrs = [
         "renderer.h",
+        "renderer2.h",
         "window.h",
     ],
     srcs = [
@@ -13,6 +14,7 @@ cc_library(
         "program.cc",
         "program.h",
         "renderer.cc",
+        "renderer2.cc",
         "shader.cc",
         "shader.h",
         "sprites.cc",
@@ -28,6 +30,8 @@ cc_library(
     data = [
        "background.frag",
        "background.vert",
+       "renderer2.frag",
+       "renderer2.vert",
        "sprites.frag",
        "sprites.vert",
     ],
@@ -39,5 +43,11 @@ cc_library(
 cc_binary(
     name = "test",
     srcs = ["test.cc"],
+    deps = [":opengl"],
+)
+
+cc_binary(
+    name = "test2",
+    srcs = ["test2.cc"],
     deps = [":opengl"],
 )
