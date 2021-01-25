@@ -284,17 +284,16 @@ void PpuImpl::RenderPixel() {
   }
 
   // TODO: fix the base nametable and index for scroll.
+  int table_num = AdjustTableNumForMirroring(base_nametable_, mirroring_mode_);
+  int pattern_table_num = (ctrl_ >> 4) & 0x01;
 
   // Grab the byte from the nametable.
   int tile_x = cycle_ / 8;
   int tile_y = scanline_ / 8;
   int tile_num = (tile_y * 32) + tile_x;
-  int nametable_num =
-      AdjustTableNumForMirroring(base_nametable_, mirroring_mode_);
-  int nametable_byte = nametable_[nametable_num][tile_num];
+  int nametable_byte = nametable_[table_num][tile_num];
 
   // Grab the pattern from the pattern table.
-  const int pattern_table_num = (ctrl_ >> 4) & 0x01;
   int pattern_index = (nametable_byte * 16) + (scanline_ % 8);
   int pattern_shift = 7 - (cycle_ % 8);
   uint8_t pattern_low = pattern_[pattern_table_num][pattern_index];
@@ -302,16 +301,23 @@ void PpuImpl::RenderPixel() {
   uint8_t pattern = ((pattern_high >> pattern_shift) & 0x01) << 1 |
                     ((pattern_low >> pattern_shift) & 0x01);
 
-  if (pattern > 3) {
-    LOG(ERROR) << "Invalid pattern";
-    return;
-  }
+  // Grab the byte from the attribute table.
+  int block_x = cycle_ / 32;
+  int block_y = scanline_ / 32;
+  int block_num = (block_y * 8) + block_x;
+  int attribute_byte = attribute_[table_num][block_num];
 
+  // Grab the color from the palette using the attribute.
+  int attribute_shift =
+      (((tile_y >> 1) & 0x01) * 4) + (((tile_x >> 1) & 0x01) * 2);
+  int frame_palette_num = (attribute_byte >> attribute_shift) & 0x03;
+  int frame_palette_index = frame_palette_num * 4;
+  int color_num = frame_palette_[frame_palette_index + pattern];
+  int color_index = color_num * 3;
+
+  // Write the color to the frame.
   int frame_index = ((scanline_ * 0x100) + cycle_) * 3;
-  frame_[frame_index] = 0;
-  frame_[frame_index + 1] = 0;
-  frame_[frame_index + 2] = 0;
-  if (pattern > 0 && pattern <= 3) {
-    frame_[frame_index + pattern - 1] = 0xFF;
+  for (int i = 0; i < 3; ++i) {
+    frame_[frame_index + i] = kColorPalette[color_index + i];
   }
 }
