@@ -213,7 +213,7 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
         t_ = (t_ & 0xFFE0) | (byte >> 3);
         x_ = byte & 0x07;
       } else {
-        t_ = (t_ & 0x0C1F) | (static_cast<uint16_t>(byte & 0x03) << 12) |
+        t_ = (t_ & 0x0C1F) | (static_cast<uint16_t>(byte & 0x07) << 12) |
              (static_cast<uint16_t>(byte & 0xF8) << 2);
       }
       paired_write_latch_ = !paired_write_latch_;
