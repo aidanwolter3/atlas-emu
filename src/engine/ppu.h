@@ -66,6 +66,8 @@ class PpuImpl : public Ppu, public Peripheral {
   int cycle_ = 0;
   int scanline_ = 0;
   bool vblank_ = false;
+  int current_pixel_x_ = 0;
+  int current_pixel_y_ = 0;
 
   // Store the last value written to a register, so that it can be returned in
   // the lowest bits of a read from the PPU status register.
@@ -80,9 +82,9 @@ class PpuImpl : public Ppu, public Peripheral {
   uint8_t mask_ = 0;
   uint8_t oam_address_ = 0;
   uint16_t data_address_;
-  uint8_t base_nametable_;
-  uint8_t scroll_x_ = 0;
-  uint8_t scroll_y_ = 0;
+  uint16_t t_;
+  uint16_t v_;
+  uint16_t x_;
 
   // Data.
   std::vector<uint8_t> oam_;

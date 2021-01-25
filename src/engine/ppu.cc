@@ -68,11 +68,24 @@ void PpuImpl::Tick() {
   }
 
   cycle_++;
-  if (cycle_ > 340) {
+
+  // Adjust the current position.
+  const uint16_t horizontal_bits = 0b0000010000011111;
+  if (cycle_ < 256) {
+    current_pixel_x_++;
+  } else if (cycle_ == 256) {
+    current_pixel_y_++;
+  } else if (cycle_ == 257) {
+    v_ = (v_ & ~horizontal_bits) | (t_ & horizontal_bits);
+    current_pixel_x_ = ((v_ & 0x1F) << 3) | x_;
+  } else if (cycle_ > 340) {
     cycle_ = 0;
     scanline_++;
   }
+
   if (scanline_ > 261) {
+    v_ = (v_ & horizontal_bits) | (t_ & ~horizontal_bits);
+    current_pixel_y_ = ((v_ & 0x03E0) >> 2) | ((v_ & 0x7000) >> 12);
     renderer_.Render(frame_);
     scanline_ = 0;
   }
@@ -83,8 +96,9 @@ void PpuImpl::DumpRegisters() {
   LOG(INFO) << "PPU_CTRL=" << Log::Hex(ctrl_);
   LOG(INFO) << "PPU_MASK=" << Log::Hex(mask_);
   LOG(INFO) << "PPU_OAM_ADDR=" << Log::Hex(oam_address_);
-  LOG(INFO) << "PPU_SCROLL_X=" << Log::Hex(scroll_x_);
-  LOG(INFO) << "PPU_SCROLL_Y=" << Log::Hex(scroll_y_);
+  LOG(INFO) << "PPU_T=" << Log::Hex(t_);
+  LOG(INFO) << "PPU_V=" << Log::Hex(v_);
+  LOG(INFO) << "PPU_X=" << Log::Hex(x_);
   LOG(INFO) << "PPU_DATA_ADDR=" << Log::Hex(data_address_);
   LOG(INFO) << "---------";
 }
@@ -180,8 +194,8 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
     case kPpuStatus:
       return Peripheral::Status::READ_ONLY;
     case kPpuCtrl:
-      base_nametable_ = (byte & 0x03);
       ctrl_ = byte;
+      t_ = (t_ & 0xF3FF) | ((byte & 0x03) << 10);
       break;
     case kPpuMask:
       mask_ = byte;
@@ -196,9 +210,11 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       // The first byte written is the X-scroll and the second byte is Y-scroll.
       // After that it continues alternating back and forth.
       if (paired_write_latch_) {
-        scroll_x_ = byte;
+        t_ = (t_ & 0xFFE0) | (byte >> 3);
+        x_ = byte & 0x07;
       } else {
-        scroll_y_ = byte;
+        t_ = (t_ & 0x0C1F) | (static_cast<uint16_t>(byte & 0x03) << 12) |
+             (static_cast<uint16_t>(byte & 0xF8) << 2);
       }
       paired_write_latch_ = !paired_write_latch_;
       break;
@@ -215,14 +231,12 @@ Peripheral::Status PpuImpl::Write(uint16_t address, uint8_t byte) {
       // The PPU shared registers for several purposes, therefore this affects
       // other variables.
       if (paired_write_latch_) {
-        base_nametable_ = ((byte & 0x0C) >> 2);
-        scroll_y_ &= 0b00111000;
-        scroll_y_ |= ((byte & 0x03) << 6) | ((byte & 0x30) >> 4);
+        t_ = (t_ & 0x00FF) | (static_cast<uint16_t>(byte & 0x3F) << 8);
       } else {
-        scroll_y_ &= 0b11000111;
-        scroll_y_ |= ((byte & 0xE0) >> 2);
-        scroll_x_ &= 0b00000111;
-        scroll_x_ |= ((byte & 0x1F) << 3);
+        t_ = (t_ & 0xFF00) | byte;
+        v_ = t_;
+        current_pixel_x_ = ((v_ & 0x1F) << 3) | x_;
+        current_pixel_y_ = ((v_ & 0x03E0) >> 2) | ((v_ & 0x7000) >> 12);
       }
       paired_write_latch_ = !paired_write_latch_;
       break;
@@ -314,12 +328,12 @@ void PpuImpl::RenderPixel() {
 
 PpuImpl::BackgroundPixel PpuImpl::GetBackgroundPixel() {
   // Calculate the x/y offset into the table.
-  int x = (scroll_x_ + cycle_) % 0x100;
-  int y = (scroll_y_ + scanline_) % 0xF0;
+  int x = current_pixel_x_ % 0x100;
+  int y = current_pixel_y_ % 0xF0;
 
-  int nametable = base_nametable_;
-  nametable += (((scroll_x_ + cycle_) % 0x200) / 0x100);
-  nametable += (((scroll_y_ + scanline_) % 0x1E0) / 0xF0) * 2;
+  int nametable = (v_ & 0x0C00) >> 10;
+  nametable += ((current_pixel_x_ % 0x200) / 0x100);
+  nametable += ((current_pixel_y_ % 0x1E0) / 0xF0) * 2;
 
   int table_num = AdjustTableNumForMirroring(nametable, mirroring_mode_);
   int pattern_table_num = (ctrl_ >> 4) & 0x01;
