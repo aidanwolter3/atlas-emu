@@ -4,7 +4,6 @@ cc_library(
     srcs = [
         "color.h",
         "renderer.h",
-        "renderer2.h",
         "window.h",
     ],
 )

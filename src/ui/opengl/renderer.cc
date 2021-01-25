@@ -1,99 +1,75 @@
 #include "src/ui/opengl/renderer.h"
 
 #include <iostream>
-#include <utility>
 #include <vector>
 
 #include <glad/glad.h>
 #include "src/ui/opengl/gl_init.h"
+#include "src/ui/opengl/shader.h"
 
 OpenGLRenderer::OpenGLRenderer() {
   InitGLIfNeeded();
-  glEnable(GL_DEPTH_TEST);
-  glClearDepth(1.0f);
-  glDepthFunc(GL_LEQUAL);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-  background_ = std::make_unique<Background>();
-  sprites_ = std::make_unique<Sprites>();
-  PrepareTextures();
+  std::vector<std::unique_ptr<Shader>> shaders;
+  shaders.push_back(std::unique_ptr<Shader>(
+      new Shader(GL_VERTEX_SHADER, "src/ui/opengl/Renderer.vert")));
+  shaders.push_back(std::unique_ptr<Shader>(
+      new Shader(GL_FRAGMENT_SHADER, "src/ui/opengl/Renderer.frag")));
+  program_ = std::make_unique<Program>(std::move(shaders));
+
+  // Prepare the texture.
+  glActiveTexture(GL_TEXTURE0);
+  glGenTextures(1, &frame_);
+  glBindTexture(GL_TEXTURE_2D, frame_);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  // Prepare the elements.
+  // TODO: remove the Z coordinate after switching to Renderer.
+  program_->SetVertices({
+      -1.0, 1.0, 0.0,   // top-left
+      1.0, 1.0, 0.0,    // top-right
+      1.0, -1.0, 0.0,   // bottom-right
+      -1.0, -1.0, 0.0,  // bottom-left
+  });
+  program_->SetElements({
+      0,
+      1,
+      2,
+      2,
+      3,
+      0,
+  });
+  // TODO: remove the Z coordinate after switching to Renderer.
+  program_->SetTextureCoords({
+      0.0, 0.0, 0.0,  // bottom-left
+      1.0, 0.0, 0.0,  // bottom-right
+      1.0, 1.0, 0.0,  // top-right
+      0.0, 1.0, 0.0,  // top-left
+  });
 }
 
 OpenGLRenderer::~OpenGLRenderer() = default;
 
-void OpenGLRenderer::Render() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  if (show_background) {
-    background_->Draw();
-  }
-  if (show_sprites) {
-    sprites_->Draw();
-  }
-
-  // Bind the shared palette to the correct texture unit.
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_1D, palette_);
-}
-
-void OpenGLRenderer::SetMirroringMode(MirroringMode mode) {
-  background_->SetMirroringMode(mode);
-}
-
-void OpenGLRenderer::SetMask(uint8_t mask) {
-  show_background = (mask & 0x08);
-  show_sprites = (mask & 0x10);
-}
-
-void OpenGLRenderer::SetScroll(int x, int y) { background_->SetScroll(x, y); }
-
-void OpenGLRenderer::SetVerticalSplit(int scanline, int x, int y) {
-  background_->SetVerticalSplit(scanline, x, y);
-}
-
-void OpenGLRenderer::SetNametable(int num, std::vector<uint8_t>& nametable) {
-  background_->SetTiles(num, nametable);
-}
-
-void OpenGLRenderer::SetAttributeTable(int num,
-                                       std::vector<uint8_t>& attribute_table) {
-  background_->SetAttributes(num, attribute_table);
-}
-
-void OpenGLRenderer::SetFramePalette(std::vector<uint8_t>& frame_palette) {
-  if (frame_palette.size() != 32) {
-    std::cout << "Invalid number of palettes" << std::endl;
+void OpenGLRenderer::Render(std::vector<uint8_t>& frame) {
+  if (frame.size() != (32 * 30 * 64 * 3)) {
+    std::cout << "Frame is incorrect size" << std::endl;
     return;
   }
-  std::vector<uint8_t> background_palette(frame_palette.begin(),
-                                          frame_palette.begin() + 16);
-  std::vector<uint8_t> sprite_palette(frame_palette.begin() + 16,
-                                      frame_palette.begin() + 32);
 
-  background_->SetPalettes(background_palette);
-  sprites_->SetPalettes(sprite_palette);
-}
+  glClear(GL_COLOR_BUFFER_BIT);
+  program_->Use();
 
-void OpenGLRenderer::SetPalette(std::vector<uint8_t>& palette) {
+  // Set the frame data.
+  glUniform1i(program_->GetUniformLocation("frame"), 0);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_1D, palette_);
-  glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB8, palette.size() / 3, 0, GL_RGB,
-               GL_UNSIGNED_BYTE, palette.data());
-}
+  glBindTexture(GL_TEXTURE_2D, frame_);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+               /*width=*/32 * 8,
+               /*height=*/30 * 8, 0, GL_RGB, GL_UNSIGNED_BYTE, frame.data());
 
-void OpenGLRenderer::SetSprites(std::vector<Sprite>& sprites) {
-  sprites_->SetSprites(sprites);
-}
-
-void OpenGLRenderer::PrepareTextures() {
-  // Declare the palette.
-  glActiveTexture(GL_TEXTURE0);
-  glGenTextures(1, &palette_);
-  glBindTexture(GL_TEXTURE_1D, palette_);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  glActiveTexture(0);
+  program_->Draw();
 }

@@ -16,11 +16,11 @@
 #include "src/engine/oamdma.h"
 #include "src/engine/ppu.h"
 #include "src/input/input.h"
-#include "src/ui/renderer2.h"
+#include "src/ui/renderer.h"
 
 class Engine {
  public:
-  Engine(Input& input, Renderer2& renderer, std::vector<uint8_t> rom);
+  Engine(Input& input, Renderer& renderer, std::vector<uint8_t> rom);
 
   // Result of Run(), which returns the number of ticks was actually run, if the
   // engine can continue running, and whether an error has occurred.

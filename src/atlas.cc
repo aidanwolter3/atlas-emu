@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "src/input/opengl/input.h"
-#include "src/ui/opengl/renderer2.h"
+#include "src/ui/opengl/renderer.h"
 #include "src/ui/opengl/window.h"
 
 namespace {
@@ -37,11 +37,11 @@ std::vector<uint8_t> ReadRomFile(const std::string rom_file) {
 Atlas::Atlas(const std::string rom_file, bool headless) {
   if (headless) {
     window_ = std::make_unique<FakeWindow>();
-    renderer_ = std::make_unique<FakeRenderer2>();
+    renderer_ = std::make_unique<FakeRenderer>();
     input_ = std::make_unique<FakeInput>();
   } else {
     auto window = std::make_unique<OpenGLWindow>();
-    renderer_ = std::make_unique<OpenGLRenderer2>();
+    renderer_ = std::make_unique<OpenGLRenderer>();
     input_ = std::make_unique<OpenGLInput>(window->window());
     window_ = std::move(window);
   }

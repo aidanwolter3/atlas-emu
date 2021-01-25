@@ -30,7 +30,7 @@ int AdjustTableNumForMirroring(int table_num, MirroringMode mode) {
 
 }  // namespace
 
-PpuImpl::PpuImpl(Cpu& cpu, Renderer2& renderer)
+PpuImpl::PpuImpl(Cpu& cpu, Renderer& renderer)
     : oam_(0x100, 0),
       pattern_(2, std::vector<uint8_t>(0x1000, 0)),
       nametable_(2, std::vector<uint8_t>(0x3C0, 0)),

@@ -6,7 +6,7 @@
 
 #include "src/engine/base/bus.h"
 #include "src/engine/cpu.h"
-#include "src/ui/renderer2.h"
+#include "src/ui/renderer.h"
 
 enum class MirroringMode {
   kOneScreenLower = 0,
@@ -26,7 +26,7 @@ class Ppu {
 
 class PpuImpl : public Ppu, public Peripheral {
  public:
-  PpuImpl(Cpu& cpu, Renderer2& renderer);
+  PpuImpl(Cpu& cpu, Renderer& renderer);
   ~PpuImpl() override;
 
   // Ppu implementation:
@@ -97,7 +97,7 @@ class PpuImpl : public Ppu, public Peripheral {
   std::vector<uint8_t> frame_;
 
   Cpu& cpu_;
-  Renderer2& renderer_;
+  Renderer& renderer_;
   MirroringMode mirroring_mode_;
 };
 

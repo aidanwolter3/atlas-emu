@@ -7,7 +7,7 @@
 #include "src/engine/engine.h"
 #include "src/input/input.h"
 #include "src/platform/posix.h"
-#include "src/ui/renderer2.h"
+#include "src/ui/renderer.h"
 #include "src/ui/window.h"
 
 class Atlas {
@@ -31,7 +31,7 @@ class Atlas {
   // We must wrap them in unique_ptr, so that we can dynamically choose which
   // derived class to use.
   std::unique_ptr<Window> window_;
-  std::unique_ptr<Renderer2> renderer_;
+  std::unique_ptr<Renderer> renderer_;
   std::unique_ptr<Input> input_;
   std::unique_ptr<Engine> engine_;
 };

@@ -3,22 +3,16 @@ cc_library(
     visibility = ["//src:__pkg__"],
     hdrs = [
         "renderer.h",
-        "renderer2.h",
         "window.h",
     ],
     srcs = [
-        "background.cc",
-        "background.h",
         "gl_init.cc",
         "gl_init.h",
         "program.cc",
         "program.h",
         "renderer.cc",
-        "renderer2.cc",
         "shader.cc",
         "shader.h",
-        "sprites.cc",
-        "sprites.h",
         "window.cc",
     ],
     deps = [
@@ -28,12 +22,8 @@ cc_library(
         "//src/ui",
     ],
     data = [
-       "background.frag",
-       "background.vert",
-       "renderer2.frag",
-       "renderer2.vert",
-       "sprites.frag",
-       "sprites.vert",
+       "renderer.frag",
+       "renderer.vert",
     ],
     # Suppress Apple's annoying deprecation warnings.
     # OpenGL is not going away anytime soon.
@@ -43,11 +33,5 @@ cc_library(
 cc_binary(
     name = "test",
     srcs = ["test.cc"],
-    deps = [":opengl"],
-)
-
-cc_binary(
-    name = "test2",
-    srcs = ["test2.cc"],
     deps = [":opengl"],
 )
