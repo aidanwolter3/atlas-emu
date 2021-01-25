@@ -288,12 +288,21 @@ void PpuImpl::RenderPixel() {
 
   int frame_index = ((scanline_ * 0x100) + cycle_) * 3;
 
-  if (sp.valid && sp.color_num != 0 &&
+  // Clear the pixel first.
+  frame_[frame_index] = 0;
+  frame_[frame_index + 1] = 0;
+  frame_[frame_index + 2] = 0;
+
+  // Draw the sprite, if one is present, and is not hidden in the background.
+  if (mask_ & 0x10 && sp.valid && sp.color_num != 0 &&
       (!sp.in_background || bg.color_num == 0)) {
     frame_[frame_index] = sp.r;
     frame_[frame_index + 1] = sp.g;
     frame_[frame_index + 2] = sp.b;
-  } else {
+  }
+
+  // Otherwise draw the background.
+  else if (mask_ & 0x08) {
     frame_[frame_index] = bg.r;
     frame_[frame_index + 1] = bg.g;
     frame_[frame_index + 2] = bg.b;
