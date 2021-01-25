@@ -298,6 +298,11 @@ void PpuImpl::RenderPixel() {
     frame_[frame_index + 1] = bg.g;
     frame_[frame_index + 2] = bg.b;
   }
+
+  if (!sprite_0_hit_ && sp.valid && sp.is_sprite_zero && sp.color_num != 0 &&
+      bg.color_num != 0) {
+    sprite_0_hit_ = true;
+  }
 }
 
 PpuImpl::BackgroundPixel PpuImpl::GetBackgroundPixel() {
@@ -416,6 +421,7 @@ PpuImpl::SpritePixel PpuImpl::GetSpritePixel() {
   return {
       .valid = true,
       .in_background = in_background,
+      .is_sprite_zero = sprite_num == 0,
       .color_num = pattern,
       .r = kColorPalette[color_index],
       .g = kColorPalette[color_index + 1],
