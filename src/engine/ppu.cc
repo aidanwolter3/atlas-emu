@@ -283,27 +283,35 @@ void PpuImpl::RenderPixel() {
     return;
   }
 
+  // Calculate the x/y offset into the table.
+  int x = (scroll_x_ + cycle_) % 0x100;
+  int y = (scroll_y_ + scanline_) % 0xF0;
+
+  int nametable = base_nametable_;
+  nametable += (((scroll_x_ + cycle_) % 0x200) / 0x100);
+  nametable += (((scroll_y_ + scanline_) % 0x1E0) / 0xF0) * 2;
+
   // TODO: fix the base nametable and index for scroll.
-  int table_num = AdjustTableNumForMirroring(base_nametable_, mirroring_mode_);
+  int table_num = AdjustTableNumForMirroring(nametable, mirroring_mode_);
   int pattern_table_num = (ctrl_ >> 4) & 0x01;
 
   // Grab the byte from the nametable.
-  int tile_x = cycle_ / 8;
-  int tile_y = scanline_ / 8;
+  int tile_x = x / 8;
+  int tile_y = y / 8;
   int tile_num = (tile_y * 32) + tile_x;
   int nametable_byte = nametable_[table_num][tile_num];
 
   // Grab the pattern from the pattern table.
-  int pattern_index = (nametable_byte * 16) + (scanline_ % 8);
-  int pattern_shift = 7 - (cycle_ % 8);
+  int pattern_index = (nametable_byte * 16) + (y % 8);
+  int pattern_shift = 7 - (x % 8);
   uint8_t pattern_low = pattern_[pattern_table_num][pattern_index];
   uint8_t pattern_high = pattern_[pattern_table_num][pattern_index + 8];
   uint8_t pattern = ((pattern_high >> pattern_shift) & 0x01) << 1 |
                     ((pattern_low >> pattern_shift) & 0x01);
 
   // Grab the byte from the attribute table.
-  int block_x = cycle_ / 32;
-  int block_y = scanline_ / 32;
+  int block_x = x / 32;
+  int block_y = y / 32;
   int block_num = (block_y * 8) + block_x;
   int attribute_byte = attribute_[table_num][block_num];
 
