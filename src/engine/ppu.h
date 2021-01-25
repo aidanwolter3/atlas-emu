@@ -52,10 +52,9 @@ class PpuImpl : public Ppu, public Peripheral {
   BackgroundPixel GetBackgroundPixel();
 
   struct SpritePixel {
-    bool valid = false;
+    bool valid;
     bool in_background;
     bool is_sprite_zero;
-    uint8_t color_num;
     uint8_t r;
     uint8_t g;
     uint8_t b;

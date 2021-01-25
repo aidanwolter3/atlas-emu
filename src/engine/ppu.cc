@@ -294,8 +294,7 @@ void PpuImpl::RenderPixel() {
   frame_[frame_index + 2] = 0;
 
   // Draw the sprite, if one is present, and is not hidden in the background.
-  if (mask_ & 0x10 && sp.valid && sp.color_num != 0 &&
-      (!sp.in_background || bg.color_num == 0)) {
+  if (mask_ & 0x10 && sp.valid && (!sp.in_background || bg.color_num == 0)) {
     frame_[frame_index] = sp.r;
     frame_[frame_index + 1] = sp.g;
     frame_[frame_index + 2] = sp.b;
@@ -308,8 +307,7 @@ void PpuImpl::RenderPixel() {
     frame_[frame_index + 2] = bg.b;
   }
 
-  if (!sprite_0_hit_ && sp.valid && sp.is_sprite_zero && sp.color_num != 0 &&
-      bg.color_num != 0) {
+  if (!sprite_0_hit_ && sp.valid && sp.is_sprite_zero && bg.color_num != 0) {
     sprite_0_hit_ = true;
   }
 }
@@ -363,64 +361,70 @@ PpuImpl::BackgroundPixel PpuImpl::GetBackgroundPixel() {
 }
 
 PpuImpl::SpritePixel PpuImpl::GetSpritePixel() {
-  int x = 0;
-  int y = 0;
   int sprite_height = (ctrl_ & 0x20) ? 16 : 8;
 
-  // Select the first sprite that is within range, and find the number as well
-  // as the x/y coordinates within the tile.
+  // Select the first sprite that is within range with a non-zero pixel, and
+  // fetch the number, attribute, and pattern.
   int sprite_num;
+  uint8_t sprite_attribute;
+  uint8_t pattern;
   for (sprite_num = 0; sprite_num < 64; ++sprite_num) {
     uint8_t sprite_x = oam_[(sprite_num * 4) + 3];
     uint8_t sprite_y = oam_[sprite_num * 4] + 1;
 
-    if ((scanline_ >= sprite_y && scanline_ < sprite_y + sprite_height) &&
-        (cycle_ >= sprite_x && cycle_ < sprite_x + 8)) {
-      x = cycle_ - sprite_x;
-      y = scanline_ - sprite_y;
+    // The sprite is not within range, so skip.
+    if (scanline_ < sprite_y || scanline_ >= sprite_y + sprite_height ||
+        cycle_ < sprite_x || cycle_ >= sprite_x + 8) {
+      continue;
+    }
+
+    // Find the tile and attribute for the sprite.
+    uint8_t sprite_tile = oam_[(sprite_num * 4) + 1];
+    sprite_attribute = oam_[(sprite_num * 4) + 2];
+
+    // Calculate the pattern table number.
+    int pattern_table_num = (ctrl_ >> 2) & 0x01;
+    if (ctrl_ & 0x20) {
+      // 16-bit sprites get their table num from the first bit of the tile
+      // number.
+      pattern_table_num = (sprite_tile & 0x01);
+      sprite_tile = sprite_tile >> 1;
+    }
+
+    int x = cycle_ - sprite_x;
+    if (sprite_attribute & 0x40) {
+      // Adjust for horizontal flip.
+      x = 7 - x;
+    }
+
+    int y = scanline_ - sprite_y;
+    if (sprite_attribute & 0x80) {
+      // Adjust for vertical flip.
+      y = 15 - y;
+    }
+
+    // Calculate the index into the pattern table.
+    int pattern_index = (sprite_tile * 2 * sprite_height) + y;
+    if (y >= 8) {
+      // Adjust for 16-bit sprites.
+      pattern_index += 8;
+    }
+
+    int pattern_shift = 7 - x;
+    uint8_t pattern_low = pattern_[pattern_table_num][pattern_index];
+    uint8_t pattern_high = pattern_[pattern_table_num][pattern_index + 8];
+    pattern = ((pattern_high >> pattern_shift) & 0x01) << 1 |
+              ((pattern_low >> pattern_shift) & 0x01);
+
+    if (pattern != 0) {
       break;
     }
   }
 
   // No sprites found, so return.
   if (sprite_num >= 64) {
-    return {};
+    return {.valid = false};
   }
-
-  // Find the tile and attribute for the sprite.
-  uint8_t sprite_tile = oam_[(sprite_num * 4) + 1];
-  uint8_t sprite_attribute = oam_[(sprite_num * 4) + 2];
-
-  // Adjust for horizontal flip.
-  if (sprite_attribute & 0x40) {
-    x = 7 - x;
-  }
-
-  // Adjust for vertical flip.
-  if (sprite_attribute & 0x80) {
-    y = 15 - y;
-  }
-
-  // Calculate the pattern table number.
-  int pattern_table_num = (ctrl_ >> 2) & 0x01;
-  if (ctrl_ & 0x20) {
-    // 16-bit sprites get their table num from the first bit of the tile number.
-    pattern_table_num = (sprite_tile & 0x01);
-    sprite_tile = sprite_tile >> 1;
-  }
-
-  // Calculate the index into the pattern table.
-  int pattern_index = (sprite_tile * 2 * sprite_height) + y;
-  if (y >= 8) {
-    // Adjust for 16-bit sprites.
-    pattern_index += 8;
-  }
-
-  int pattern_shift = 7 - x;
-  uint8_t pattern_low = pattern_[pattern_table_num][pattern_index];
-  uint8_t pattern_high = pattern_[pattern_table_num][pattern_index + 8];
-  uint8_t pattern = ((pattern_high >> pattern_shift) & 0x01) << 1 |
-                    ((pattern_low >> pattern_shift) & 0x01);
 
   int frame_palette_index = ((sprite_attribute & 0x03) + 4) * 4;
   int color_num = frame_palette_[frame_palette_index + pattern];
@@ -431,7 +435,6 @@ PpuImpl::SpritePixel PpuImpl::GetSpritePixel() {
       .valid = true,
       .in_background = in_background,
       .is_sprite_zero = sprite_num == 0,
-      .color_num = pattern,
       .r = kColorPalette[color_index],
       .g = kColorPalette[color_index + 1],
       .b = kColorPalette[color_index + 2],
