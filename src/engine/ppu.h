@@ -43,6 +43,24 @@ class PpuImpl : public Ppu, public Peripheral {
   // Draws the pixel at the current |cycle_| and |scanline_| to |frame_|.
   void RenderPixel();
 
+  struct BackgroundPixel {
+    uint8_t color_num;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+  };
+  BackgroundPixel GetBackgroundPixel();
+
+  struct SpritePixel {
+    bool valid = false;
+    bool in_background;
+    uint8_t color_num;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+  };
+  SpritePixel GetSpritePixel();
+
   // Tracks the current state of the PPU's ticks. Whether in vlank or drawing
   // pixels.
   int cycle_ = 0;

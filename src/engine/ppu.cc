@@ -283,6 +283,24 @@ void PpuImpl::RenderPixel() {
     return;
   }
 
+  auto bg = GetBackgroundPixel();
+  auto sp = GetSpritePixel();
+
+  int frame_index = ((scanline_ * 0x100) + cycle_) * 3;
+
+  if (sp.valid && sp.color_num != 0 &&
+      (!sp.in_background || bg.color_num == 0)) {
+    frame_[frame_index] = sp.r;
+    frame_[frame_index + 1] = sp.g;
+    frame_[frame_index + 2] = sp.b;
+  } else {
+    frame_[frame_index] = bg.r;
+    frame_[frame_index + 1] = bg.g;
+    frame_[frame_index + 2] = bg.b;
+  }
+}
+
+PpuImpl::BackgroundPixel PpuImpl::GetBackgroundPixel() {
   // Calculate the x/y offset into the table.
   int x = (scroll_x_ + cycle_) % 0x100;
   int y = (scroll_y_ + scanline_) % 0xF0;
@@ -291,7 +309,6 @@ void PpuImpl::RenderPixel() {
   nametable += (((scroll_x_ + cycle_) % 0x200) / 0x100);
   nametable += (((scroll_y_ + scanline_) % 0x1E0) / 0xF0) * 2;
 
-  // TODO: fix the base nametable and index for scroll.
   int table_num = AdjustTableNumForMirroring(nametable, mirroring_mode_);
   int pattern_table_num = (ctrl_ >> 4) & 0x01;
 
@@ -323,9 +340,85 @@ void PpuImpl::RenderPixel() {
   int color_num = frame_palette_[frame_palette_index + pattern];
   int color_index = color_num * 3;
 
-  // Write the color to the frame.
-  int frame_index = ((scanline_ * 0x100) + cycle_) * 3;
-  for (int i = 0; i < 3; ++i) {
-    frame_[frame_index + i] = kColorPalette[color_index + i];
+  return {
+      .color_num = pattern,
+      .r = kColorPalette[color_index],
+      .g = kColorPalette[color_index + 1],
+      .b = kColorPalette[color_index + 2],
+  };
+}
+
+PpuImpl::SpritePixel PpuImpl::GetSpritePixel() {
+  int x = 0;
+  int y = 0;
+  int sprite_height = (ctrl_ & 0x20) ? 16 : 8;
+
+  // Select the first sprite that is within range, and find the number as well
+  // as the x/y coordinates within the tile.
+  int sprite_num;
+  for (sprite_num = 0; sprite_num < 64; ++sprite_num) {
+    uint8_t sprite_x = oam_[(sprite_num * 4) + 3];
+    uint8_t sprite_y = oam_[sprite_num * 4] + 1;
+
+    if ((scanline_ >= sprite_y && scanline_ < sprite_y + sprite_height) &&
+        (cycle_ >= sprite_x && cycle_ < sprite_x + 8)) {
+      x = cycle_ - sprite_x;
+      y = scanline_ - sprite_y;
+      break;
+    }
   }
+
+  // No sprites found, so return.
+  if (sprite_num >= 64) {
+    return {};
+  }
+
+  // Find the tile and attribute for the sprite.
+  uint8_t sprite_tile = oam_[(sprite_num * 4) + 1];
+  uint8_t sprite_attribute = oam_[(sprite_num * 4) + 2];
+
+  // Adjust for horizontal flip.
+  if (sprite_attribute & 0x40) {
+    x = 7 - x;
+  }
+
+  // Adjust for vertical flip.
+  if (sprite_attribute & 0x80) {
+    y = 15 - y;
+  }
+
+  // Calculate the pattern table number.
+  int pattern_table_num = (ctrl_ >> 2) & 0x01;
+  if (ctrl_ & 0x20) {
+    // 16-bit sprites get their table num from the first bit of the tile number.
+    pattern_table_num = (sprite_tile & 0x01);
+    sprite_tile = sprite_tile >> 1;
+  }
+
+  // Calculate the index into the pattern table.
+  int pattern_index = (sprite_tile * 2 * sprite_height) + y;
+  if (y >= 8) {
+    // Adjust for 16-bit sprites.
+    pattern_index += 8;
+  }
+
+  int pattern_shift = 7 - x;
+  uint8_t pattern_low = pattern_[pattern_table_num][pattern_index];
+  uint8_t pattern_high = pattern_[pattern_table_num][pattern_index + 8];
+  uint8_t pattern = ((pattern_high >> pattern_shift) & 0x01) << 1 |
+                    ((pattern_low >> pattern_shift) & 0x01);
+
+  int frame_palette_index = ((sprite_attribute & 0x03) + 4) * 4;
+  int color_num = frame_palette_[frame_palette_index + pattern];
+  int color_index = color_num * 3;
+
+  bool in_background = (sprite_attribute & 0x20) ? true : false;
+  return {
+      .valid = true,
+      .in_background = in_background,
+      .color_num = pattern,
+      .r = kColorPalette[color_index],
+      .g = kColorPalette[color_index + 1],
+      .b = kColorPalette[color_index + 2],
+  };
 }
