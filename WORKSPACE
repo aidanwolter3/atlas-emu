@@ -29,9 +29,9 @@ http_archive(
 # Rule repository for building CMake dependencies.
 http_archive(
    name = "rules_foreign_cc",
-   urls = ["https://github.com/bazelbuild/rules_foreign_cc/archive/master.zip"],
-   sha256 = "3e6b0691fc57db8217d535393dcc2cf7c1d39fc87e9adb6e7d7bab1483915110",
-   strip_prefix = "rules_foreign_cc-master",
+   urls = ["https://github.com/bazelbuild/rules_foreign_cc/archive/refs/tags/0.0.9.tar.gz"],
+   sha256 = "2ee852bed780ac1bf1fb2a4fb845e3705f53b0182d8d3fdb3351bf80a5e3f002",
+   strip_prefix = "rules_foreign_cc-0.0.9",
 )
 
 # Initialize the CMake dependencies.
