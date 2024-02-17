@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"],)
 
-load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
+load("@rules_foreign_cc//foreign_cc:cmake.bzl", "cmake")
 
 filegroup(
     name = "glm_files",
@@ -17,12 +17,12 @@ cc_library(
     ]),
 )
 
-cmake_external(
+cmake(
     name = "glm",
     lib_source = ":glm_files",
-    static_libraries = ["libglm_static.a"],
+    out_static_libs = ["libglm_static.a"],
     out_lib_dir = "",
-    make_commands = ["make"],
+    install = False,
     cache_entries = {
         "GLM_TEST_ENABLE": "OFF",
         "BUILD_STATIC_LIBS": "ON"

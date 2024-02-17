@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"],)
 
-load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
+load("@rules_foreign_cc//foreign_cc:cmake.bzl", "cmake")
 
 filegroup(
     name = "glfw_files",
@@ -41,10 +41,10 @@ config_setting(
     ],
 )
 
-cmake_external(
+cmake(
     name = "glfw",
     lib_source = ":glfw_files",
-    static_libraries = ["libglfw3.a"],
+    out_static_libs = ["libglfw3.a"],
     cache_entries = {
         "GLFW_BUILD_TESTS": "OFF",
         "GLFW_BUILD_DOCS": "OFF",
